@@ -1,8 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, LogIn } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SplitScreen } from "../components/SplitScreen";
-import { buttonVariants } from "@/components/ui/button";
-import { Or } from "@/components/ui/ui";
 
 export function Index() {
   return (

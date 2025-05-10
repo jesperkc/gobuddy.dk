@@ -4,8 +4,6 @@ import { SplitScreen } from "../components/SplitScreen";
 import { useOnboardingStore } from "../store/onboarding";
 import { required, useForm } from "@modular-forms/react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { TextInput } from "@/components/form/TextInput";
 
 type DetailsForm = {
@@ -17,7 +15,7 @@ export function Details() {
   const navigate = useNavigate();
   const { name, age, setName, setAge } = useOnboardingStore();
 
-  const [detailsForm, { Form, Field }] = useForm<DetailsForm>({
+  const [, { Form, Field }] = useForm<DetailsForm>({
     // validate: zodForm(detailsSchema),
     initialValues: {
       name: name,
@@ -42,7 +40,8 @@ export function Details() {
                 {...props}
                 value={field.value}
                 error={field.error}
-                type="email"
+                type="text"
+                id="details-name"
                 label="Hvad er dit navn?"
                 placeholder="Indtast et navn"
                 required
@@ -50,11 +49,7 @@ export function Details() {
             )}
           </Field>
 
-          <Field
-            name="age"
-            type="number"
-            validate={[required("Indtast venligst din alder")]}
-          >
+          <Field name="age" type="number" validate={[required("Indtast venligst din alder")]}>
             {(field, props) => (
               <TextInput
                 {...props}
@@ -69,11 +64,7 @@ export function Details() {
           </Field>
 
           <div className="flex justify-end">
-            <Button
-              type="button"
-              variant={"secondary"}
-              onClick={() => navigate({ to: "/" })}
-            >
+            <Button type="button" variant={"secondary"} onClick={() => navigate({ to: "/" })}>
               Tilbage
             </Button>
             <Button type="submit" className="ml-auto">

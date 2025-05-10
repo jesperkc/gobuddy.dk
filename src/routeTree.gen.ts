@@ -45,7 +45,7 @@ const signupRoute = createRoute({
   component: Signup,
 });
 
-const conformEmailRoute = createRoute({
+const confirmEmailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/confirm-email",
   component: ConfirmEmail,
@@ -64,6 +64,6 @@ export const routeTree = rootRoute.addChildren([
   interestsRoute,
   locationRoute,
   signupRoute,
-  conformEmailRoute,
+  confirmEmailRoute,
   completedRoute,
 ]);

@@ -2,27 +2,67 @@ import { useNavigate } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { SplitScreen } from "../components/SplitScreen";
 import { useOnboardingStore } from "../store/onboarding";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { Button } from "@/components/ui/button";
+
+export interface SignupRequestData {
+  email: string;
+  password: string;
+  options: {
+    data: {
+      first_name: string;
+      age: number;
+      coordinates: string | null;
+      postcode: string;
+      city: string;
+      country: string;
+      country_code: string;
+      longitude?: number;
+      latitude?: number;
+      interests: string[];
+      newsletter: boolean;
+    };
+    emailRedirectTo: string;
+  };
+}
 
 export function Signup() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const {
-    age,
-    name,
-    coordinates,
-    interests,
-    address,
-    email,
-    password,
-    newsletter,
-    setEmail,
-    setPassword,
-    setNewsletter,
-  } = useOnboardingStore();
+  const { age, name, coordinates, interests, address, email, password, newsletter, setEmail, setPassword, setNewsletter } =
+    useOnboardingStore();
+
+  const signupObject = useMemo<SignupRequestData>(() => {
+    const obj = {
+      email,
+      password,
+      options: {
+        data: {
+          first_name: name,
+          age,
+          coordinates: coordinates ? `POINT(${coordinates.lat} ${coordinates.lng})` : null,
+          postcode: address.postcode,
+          city: address.city,
+          country: address.country,
+          country_code: address.country_code,
+          longitude: coordinates?.lng,
+          latitude: coordinates?.lat,
+          interests,
+          newsletter,
+        },
+        emailRedirectTo: `${location.protocol}//${location.host}/complete`, // you will have to make the project part dynamic in whichever way the framework you are using allows you to do this.
+      },
+    };
+
+    // Expose signupObject for testing purposes
+    if (typeof window !== "undefined") {
+      window.__TEST_SIGNUP_OBJECT__ = obj;
+    }
+
+    return obj;
+  }, [email, password, name, age, coordinates, address, interests, newsletter]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,28 +70,7 @@ export function Signup() {
     setIsLoading(true);
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            first_name: name,
-            age,
-            coordinates: coordinates
-              ? `POINT(${coordinates.lat} ${coordinates.lng})`
-              : null,
-            postcode: address.postcode,
-            city: address.city,
-            country: address.country,
-            country_code: address.country_code,
-            longitude: coordinates?.lng,
-            latitude: coordinates?.lat,
-            interests,
-            newsletter,
-          },
-          emailRedirectTo: `${location.protocol}//${location.host}/complete`, // you will have to make the project part dynamic in whichever way the framework you are using allows you to do this.
-        },
-      });
+      const { data, error: signUpError } = await supabase.auth.signUp(signupObject);
 
       if (signUpError) throw signUpError;
       console.log("data", data);
@@ -69,17 +88,10 @@ export function Signup() {
     <SplitScreen>
       <div>
         <h1 className="text-2xl font-bold mb-6">Opret din konto</h1>
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">
-            {error}
-          </div>
-        )}
+        {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
         <form onSubmit={handleSignup} className="space-y-6">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               Email
             </label>
             <input
@@ -92,10 +104,7 @@ export function Signup() {
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
               Adgangskode
             </label>
             <input
@@ -125,13 +134,7 @@ export function Signup() {
               </label>
             </div>
           </div>
-          <Button
-            type="submit"
-            disabled={isLoading}
-            variant={"glow"}
-            size={"xl"}
-            className="w-full"
-          >
+          <Button type="submit" disabled={isLoading} variant={"glow"} size={"xl"} className="w-full">
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

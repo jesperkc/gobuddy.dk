@@ -1,8 +1,4 @@
-import {
-  ReadonlySignal,
-  useSignal,
-  useSignalEffect,
-} from "@preact/signals-react";
+import { ReadonlySignal, useSignal, useSignalEffect } from "@preact/signals-react";
 import clsx from "clsx";
 import { ChangeEventHandler, FocusEventHandler, forwardRef } from "react";
 import { Label } from "../ui/label";
@@ -20,6 +16,7 @@ type TextInputProps = {
   required?: boolean;
   className?: string;
   label?: string;
+  id?: string;
   error?: ReadonlySignal<string>;
 };
 
@@ -27,20 +24,20 @@ type TextInputProps = {
  * Text input field that users can type into. Various decorations can be
  * displayed in or around the field to communicate the entry requirements.
  */
-export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
-  ({ className, label, value, error, ...props }, ref) => {
-    const { name, required } = props;
-    const input = useSignal<string | number>("");
-    useSignalEffect(() => {
-      if (!Number.isNaN(value.value)) {
-        input.value = value.value === undefined ? "" : value.value;
-      }
-    });
-    return (
-      <div className={clsx("space-y-2", className)}>
-        {label && <Label htmlFor={name}>{label}</Label>}
-        <Input {...props} />
-        {/* <input
+export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(({ className, label, value, error, ...props }, ref) => {
+  const { name, required, id } = props;
+  const inputId = id ?? `input-${name}`;
+  const input = useSignal<string | number>("");
+  useSignalEffect(() => {
+    if (!Number.isNaN(value.value)) {
+      input.value = value.value === undefined ? "" : value.value;
+    }
+  });
+  return (
+    <div className={clsx("space-y-2", className)}>
+      {label && <Label htmlFor={inputId}>{label}</Label>}
+      <Input id={inputId} {...props} />
+      {/* <input
           {...props}
           ref={ref}
           className={clsx(
@@ -55,8 +52,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           aria-errormessage={`${name}-error`}
           required
         /> */}
-        {error && <p className="text-sm text-red-600">{error}</p>}
-      </div>
-    );
-  }
-);
+      {error && <p className="text-sm text-red-600">{error}</p>}
+    </div>
+  );
+});

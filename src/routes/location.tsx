@@ -26,7 +26,6 @@ interface SearchResult {
 export function Location() {
   const navigate = useNavigate();
   const { setAddress, setCoordinates, coordinates } = useOnboardingStore();
-  // const [coords, setCoords] = useState<[number, number]>([40, 0]);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -42,9 +41,7 @@ export function Location() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          // setCoords([latitude, longitude]);
           setCoordinates({ lat: latitude, lng: longitude });
-          // setLocation("Location detected");
           getAddress({ lat: latitude, lng: longitude });
           setIsLocating(false);
         },
@@ -125,14 +122,12 @@ export function Location() {
       result.address.village ||
       "";
     setAddress({
-      ...location,
       postcode: result.address.postcode,
       city: cityName,
       country: result.address.country,
       country_code: result.address.country_code,
     });
     setSearchQuery(cityName);
-    // setCoords([parseFloat(result.lat), parseFloat(result.lon)]);
     setCoordinates({
       lat: parseFloat(result.lat),
       lng: parseFloat(result.lon),
@@ -168,12 +163,6 @@ export function Location() {
               </>
             )}
           </Button>
-          {/* <button
-
-            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-
-          </button> */}
 
           {locationError && (
             <div className="text-red-600 text-sm">{locationError}</div>
@@ -192,15 +181,6 @@ export function Location() {
                   autoComplete="off"
                   icon={<Search />}
                 />
-                {/* <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={handleSearchInputChange}
-                  onFocus={() => setShowSuggestions(true)}
-                  placeholder="Søg efter din by"
-                  autoComplete="off"
-                /> */}
                 {isSearching && (
                   <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 animate-spin text-gray-400" />
                 )}
@@ -240,12 +220,7 @@ export function Location() {
               >
                 Tilbage
               </Button>
-              <Button
-                type="submit"
-                disabled={!coordinates}
-                onClick={() => navigate({ to: "/location" })}
-                className="ml-auto"
-              >
+              <Button type="submit" disabled={!coordinates} className="ml-auto">
                 Videre
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
