@@ -2,12 +2,17 @@
 
 ## Current Focus
 
-The current focus is on establishing a Memory Bank for the GoBuddy project to maintain context and track progress throughout development.
+The current focus is on fixing code issues and improving code quality in the GoBuddy project.
 
 ## Recent Changes
 
 - Created Memory Bank structure
 - Documented project overview and technical stack
+- Fixed unused variable warning in details.tsx
+- Corrected input type for name field in details.tsx
+- [2025-05-03 17:25:00] - Fixed code issues in the Details component
+- [2025-05-09 19:09:00] - Fixed multiple code issues across location.tsx, login.tsx, and routeTree.gen.ts
+- [2025-05-09 19:18:00] - Added Playwright tests for the signup flow
 
 ## Open Questions/Issues
 
