@@ -31,11 +31,3 @@ export function Index() {
     </SplitScreen>
   );
 }
-
-// export const Route = createRoute({
-//   getParentRoute: () => rootRoute,
-//   path: '/',
-//   beforeLoad: () => {
-//     throw redirect({ to: '/welcome' });
-//   },
-// });

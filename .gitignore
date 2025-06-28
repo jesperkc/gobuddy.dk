@@ -7,7 +7,19 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+.pnp
+.pnp.js
+
+# Testing
+coverage
+test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Production
 dist
 dist-ssr
 *.local
@@ -15,6 +27,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
 .DS_Store
 *.suo
@@ -22,3 +35,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Vite
+.vite/
+
+# TypeScript
+*.tsbuildinfo
