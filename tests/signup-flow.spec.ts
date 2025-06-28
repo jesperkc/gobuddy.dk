@@ -89,9 +89,10 @@ test.describe("GoBuddy Signup Flow", () => {
     await expect(page.locator("h1")).toContainText("Hvad er dine interesser?");
 
     // Select at least one interest
-    const testInterests = ["Technology", "Music"];
-    await page.getByText(testInterests[0]).click();
-    await page.getByText(testInterests[1]).click();
+    const testInterests = ["Klatring"];
+    testInterests.forEach(async (interest) => {
+      await page.getByText(interest).click();
+    });
 
     // Click "Videre" button
     await page.getByRole("button", { name: "Videre" }).click();

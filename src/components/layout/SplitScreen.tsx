@@ -1,4 +1,4 @@
-import Logo from "../assets/gobuddy-logo.svg?react";
+import { Logo } from "@/components/layout/Logo";
 import { getRandomQuote } from "@/lib/helpers";
 import { Link } from "@tanstack/react-router";
 import React from "react";
@@ -25,9 +25,7 @@ export function SplitScreen({ children, image }: SplitScreenProps) {
       >
         <div className="absolute inset-0 flex lg:items-end justify-center p-4 sm:p-6 lg:p-8">
           <blockquote className="text-white max-w-lg">
-            <p className="text-xl sm:text-2xl font-light italic mb-3 sm:mb-4">
-              "{quote.text}"
-            </p>
+            <p className="text-xl sm:text-2xl font-light italic mb-3 sm:mb-4">"{quote.text}"</p>
             <footer className="text-base sm:text-lg">— {quote.author}</footer>
           </blockquote>
         </div>

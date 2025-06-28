@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LogIn } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
+import { SplitScreen } from "../components/layout/SplitScreen";
 import { Button } from "@/components/ui/button";
 import { email, minLength, required, useForm } from "@modular-forms/react";
 import { TextInput } from "@/components/form/TextInput";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 type LoginForm = {
   email: string;
@@ -15,16 +15,9 @@ type LoginForm = {
 export function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
-  const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const { login } = useAuth();
 
   const [, { Form, Field }] = useForm<LoginForm>();
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      navigate({ to: "/" });
-    }
-  }, [isAuthenticated, authLoading, navigate]);
 
   const handleSubmit = async (values: LoginForm) => {
     setError("");
@@ -34,7 +27,7 @@ export function Login() {
     if (error) {
       setError(error.message);
     } else {
-      navigate({ to: "/" });
+      navigate({ to: "/profile" });
     }
   };
 

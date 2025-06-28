@@ -1,10 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
+import { SplitScreen } from "../components/layout/SplitScreen";
 import { useOnboardingStore } from "../store/onboarding";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 export interface SignupRequestData {
   email: string;
@@ -60,7 +60,7 @@ export function Signup() {
           interests,
           newsletter,
         },
-        emailRedirectTo: `${location.protocol}//${location.host}/complete`, // you will have to make the project part dynamic in whichever way the framework you are using allows you to do this.
+        emailRedirectTo: `${location.protocol}//${location.host}/completed`, // you will have to make the project part dynamic in whichever way the framework you are using allows you to do this.
       },
     };
 
@@ -79,6 +79,8 @@ export function Signup() {
 
     try {
       const { error: signUpError, user } = await signup(signupObject);
+
+      console.log("Signup response:", { signUpError, user });
 
       if (signUpError) throw signUpError;
 

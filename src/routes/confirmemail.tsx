@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { MailCheck } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
+import { SplitScreen } from "../components/layout/SplitScreen";
 import { useOnboardingStore } from "../store/onboarding";
 import { supabase } from "../lib/supabase";
 import { useEffect } from "react";
@@ -26,9 +26,7 @@ export function ConfirmEmail() {
             <MailCheck />
           </div>
         </div>
-        <p className="mt-4 text-gray-600">
-          Check your inbox to confirm your email address ({email})
-        </p>
+        <p className="mt-4 text-gray-600">Check your inbox to confirm your email address ({email})</p>
       </div>
     </SplitScreen>
   );

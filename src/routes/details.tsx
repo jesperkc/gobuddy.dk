@@ -1,6 +1,6 @@
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
+import { SplitScreen } from "../components/layout/SplitScreen";
 import { useOnboardingStore } from "../store/onboarding";
 import { required, useForm } from "@modular-forms/react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export function Details() {
   const handleSubmit = (values: DetailsForm) => {
     setName(values.name);
     setAge(values.age);
-    navigate({ to: "/interests" });
+    navigate({ to: "/signup/interests" });
   };
 
   return (

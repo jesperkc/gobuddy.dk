@@ -12,9 +12,9 @@ h6 {
 }
 
 @layer base {
-  a {
+  /* a {
     color: #00ae43;
-  }
+  } */
 }
 
 .leaflet-container {
@@ -141,14 +141,7 @@ h6 {
     border-radius: inherit;
     filter: blur(1px);
     opacity: 1;
-    background: linear-gradient(
-      to left,
-      #27d489,
-      #2d7bc4,
-      #6501de,
-      #2d7bc4,
-      #27d489
-    );
+    background: linear-gradient(to left, #27d489, #2d7bc4, #6501de, #2d7bc4, #27d489);
     background-size: 200% 200%;
     transition: filter 200ms, opacity 200ms, transform 200ms ease-in-out;
     animation: animateGlow 1.5s linear infinite;

@@ -36,7 +36,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(({ classNa
   return (
     <div className={clsx("space-y-2", className)}>
       {label && <Label htmlFor={inputId}>{label}</Label>}
-      <Input id={inputId} {...props} />
+      <Input id={inputId} value={value.value} {...props} />
       {/* <input
           {...props}
           ref={ref}

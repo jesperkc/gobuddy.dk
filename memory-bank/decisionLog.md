@@ -117,3 +117,101 @@ This document tracks significant architectural and design decisions made during 
 - Enhanced security with consistent authentication checks
 - Easier implementation of protected routes and conditional rendering based on auth state
 - Better integration with Supabase authentication
+
+### [2025-05-11 00:48:00] - Moved Authentication Logic to Route Component
+
+**Decision**: Moved authentication logic from a dedicated context file (AuthContext.tsx) to the route component (\_authed.tsx) that handles authenticated routes.
+
+**Rationale**: Integrating authentication directly with the route structure improves code organization by co-locating related functionality. This approach aligns better with the TanStack Router architecture, which already provides context and routing capabilities that can be leveraged for authentication.
+
+**Implications**:
+
+- Improved code organization with authentication logic closer to where it's used
+- Better integration with TanStack Router's route structure
+- Simplified route protection by making profile route a child of the authenticated route
+- Maintained backward compatibility through re-exports from the original location
+- Reduced complexity by eliminating separate authentication checks in individual components
+
+### [2025-05-11 19:19:09] - Added Responsive Navigation Bar
+
+**Decision**: Implemented a responsive navigation bar with a logo placeholder on the left and a profile dropdown on the right.
+
+**Rationale**: A consistent navigation bar improves user experience by providing easy access to key features and profile management. The responsive design ensures usability across different device sizes, with a hamburger menu for mobile devices and expanded navigation for desktop.
+
+**Implications**:
+
+- Improved user experience with consistent navigation across the application
+- Enhanced mobile usability with a responsive design that adapts to different screen sizes
+- Better integration with the authentication system, showing different UI based on login state
+- Established a pattern for future UI components that need to be responsive
+
+### [2025-05-12 18:00:29] - Migrated Interests Data from Hardcoded Array to Supabase
+
+**Decision**: Replaced the hardcoded interests array in the Interests component with data fetched from Supabase.
+
+**Rationale**: Fetching interests from the database allows for centralized management of available interests, making it easier to add, remove, or modify interests without changing the codebase. This approach also aligns with the application's overall architecture of using Supabase as the backend service.
+
+**Implications**:
+
+- Improved maintainability as interests can be managed through the database
+- Added loading state and error handling to handle asynchronous data fetching
+- Consistent data structure across the application
+- Potential for future features like personalized interest recommendations or interest categories
+- Slight increase in initial load time due to the network request
+- Simplified access to the profile page and logout functionality
+
+### [2025-06-25 12:37:00] - Optimized Profile Data Fetching with Unified API Call
+
+**Decision**: Combined two separate API calls (profile data and user interests) into a single unified Supabase query in the Profile component.
+
+**Rationale**: The original implementation made two separate database calls:
+
+1. Fetching profile data from the `profiles` table
+2. Fetching user interests from `user_interests` joined with `interests` table
+
+This approach was inefficient as it required two network round trips and two separate database queries. By utilizing Supabase's relational query capabilities, we can fetch both datasets in a single API call using nested select statements.
+
+**Implementation**:
+
+- Created a new `fetchProfileWithInterests()` function that uses a single query with nested selects
+- Replaced the separate `fetchUserInterests()` function
+- Updated the component's useEffect to use the unified approach
+- Maintained the same error handling and loading states
+- Preserved all existing functionality from a user perspective
+
+**Implications**:
+
+- **Performance**: Reduced from 2 API calls to 1, decreasing network latency and improving load times
+- **Database Efficiency**: Single query instead of two separate queries reduces database load
+- **Code Maintainability**: Simpler data fetching logic with unified error handling
+- **User Experience**: Faster profile page loading, especially on slower connections
+- **Scalability**: Better resource utilization as the application grows
+
+### [2025-06-25 12:50:00] - Implemented Tabbed Profile Editing Interface
+
+**Decision**: Created a comprehensive tabbed profile editing page that allows users to modify their personal details, interests, and location information separately.
+
+**Rationale**: The profile editing functionality was implemented as a separate route (`/profile/edit`) rather than inline editing on the main profile page to provide:
+
+1. **Clear separation of concerns** between viewing and editing modes
+2. **Better user experience** with dedicated editing interface that doesn't clutter the main profile view
+3. **Reusability** of existing onboarding components and patterns
+4. **Consistent UI/UX** by adapting existing form components, validation, and styling patterns
+
+**Implementation Details**:
+
+- **Component Reuse**: Adapted existing components from `details.tsx`, `interests.tsx`, and `location.tsx` to maintain consistency
+- **Data Management**: Reused the unified `fetchProfileWithInterests()` function for efficient data fetching
+- **Form Handling**: Used `@modular-forms/react` for validation following existing patterns
+- **State Management**: Implemented local state for each tab's editing data with proper loading and error states
+- **Database Operations**: Individual save functions for each tab to allow granular updates
+- **Routing**: Added protected route with authentication checks consistent with other authenticated pages
+
+**Implications**:
+
+- **Improved User Experience**: Users can edit their profile information in organized, focused tabs
+- **Maintainability**: Consistent patterns make the code easier to understand and maintain
+- **Scalability**: Tabbed structure allows for easy addition of new profile sections in the future
+- **Performance**: Individual save operations reduce unnecessary database updates
+- **Mobile Responsiveness**: Horizontal scrolling tabs work well on mobile devices
+- **Accessibility**: Clear navigation and form structure improve accessibility

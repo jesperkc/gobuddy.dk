@@ -1,31 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
-import { Button } from "@/components/ui/button";
-import { Link } from "@tanstack/react-router";
-import { User, LogIn } from "lucide-react";
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { SplitScreen } from "../components/layout/SplitScreen";
 
 export function Index() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        setIsLoggedIn(!!data.session);
-      } catch (error) {
-        console.error("Error checking auth status:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
-
   return (
     <SplitScreen>
       <div className="">
@@ -39,7 +16,7 @@ export function Index() {
         </p>
         <div className="space-y-4">
           <Link
-            to="/details"
+            to="/signup/details"
             className="glow-button w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-colors bg-black text-white"
           >
             Start nu
