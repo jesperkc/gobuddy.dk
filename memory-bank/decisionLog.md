@@ -89,3 +89,31 @@ This document tracks significant architectural and design decisions made during 
 - Open-source solution without API usage limits
 - Customizable map experience
 - Integration with OpenStreetMap for geocoding
+
+### [2025-05-10 15:21:00] - Added User Profile Page
+
+**Decision**: Implemented a user profile page to display user information and provide account management functionality.
+
+**Rationale**: A profile page is essential for users to view and manage their account information. It enhances the user experience by providing a central location for users to see their personal data and access account-related actions like signing out.
+
+**Implications**:
+
+- Improved user experience with access to personal information
+- Enhanced application navigation with links to the profile from multiple locations
+- Added authentication checks to protect user data
+- Established a pattern for future user account management features
+
+### [2025-05-10 16:00:00] - Implemented Centralized Authentication Context
+
+**Decision**: Created an AuthContext and AuthProvider to centralize authentication logic across the application.
+
+**Rationale**: A centralized authentication system improves code maintainability by removing duplicate authentication logic from individual components. It provides a consistent way to access user authentication state and authentication-related functions throughout the application.
+
+**Implications**:
+
+- Reduced code duplication by centralizing authentication logic
+- Improved state management for user authentication
+- Simplified component code by abstracting authentication details
+- Enhanced security with consistent authentication checks
+- Easier implementation of protected routes and conditional rendering based on auth state
+- Better integration with Supabase authentication

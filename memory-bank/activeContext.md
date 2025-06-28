@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-The current focus is on fixing code issues and improving code quality in the GoBuddy project.
+The current focus is on enhancing the user experience by implementing a centralized authentication system and improving the profile page functionality in the GoBuddy project.
 
 ## Recent Changes
 
@@ -13,6 +13,8 @@ The current focus is on fixing code issues and improving code quality in the GoB
 - [2025-05-03 17:25:00] - Fixed code issues in the Details component
 - [2025-05-09 19:09:00] - Fixed multiple code issues across location.tsx, login.tsx, and routeTree.gen.ts
 - [2025-05-09 19:18:00] - Added Playwright tests for the signup flow
+- [2025-05-10 15:20:00] - Added profile page functionality and navigation
+- [2025-05-10 16:00:00] - Implemented AuthContext and AuthProvider for centralized authentication management
 
 ## Open Questions/Issues
 

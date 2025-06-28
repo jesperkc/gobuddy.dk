@@ -8,6 +8,7 @@ import { Login } from "./routes/login";
 import { ConfirmEmail } from "./routes/confirmemail";
 import { Completed } from "./routes/completed";
 import { Index } from "./routes";
+import { Profile } from "./routes/profile";
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -57,6 +58,12 @@ const completedRoute = createRoute({
   component: Completed,
 });
 
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/profile",
+  component: Profile,
+});
+
 export const routeTree = rootRoute.addChildren([
   indexRoute,
   loginRoute,
@@ -66,4 +73,5 @@ export const routeTree = rootRoute.addChildren([
   signupRoute,
   confirmEmailRoute,
   completedRoute,
+  profileRoute,
 ]);

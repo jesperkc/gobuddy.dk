@@ -2,9 +2,9 @@ import { useNavigate } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { SplitScreen } from "../components/SplitScreen";
 import { useOnboardingStore } from "../store/onboarding";
-import { useMemo, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "../contexts/AuthContext";
 
 export interface SignupRequestData {
   email: string;
@@ -31,8 +31,16 @@ export function Signup() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { signup, isAuthenticated, loading: authLoading } = useAuth();
   const { age, name, coordinates, interests, address, email, password, newsletter, setEmail, setPassword, setNewsletter } =
     useOnboardingStore();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate({ to: "/" });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   const signupObject = useMemo<SignupRequestData>(() => {
     const obj = {
@@ -70,11 +78,11 @@ export function Signup() {
     setIsLoading(true);
 
     try {
-      const { data, error: signUpError } = await supabase.auth.signUp(signupObject);
+      const { error: signUpError, user } = await signup(signupObject);
 
       if (signUpError) throw signUpError;
-      console.log("data", data);
-      if (data.user) {
+
+      if (user) {
         navigate({ to: "/confirm-email" });
       }
     } catch (err) {
