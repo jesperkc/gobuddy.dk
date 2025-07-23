@@ -1,22 +1,23 @@
-// import { createRoute, Outlet } from "@tanstack/react-router";
-// import { Login } from "./login";
 import { createContext, useState, useEffect, ReactNode } from "react";
 import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
+import { supabase, fetchUserRoles } from "../lib/supabase";
 import { SignupRequestData } from "./signup";
-// import { Route as rootRoute } from "./__root";
+import { Enums } from "../../database.types";
 
 // Define the shape of our auth context
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   session: Session | null;
+  userRoles: Enums<"app_role">[];
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<{ error: Error | null }>;
   signup: (signupData: SignupRequestData) => Promise<{ error: Error | null; user: User | null }>;
   logout: () => Promise<{ error: Error | null }>;
   refreshSession: () => Promise<void>;
+  hasRole: (role: Enums<"app_role">) => boolean;
+  hasPermission: (permission: Enums<"app_permission">) => boolean;
 }
 
 // Create the auth context with default values
@@ -24,12 +25,15 @@ export const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   user: null,
   session: null,
+  userRoles: [],
   loading: true,
   error: null,
   login: async () => ({ error: null }),
   signup: async () => ({ error: null, user: null }),
   logout: async () => ({ error: null }),
   refreshSession: async () => {},
+  hasRole: () => false,
+  hasPermission: () => false,
 });
 
 // Props for the AuthProvider component
@@ -41,17 +45,56 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [userRoles, setUserRoles] = useState<Enums<"app_role">[]>([]);
+  const [userPermissions, setUserPermissions] = useState<Enums<"app_permission">[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check for existing session on initial load
+  // Fetch user roles and permissions - NON-BLOCKING for regular users
+  const fetchUserRolesAndPermissions = async (userId: string) => {
+    try {
+      // Fetch roles and permissions separately to avoid Promise.all failure
+      const roles = await fetchUserRoles(userId).catch((err) => {
+        console.error("Role fetch failed, using empty array:", err);
+        return [];
+      });
+
+      // const permissions = await getUserPermissions(userId).catch((err) => {
+      //   console.error("Permission fetch failed, using empty array:", err);
+      //   return [];
+      // });
+
+      setUserRoles(roles);
+      // setUserPermissions(permissions);
+    } catch (err) {
+      console.error("Critical error in fetchUserRolesAndPermissions:", err);
+      setUserRoles([]);
+      setUserPermissions([]);
+      // Don't rethrow - this should not break authentication for regular users
+    }
+  };
+
+  // Helper functions
+  const hasRole = (role: Enums<"app_role">): boolean => {
+    return userRoles.includes(role);
+  };
+
+  const hasPermission = (permission: Enums<"app_permission">): boolean => {
+    return userPermissions.includes(permission);
+  };
+
+  // Check for existing session on initial load - SSR compatible
   useEffect(() => {
     const checkSession = async () => {
+      // Only run on client side to avoid SSR hydration issues
+      if (typeof window === "undefined") {
+        setLoading(false);
+        return;
+      }
+
       try {
         // Get the current session
         const { data, error } = await supabase.auth.getSession();
-        // console.log("Session data:", data);
-        // console.log("Session error:", error);
         if (error) {
           throw error;
         }
@@ -67,6 +110,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
 
           setUser(userData.user);
+          // Fetch user roles and permissions - NON-BLOCKING
+          if (userData.user?.id) {
+            // Use setTimeout to make this truly non-blocking
+            setTimeout(() => {
+              fetchUserRolesAndPermissions(userData.user.id);
+            }, 0);
+          }
+        } else {
+          // Clear roles when no session
+          setUserRoles([]);
+          setUserPermissions([]);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred while checking authentication");
@@ -78,24 +132,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     checkSession();
 
-    // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      console.log("AuthContext onAuthStateChange", event, newSession);
-      setSession(newSession);
+    // Set up auth state change listener - only on client side
+    if (typeof window !== "undefined") {
+      const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+        setSession(newSession);
 
-      if (newSession && newSession.user) {
-        setUser(newSession.user);
-      } else {
-        setUser(null);
-      }
+        if (newSession && newSession.user) {
+          setUser(newSession.user);
+          // Fetch user roles and permissions - NON-BLOCKING
+          // Use setTimeout to make this truly non-blocking
+          setTimeout(() => {
+            fetchUserRolesAndPermissions(newSession.user.id);
+          }, 0);
+        } else {
+          setUser(null);
+          // Clear roles when no user
+          setUserRoles([]);
+          setUserPermissions([]);
+        }
 
-      setLoading(false);
-    });
+        setLoading(false);
+      });
 
-    // Clean up the subscription when the component unmounts
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+      // Clean up the subscription when the component unmounts
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
+    }
   }, []);
 
   // Login function
@@ -115,6 +178,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setSession(data.session);
       setUser(data.user);
+
+      // Fetch user roles and permissions after login
+      if (data.user?.id) {
+        await fetchUserRolesAndPermissions(data.user.id);
+      }
 
       return { error: null };
     } catch (err) {
@@ -162,6 +230,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       setSession(null);
       setUser(null);
+      setUserRoles([]);
+      setUserPermissions([]);
 
       return { error: null };
     } catch (err) {
@@ -194,6 +264,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         setUser(userData.user);
+        // Fetch user roles and permissions after refresh
+        if (userData.user?.id) {
+          await fetchUserRolesAndPermissions(userData.user.id);
+        }
+      } else {
+        setUser(null);
+        setUserRoles([]);
+        setUserPermissions([]);
       }
     } catch (err) {
       console.error("Error refreshing session:", err);
@@ -208,44 +286,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAuthenticated: !!session,
     user,
     session,
+    userRoles,
     loading,
     error,
     login,
     signup,
     logout,
     refreshSession,
+    hasRole,
+    hasPermission,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-/**
- * Route, and child routes that requires authentication.
- * also note the that route prefaced with the underscore character is not
- * included in the path of the child routes.
- *
- * If the user is not authenticated, the user is redirected to the login page.
- */
-// export const Route = createRoute({
-//   getParentRoute: () => rootRoute,
-//   id: "_authed",
-//   beforeLoad: ({ context }) => {
-//     // Check if the user is authenticated
-//     if (!context.user) {
-//       throw new Error("Not authenticated");
-//     }
-//     return {};
-//   },
-//   errorComponent: ({ error }) => {
-//     if (error.message === "Not authenticated") {
-//       return <Login />;
-//     }
+// SSR-compatible AuthProvider that initializes properly on both server and client
+export function SSRCompatibleAuthProvider({ children }: AuthProviderProps) {
+  const [isHydrated, setIsHydrated] = useState(false);
 
-//     throw error;
-//   },
-//   component: () => (
-//     <AuthProvider>
-//       <Outlet />
-//     </AuthProvider>
-//   ),
-// });
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // On server side and before hydration, provide a minimal auth state
+  if (!isHydrated && typeof window === "undefined") {
+    const serverValue = {
+      isAuthenticated: false,
+      user: null,
+      session: null,
+      userRoles: [],
+      loading: true,
+      error: null,
+      login: async () => ({ error: null }),
+      signup: async () => ({ error: null, user: null }),
+      logout: async () => ({ error: null }),
+      refreshSession: async () => {},
+      hasRole: () => false,
+      hasPermission: () => false,
+    };
+
+    return <AuthContext.Provider value={serverValue}>{children}</AuthContext.Provider>;
+  }
+
+  // Use the full AuthProvider on client side
+  return <AuthProvider>{children}</AuthProvider>;
+}

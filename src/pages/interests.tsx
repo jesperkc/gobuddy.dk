@@ -1,3 +1,4 @@
+import { createRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SplitScreen } from "../components/layout/SplitScreen";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { Tables } from "database.types";
+import { Route as rootRoute } from "./__root";
 
 export function Interests() {
   const navigate = useNavigate();
@@ -87,3 +89,9 @@ export function Interests() {
     </SplitScreen>
   );
 }
+
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/signup/interests",
+  component: Interests,
+});

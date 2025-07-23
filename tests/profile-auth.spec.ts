@@ -18,9 +18,12 @@ test.describe("Profile Authentication", () => {
     // 1. Start at the login page
     await page.goto("/login");
 
-    // 2. Fill in test credentials
-    await page.getByLabel("Email").fill("test@example.com");
-    await page.getByLabel("Password").fill("Overwrite5-Trend-Rundown");
+    if (!process.env.TEST_USER_EMAIL || !process.env.TEST_USER_PASSWORD) {
+      throw new Error("TEST_USER_EMAIL and TEST_USER_PASSWORD environment variables must be set");
+    }
+    // 2. Fill in test credentials from environment variables
+    await page.getByLabel("Email").fill(process.env.TEST_USER_EMAIL);
+    await page.getByLabel("Password").fill(process.env.TEST_USER_PASSWORD);
 
     // 3. Click the login button
     await page.getByRole("button", { name: "Log ind" }).click();

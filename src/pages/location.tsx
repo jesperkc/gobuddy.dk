@@ -1,3 +1,4 @@
+import { createRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Loader2, MapPin, Search } from "lucide-react";
 import { SplitScreen } from "../components/layout/SplitScreen";
@@ -7,6 +8,7 @@ import { Map } from "../components/Map";
 import { Button } from "@/components/ui/button";
 import { Or } from "@/components/ui/ui";
 import { InputWithIcon } from "@/components/ui/input-width-icon";
+import { Route as rootRoute } from "./__root";
 
 interface SearchResult {
   display_name: string;
@@ -209,3 +211,9 @@ export function Location() {
     </SplitScreen>
   );
 }
+
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/signup/location",
+  component: Location,
+});

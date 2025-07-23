@@ -1,6 +1,6 @@
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
-import { AuthProvider } from "./routes/_authed";
+import { AuthProvider } from "./pages/_authed";
 
 const router = createRouter({ routeTree });
 

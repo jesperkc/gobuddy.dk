@@ -1,3 +1,4 @@
+import { createRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { SplitScreen } from "../components/layout/SplitScreen";
@@ -5,6 +6,7 @@ import { useOnboardingStore } from "../store/onboarding";
 import { useMemo, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../hooks/useAuth";
+import { Route as rootRoute } from "./__root";
 
 export interface SignupRequestData {
   email: string;
@@ -85,7 +87,7 @@ export function Signup() {
       if (signUpError) throw signUpError;
 
       if (user) {
-        navigate({ to: "/confirm-email" });
+        navigate({ to: "/confirmemail" });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -162,3 +164,9 @@ export function Signup() {
     </SplitScreen>
   );
 }
+
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/signup",
+  component: Signup,
+});

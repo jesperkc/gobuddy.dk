@@ -1,17 +1,20 @@
 import { createRoute, redirect } from "@tanstack/react-router";
-import { Route as rootRoute } from "./routes/__root";
-import { Details } from "./routes/details";
-import { Interests } from "./routes/interests";
-import { Location } from "./routes/location";
-import { Signup } from "./routes/signup";
-import { Login } from "./routes/login";
-import { ConfirmEmail } from "./routes/confirmemail";
-import { Completed } from "./routes/completed";
-import { Index } from "./routes";
-import { Profile } from "./routes/profile";
-import { ProfileEdit } from "./routes/profile-edit";
+import { Route as rootRoute } from "./pages/__root";
+import { Details } from "./pages/details";
+import { Interests } from "./pages/interests";
+import { Location } from "./pages/location";
+import { Signup } from "./pages/signup";
+import { Login } from "./pages/login";
+import { ConfirmEmail } from "./pages/confirmemail";
+import { Completed } from "./pages/completed";
+import { Index } from "./pages";
+import { Profile } from "./pages/profile";
+import { ProfileEdit } from "./pages/profile-edit";
 import { supabase } from "./lib/supabase";
-import { Home } from "./routes/home";
+import { Home } from "./pages/home";
+import { AdminDashboard } from "./pages/godaddy";
+import { AdminUsers } from "./pages/godaddy/users";
+import { AdminCreateUser } from "./pages/godaddy/users/create";
 
 const authRoute = async () => {
   // get the user from the session and add to context
@@ -23,6 +26,21 @@ const authRoute = async () => {
   if (!data.session?.user) {
     throw redirect({
       to: "/login",
+      statusCode: 301,
+    });
+  }
+};
+
+const adminRoute = async () => {
+  // get user and check if they are an admin
+  const { data, error } = await supabase.auth.getUser();
+  console.log("User data:", data);
+  console.log("User error:", error);
+
+  // check if the user is an admin
+  if (!data.user || !data.user.app_metadata?.roles?.includes("admin")) {
+    throw redirect({
+      to: "/home",
       statusCode: 301,
     });
   }
@@ -104,7 +122,7 @@ const signupRoute = createRoute({
 
 const confirmEmailRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/confirm-email",
+  path: "/confirmemail",
   component: ConfirmEmail,
 });
 
@@ -128,6 +146,27 @@ const profileEditRoute = createRoute({
   beforeLoad: authRoute,
 });
 
+const adminHomeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/godaddy",
+  component: AdminDashboard,
+  beforeLoad: adminRoute,
+});
+
+const adminUsersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/godaddy/users",
+  component: AdminUsers,
+  beforeLoad: adminRoute,
+});
+
+const adminUsersCreateRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/godaddy/users/create",
+  component: AdminCreateUser,
+  beforeLoad: adminRoute,
+});
+
 export const routeTree = rootRoute.addChildren([
   homeRoute,
   loginRoute,
@@ -140,4 +179,7 @@ export const routeTree = rootRoute.addChildren([
   profileRoute,
   profileEditRoute,
   indexRoute,
+  adminHomeRoute,
+  adminUsersRoute,
+  adminUsersCreateRoute,
 ]);

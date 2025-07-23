@@ -1,9 +1,11 @@
+import { createRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { MailCheck } from "lucide-react";
 import { SplitScreen } from "../components/layout/SplitScreen";
 import { useOnboardingStore } from "../store/onboarding";
 import { supabase } from "../lib/supabase";
 import { useEffect } from "react";
+import { Route as rootRoute } from "./__root";
 
 export function ConfirmEmail() {
   const navigate = useNavigate();
@@ -31,3 +33,9 @@ export function ConfirmEmail() {
     </SplitScreen>
   );
 }
+
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/confirmemail",
+  component: ConfirmEmail,
+});

@@ -1,3 +1,4 @@
+import { createRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SplitScreen } from "../components/layout/SplitScreen";
@@ -5,6 +6,7 @@ import { useOnboardingStore } from "../store/onboarding";
 import { required, useForm } from "@modular-forms/react";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/form/TextInput";
+import { Route as rootRoute } from "./__root";
 
 type DetailsForm = {
   name: string;
@@ -77,3 +79,9 @@ export function Details() {
     </SplitScreen>
   );
 }
+
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/signup/details",
+  component: Details,
+});

@@ -1,7 +1,9 @@
+import { createRoute } from "@tanstack/react-router";
 import { CheckCircle, User } from "lucide-react";
 import { SplitScreen } from "../components/layout/SplitScreen";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { Route as rootRoute } from "./__root";
 
 export function Completed() {
   return (
@@ -24,3 +26,9 @@ export function Completed() {
     </SplitScreen>
   );
 }
+
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/completed",
+  component: Completed,
+});

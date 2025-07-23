@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { AuthContext } from "../routes/_authed";
+import { AuthContext } from "../pages/_authed";
 
 // Custom hook for using the auth context
 export function useAuth() {
