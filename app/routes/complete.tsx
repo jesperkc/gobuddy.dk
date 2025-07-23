@@ -1,11 +1,10 @@
-import { SplitScreen } from "../components/SplitScreen";
-import { useOnboardingStore } from "../store/onboarding";
-import { supabase } from "../lib/supabase";
+import { createFileRoute } from "@tanstack/react-router";
+import { SplitScreen } from "../../src/components/SplitScreen";
+import { useOnboardingStore } from "../../src/store/onboarding";
+import { supabase } from "../../src/lib/supabase";
 import { useEffect, useState } from "react";
-
-export function Complete() {
-  const { name, email, age, interests, location, coordinates } =
-    useOnboardingStore();
+function Complete() {
+  const { name, email, age, interests, address, coordinates } = useOnboardingStore();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,10 +25,8 @@ export function Complete() {
           first_name: name,
           email,
           age,
-          location: coordinates
-            ? `POINT(${coordinates.lng} ${coordinates.lat})`
-            : null,
-          city: location,
+          location: coordinates ? `POINT(${coordinates.lng} ${coordinates.lat})` : null,
+          city: address.city,
           has_completed_profile_setup: true,
         });
 
@@ -46,14 +43,12 @@ export function Complete() {
         const interestIds = interestsData.map((i) => i.interest_id);
 
         if (interestIds.length > 0) {
-          const { error: userInterestsError } = await supabase
-            .from("user_interests")
-            .insert(
-              interestIds.map((interest_id) => ({
-                profile_id: user.id,
-                interest_id,
-              }))
-            );
+          const { error: userInterestsError } = await supabase.from("user_interests").insert(
+            interestIds.map((interest_id) => ({
+              profile_id: user.id,
+              interest_id,
+            }))
+          );
 
           if (userInterestsError) throw userInterestsError;
         }
@@ -64,7 +59,7 @@ export function Complete() {
     };
 
     saveProfile();
-  }, [email, name, age, interests, location, coordinates]);
+  }, [email, name, age, interests, address, coordinates]);
 
   return (
     <SplitScreen>
@@ -77,3 +72,7 @@ export function Complete() {
     </SplitScreen>
   );
 }
+
+export const Route = createFileRoute("/complete")({
+  component: Complete,
+});

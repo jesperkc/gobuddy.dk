@@ -1,17 +1,18 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
-import { useOnboardingStore } from "../store/onboarding";
+import { SplitScreen } from "../../src/components/SplitScreen";
+import { useOnboardingStore } from "../../src/store/onboarding";
 import { required, useForm } from "@modular-forms/react";
-import { Button } from "@/components/ui/button";
-import { TextInput } from "@/components/form/TextInput";
+import { Button } from "../../src/components/ui/button";
+import { TextInput } from "../../src/components/form/TextInput";
 
 type DetailsForm = {
   name: string;
   age: number;
 };
 
-export function Details() {
+function Details() {
   const navigate = useNavigate();
   const { name, age, setName, setAge } = useOnboardingStore();
 
@@ -77,3 +78,7 @@ export function Details() {
     </SplitScreen>
   );
 }
+
+export const Route = createFileRoute("/details")({
+  component: Details,
+});

@@ -1,7 +1,8 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { CheckCircle } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
+import { SplitScreen } from "../../src/components/SplitScreen";
 
-export function Completed() {
+function Completed() {
   return (
     <SplitScreen>
       <div className="text-center">
@@ -9,11 +10,12 @@ export function Completed() {
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
         <h1 className="text-2xl font-bold mb-4">Welcome aboard!</h1>
-        <p className="text-lg text-gray-600 mb-6">
-          Thanks for sharing your details with us. We're excited to have you
-          here!
-        </p>
+        <p className="text-lg text-gray-600 mb-6">Thanks for sharing your details with us. We're excited to have you here!</p>
       </div>
     </SplitScreen>
   );
 }
+
+export const Route = createFileRoute("/completed")({
+  component: Completed,
+});

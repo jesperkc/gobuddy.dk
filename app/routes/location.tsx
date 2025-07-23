@@ -1,12 +1,13 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Loader2, MapPin, Search } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
-import { useOnboardingStore } from "../store/onboarding";
+import { SplitScreen } from "../../src/components/SplitScreen";
+import { useOnboardingStore } from "../../src/store/onboarding";
 import { useRef, useState } from "react";
-import { Map } from "../components/Map";
-import { Button } from "@/components/ui/button";
-import { Or } from "@/components/ui/ui";
-import { InputWithIcon } from "@/components/ui/input-width-icon";
+import { Map } from "../../src/components/Map";
+import { Button } from "../../src/components/ui/button";
+import { Or } from "../../src/components/ui/ui";
+import { InputWithIcon } from "../../src/components/ui/input-width-icon";
 
 interface SearchResult {
   display_name: string;
@@ -23,7 +24,7 @@ interface SearchResult {
   };
 }
 
-export function Location() {
+function Location() {
   const navigate = useNavigate();
   const { setAddress, setCoordinates, coordinates } = useOnboardingStore();
   const [isLocating, setIsLocating] = useState(false);
@@ -47,9 +48,7 @@ export function Location() {
         },
         (error) => {
           console.error("Error getting location:", error);
-          setLocationError(
-            "Could not get your location. Please try again or enter your city manually."
-          );
+          setLocationError("Could not get your location. Please try again or enter your city manually.");
           setIsLocating(false);
         }
       );
@@ -65,17 +64,10 @@ export function Location() {
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query
-        )}&addressdetails=1&limit=5`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`
       );
       const data: SearchResult[] = await response.json();
-      setSearchResults(
-        data.filter(
-          (result) =>
-            result.address.city || result.address.town || result.address.village
-        )
-      );
+      setSearchResults(data.filter((result) => result.address.city || result.address.town || result.address.village));
     } catch (error) {
       console.error("Search error:", error);
     } finally {
@@ -116,11 +108,7 @@ export function Location() {
   };
 
   const handleLocationSelect = (result: SearchResult) => {
-    const cityName =
-      result.address.city ||
-      result.address.town ||
-      result.address.village ||
-      "";
+    const cityName = result.address.city || result.address.town || result.address.village || "";
     setAddress({
       postcode: result.address.postcode,
       city: cityName,
@@ -164,9 +152,7 @@ export function Location() {
             )}
           </Button>
 
-          {locationError && (
-            <div className="text-red-600 text-sm">{locationError}</div>
-          )}
+          {locationError && <div className="text-red-600 text-sm">{locationError}</div>}
           <Or />
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -189,10 +175,7 @@ export function Location() {
               {showSuggestions && searchResults.length > 0 && (
                 <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto">
                   {searchResults.map((result, index) => {
-                    const city =
-                      result.address.city ||
-                      result.address.town ||
-                      result.address.village;
+                    const city = result.address.city || result.address.town || result.address.village;
                     const location = `${city}, ${result.address.country}`;
                     return (
                       <button
@@ -213,11 +196,7 @@ export function Location() {
             </div>
 
             <div className="flex justify-end">
-              <Button
-                type="button"
-                variant={"secondary"}
-                onClick={() => navigate({ to: "/interests" })}
-              >
+              <Button type="button" variant={"secondary"} onClick={() => navigate({ to: "/interests" })}>
                 Tilbage
               </Button>
               <Button type="submit" disabled={!coordinates} className="ml-auto">
@@ -231,3 +210,7 @@ export function Location() {
     </SplitScreen>
   );
 }
+
+export const Route = createFileRoute("/location")({
+  component: Location,
+});

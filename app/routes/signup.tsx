@@ -1,10 +1,11 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
-import { SplitScreen } from "../components/SplitScreen";
-import { useOnboardingStore } from "../store/onboarding";
+import { SplitScreen } from "../../src/components/SplitScreen";
+import { useOnboardingStore } from "../../src/store/onboarding";
 import { useMemo, useState } from "react";
-import { supabase } from "../lib/supabase";
-import { Button } from "@/components/ui/button";
+import { supabase } from "../../src/lib/supabase";
+import { Button } from "../../src/components/ui/button";
 
 export interface SignupRequestData {
   email: string;
@@ -27,7 +28,7 @@ export interface SignupRequestData {
   };
 }
 
-export function Signup() {
+function Signup() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -75,7 +76,7 @@ export function Signup() {
       if (signUpError) throw signUpError;
       console.log("data", data);
       if (data.user) {
-        navigate({ to: "/confirm-email" });
+        navigate({ to: "/confirmemail" });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -152,3 +153,7 @@ export function Signup() {
     </SplitScreen>
   );
 }
+
+export const Route = createFileRoute("/signup")({
+  component: Signup,
+});

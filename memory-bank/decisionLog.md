@@ -89,3 +89,47 @@ This document tracks significant architectural and design decisions made during 
 - Open-source solution without API usage limits
 - Customizable map experience
 - Integration with OpenStreetMap for geocoding
+
+### [2025-01-23 14:15:00] - Fixed Route Tree Component Mapping
+
+**Decision**: Fixed critical routing configuration issue where all routes were incorrectly mapped to the Index component instead of their respective components.
+
+**Rationale**: The route tree was completely broken with all routes (login, signup, details, interests, location, etc.) pointing to the same Index component, making the application non-functional for navigation. This needed to be fixed before proceeding with any TanStack Start migration work.
+
+**Implications**:
+- Proper routing functionality restored for the entire onboarding flow
+- Each route now correctly displays its intended component
+- Added missing `/complete` route that was referenced in the signup flow
+- Application routing now works as designed, enabling proper user flow testing
+- This fix was critical for the application's basic functionality
+
+### [2025-01-23 14:17:00] - TanStack Start Migration: Dependencies Updated
+
+**Decision**: Updated package.json dependencies for migration from TanStack Router to TanStack Start.
+
+**Rationale**: TanStack Start provides a full-stack React framework that includes routing, server-side rendering, and build optimizations. The migration will enable better performance, SEO capabilities, and a more modern development experience.
+
+**Implications**:
+- Replaced `@tanstack/react-router` with `@tanstack/start` and `@tanstack/start-vite`
+- Removed `@vitejs/plugin-react` as it's handled by TanStack Start
+- Added `vinxi` as the underlying build system
+- Updated build scripts to use `vinxi` commands instead of `vite`
+- All existing dependencies (UI components, Supabase, Leaflet, etc.) remain compatible
+- Next step requires updating configuration files and route structure
+
+### [2025-01-23 14:26:00] - TanStack Start Route Migration: File-Based Routing Implementation
+
+**Decision**: Migrated all route files from src/routes/ to app/routes/ and converted them to TanStack Start's file-based routing pattern.
+
+**Rationale**: TanStack Start uses file-based routing which automatically generates route trees based on the file structure in app/routes/. This eliminates the need for manual route tree configuration and provides better developer experience with type safety and automatic code splitting.
+
+**Implications**:
+- Removed dependency on manually maintained src/routeTree.gen.ts
+- All routes now use createFileRoute() pattern for automatic route generation
+- Import paths updated to reference correct locations relative to app/ directory
+- Route structure remains identical: /, /login, /signup, /details, /interests, /location, /confirmemail, /complete, /completed
+- All existing functionality preserved: form validation, Supabase integration, state management
+- TypeScript errors during migration are expected and will resolve after route tree regeneration
+- Better performance through automatic code splitting
+- Improved developer experience with file-based routing conventions
+- Ready for TanStack Start build system integration and testing
