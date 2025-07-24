@@ -173,7 +173,7 @@ export const LocationPicker = ({ coordinates, setAddress, setCoordinates }: Loca
                   key={index}
                   type="button"
                   onClick={() => handleLocationSelect(result)}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-50 focus:bg-gray-50 focus:outline-none"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-50 focus:bg-gray-50 focus:outline-hidden"
                 >
                   <div className="flex items-center gap-2">
                     <MapPin size={16} className="text-gray-400" />

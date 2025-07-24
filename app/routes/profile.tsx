@@ -39,7 +39,7 @@ function Profile() {
 
         <div className="grid grid-cols-1 gap-4">
           <div className="flex w-full gap-4">
-            <div className="p-6 bg-white shadow-sm rounded-lg border w-1/3">
+            <div className="p-6 bg-white shadow-xs rounded-lg border w-1/3">
               <h2 className="text-lg font-medium text-gray-700">Personlige oplysninger</h2>
               <div className="mt-4 space-y-3">
                 <div>
@@ -80,7 +80,7 @@ function Profile() {
             </div>
 
             {userInterests && userInterests.length > 0 && (
-              <div className="p-6 bg-white shadow-sm rounded-lg border w-2/3">
+              <div className="p-6 bg-white shadow-xs rounded-lg border w-2/3">
                 <h2 className="text-lg font-medium text-gray-700">Interesser</h2>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {userInterests.map((interest) => (
