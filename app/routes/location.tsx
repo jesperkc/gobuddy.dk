@@ -8,6 +8,7 @@ import { Map } from "../../src/components/Map";
 import { Button } from "../../src/components/ui/button";
 import { Or } from "../../src/components/ui/ui";
 import { InputWithIcon } from "../../src/components/ui/input-width-icon";
+import { safeGeolocation, safeSetTimeout, safeClearTimeout, ClientOnly } from "../../src/lib/ssr-utils";
 
 interface SearchResult {
   display_name: string;
@@ -36,23 +37,22 @@ function Location() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleGeolocation = () => {
-    if ("geolocation" in navigator) {
-      setIsLocating(true);
-      setLocationError("");
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setCoordinates({ lat: latitude, lng: longitude });
-          getAddress({ lat: latitude, lng: longitude });
-          setIsLocating(false);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          setLocationError("Could not get your location. Please try again or enter your city manually.");
-          setIsLocating(false);
-        }
-      );
-    }
+    setIsLocating(true);
+    setLocationError("");
+
+    safeGeolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoordinates({ lat: latitude, lng: longitude });
+        getAddress({ lat: latitude, lng: longitude });
+        setIsLocating(false);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        setLocationError("Could not get your location. Please try again or enter your city manually.");
+        setIsLocating(false);
+      }
+    );
   };
 
   const handleSearch = async (query: string) => {
@@ -99,10 +99,10 @@ function Location() {
     setShowSuggestions(true);
 
     if (searchTimeoutRef.current) {
-      window.clearTimeout(searchTimeoutRef.current);
+      safeClearTimeout(searchTimeoutRef.current);
     }
 
-    searchTimeoutRef.current = window.setTimeout(() => {
+    searchTimeoutRef.current = safeSetTimeout(() => {
       handleSearch(value);
     }, 300);
   };
@@ -135,7 +135,15 @@ function Location() {
         <h1 className="text-2xl font-bold mb-6">Hvor i verden er du?</h1>
         <div className="space-y-6">
           <div className="h-[300px] w-full rounded-lg overflow-hidden shadow-md mb-6">
-            <Map coords={coordinates} />
+            <ClientOnly
+              fallback={
+                <div className="h-[300px] w-full rounded-lg bg-gray-200 flex items-center justify-center">
+                  <div className="text-gray-500">Loading map...</div>
+                </div>
+              }
+            >
+              <Map coords={coordinates} />
+            </ClientOnly>
           </div>
 
           <Button onClick={handleGeolocation} disabled={isLocating}>

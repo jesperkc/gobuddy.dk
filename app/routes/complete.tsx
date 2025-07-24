@@ -2,12 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SplitScreen } from "../../src/components/SplitScreen";
 import { useOnboardingStore } from "../../src/store/onboarding";
 import { supabase } from "../../src/lib/supabase";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useClientEffect } from "../../src/lib/ssr-utils";
 function Complete() {
   const { name, email, age, interests, address, coordinates } = useOnboardingStore();
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  useClientEffect(() => {
     const saveProfile = async () => {
       try {
         // Save profile data
@@ -26,7 +27,7 @@ function Complete() {
           email,
           age,
           location: coordinates ? `POINT(${coordinates.lng} ${coordinates.lat})` : null,
-          city: address.city,
+          city: address?.city,
           has_completed_profile_setup: true,
         });
 

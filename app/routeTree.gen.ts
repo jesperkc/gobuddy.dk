@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocationRouteImport } from './routes/location'
 import { Route as InterestsRouteImport } from './routes/interests'
+import { Route as HomeRouteImport } from './routes/home'
 import { Route as DetailsRouteImport } from './routes/details'
 import { Route as ConfirmemailRouteImport } from './routes/confirmemail'
 import { Route as CompletedRouteImport } from './routes/completed'
@@ -22,6 +24,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -37,6 +44,11 @@ const LocationRoute = LocationRouteImport.update({
 const InterestsRoute = InterestsRouteImport.update({
   id: '/interests',
   path: '/interests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DetailsRoute = DetailsRouteImport.update({
@@ -71,9 +83,11 @@ export interface FileRoutesByFullPath {
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
+  '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRoutesByTo {
@@ -82,9 +96,11 @@ export interface FileRoutesByTo {
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
+  '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRoutesById {
@@ -94,9 +110,11 @@ export interface FileRoutesById {
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
+  '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRouteTypes {
@@ -107,9 +125,11 @@ export interface FileRouteTypes {
     | '/completed'
     | '/confirmemail'
     | '/details'
+    | '/home'
     | '/interests'
     | '/location'
     | '/login'
+    | '/profile'
     | '/signup'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -118,9 +138,11 @@ export interface FileRouteTypes {
     | '/completed'
     | '/confirmemail'
     | '/details'
+    | '/home'
     | '/interests'
     | '/location'
     | '/login'
+    | '/profile'
     | '/signup'
   id:
     | '__root__'
@@ -129,9 +151,11 @@ export interface FileRouteTypes {
     | '/completed'
     | '/confirmemail'
     | '/details'
+    | '/home'
     | '/interests'
     | '/location'
     | '/login'
+    | '/profile'
     | '/signup'
   fileRoutesById: FileRoutesById
 }
@@ -141,9 +165,11 @@ export interface RootRouteChildren {
   CompletedRoute: typeof CompletedRoute
   ConfirmemailRoute: typeof ConfirmemailRoute
   DetailsRoute: typeof DetailsRoute
+  HomeRoute: typeof HomeRoute
   InterestsRoute: typeof InterestsRoute
   LocationRoute: typeof LocationRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   SignupRoute: typeof SignupRoute
 }
 
@@ -154,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -175,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/interests'
       fullPath: '/interests'
       preLoaderRoute: typeof InterestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/details': {
@@ -221,9 +261,11 @@ const rootRouteChildren: RootRouteChildren = {
   CompletedRoute: CompletedRoute,
   ConfirmemailRoute: ConfirmemailRoute,
   DetailsRoute: DetailsRoute,
+  HomeRoute: HomeRoute,
   InterestsRoute: InterestsRoute,
   LocationRoute: LocationRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport

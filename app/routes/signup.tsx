@@ -6,6 +6,7 @@ import { useOnboardingStore } from "../../src/store/onboarding";
 import { useMemo, useState } from "react";
 import { supabase } from "../../src/lib/supabase";
 import { Button } from "../../src/components/ui/button";
+import { isBrowser, safeWindow } from "../../src/lib/ssr-utils";
 
 export interface SignupRequestData {
   email: string;
@@ -53,13 +54,15 @@ function Signup() {
           interests,
           newsletter,
         },
-        emailRedirectTo: `${location.protocol}//${location.host}/complete`, // you will have to make the project part dynamic in whichever way the framework you are using allows you to do this.
+        emailRedirectTo:
+          isBrowser && safeWindow?.location ? `${safeWindow.location.protocol}//${safeWindow.location.host}/complete` : "/complete", // fallback for SSR
       },
     };
 
     // Expose signupObject for testing purposes
-    if (typeof window !== "undefined") {
-      window.__TEST_SIGNUP_OBJECT__ = obj;
+    if (isBrowser && safeWindow) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (safeWindow as any).__TEST_SIGNUP_OBJECT__ = obj;
     }
 
     return obj;

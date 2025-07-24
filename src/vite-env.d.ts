@@ -1,5 +1,17 @@
 /// <reference types="vite/client" />
 
+// SVG React component declarations
+declare module "*.svg?react" {
+  import React from "react";
+  const SVGComponent: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  export default SVGComponent;
+}
+
+declare module "*.svg" {
+  const content: string;
+  export default content;
+}
+
 // We can't import types in .d.ts files, so we need to redeclare the Window interface
 // with the same structure as IsignupObject
 interface Window {
