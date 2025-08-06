@@ -9,6 +9,7 @@ import { Button } from "../../src/components/ui/button";
 import { Or } from "../../src/components/ui/ui";
 import { InputWithIcon } from "../../src/components/ui/input-width-icon";
 import { safeGeolocation, safeSetTimeout, safeClearTimeout, ClientOnly } from "../../src/lib/ssr-utils";
+import { UnauthedRoute } from "@/components/UnauthedRoute";
 
 interface SearchResult {
   display_name: string;
@@ -219,6 +220,14 @@ function Location() {
   );
 }
 
+function UnauthedPage() {
+  return (
+    <UnauthedRoute>
+      <Location />
+    </UnauthedRoute>
+  );
+}
+
 export const Route = createFileRoute("/location")({
-  component: Location,
+  component: UnauthedPage,
 });

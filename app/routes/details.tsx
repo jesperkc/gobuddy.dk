@@ -6,6 +6,7 @@ import { useOnboardingStore } from "../../src/store/onboarding";
 import { required, useForm } from "@modular-forms/react";
 import { Button } from "../../src/components/ui/button";
 import { TextInput } from "../../src/components/form/TextInput";
+import { UnauthedRoute } from "@/components/UnauthedRoute";
 
 type DetailsForm = {
   name: string;
@@ -79,6 +80,14 @@ function Details() {
   );
 }
 
+function UnauthedPage() {
+  return (
+    <UnauthedRoute>
+      <Details />
+    </UnauthedRoute>
+  );
+}
+
 export const Route = createFileRoute("/details")({
-  component: Details,
+  component: UnauthedPage,
 });

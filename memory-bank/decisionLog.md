@@ -295,3 +295,38 @@ This decision enables the GoBuddy application to fully leverage SSR benefits whi
 - ✅ Clear migration path established
 
 This decision represents successful **incremental modernization** - achieving significant architectural improvements while maintaining application stability and providing a clear, low-risk path to full SSR activation when desired.
+
+### [2025-08-02 12:01:00] - TanStack Start v1.120.20 Version Compatibility Issue Resolution
+
+**Decision**: Resolved critical TanStack Start build failure by reverting to stable TanStack Router configuration while preserving SSR-ready infrastructure.
+
+**Problem Analysis**: TanStack Start v1.120.20 has internal API incompatibilities within its dependency chain:
+
+- `@tanstack/router-plugin` expects to import `Generator` and `CONSTANTS` from `@tanstack/router-generator`
+- `@tanstack/router-generator` v1.120.20 only exports `generator` (lowercase), missing `Generator` and `CONSTANTS`
+- Multiple version combinations tested (1.120.20, 1.114.22, 1.125.4, 1.130.15) all failed with same API mismatch
+- Fresh installs and dependency overrides could not resolve the internal TanStack Start ecosystem conflicts
+
+**Resolution Implemented**:
+
+- Reverted to stable TanStack Router v1.102.0 configuration
+- Restored Vite build system with `@tanstack/router-vite-plugin`
+- Maintained existing SSR-ready infrastructure (file-based routing in app/routes/, SSR utilities, authentication system)
+- Updated build scripts from `vinxi` commands back to `vite` commands
+- Created proper `vite.config.ts` with TanStack Router plugin configuration
+
+**Testing Results**:
+
+- ✅ Production build successful: Generated route tree in 705ms, built in 2.75s
+- ✅ Development server working: Running on port 3002
+- ✅ All existing functionality preserved: Authentication, protected routes, file-based routing
+- ✅ SSR infrastructure maintained for future activation
+
+**Implications**:
+
+- GoBuddy application is now functional with stable build system
+- SSR-ready architecture preserved without breaking changes
+- TanStack Start can be re-attempted when ecosystem compatibility issues are resolved
+- Hybrid architecture approach validated: incremental modernization without stability compromise
+
+**Root Cause**: TanStack Start v1.120.20 appears to have been released with broken internal dependency API contracts, making it unsuitable for production use at this time.

@@ -14,7 +14,16 @@ interface UserProfile {
   country_code: string;
   longitude?: number;
   latitude?: number;
-  interests: string[];
+  user_interests: {
+    interest_id: string;
+    description: string;
+    interests: {
+      interest_id: string;
+      interest_da: string;
+      interest_en: string;
+      icon: string;
+    };
+  }[];
   newsletter: boolean;
   created_at: string;
   updated_at?: string;
@@ -49,38 +58,57 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
 
     try {
       // First, check if we have user metadata
-      if (user.user_metadata && Object.keys(user.user_metadata).length > 0) {
-        const profile: UserProfile = {
-          id: user.id,
-          email: user.email || "",
-          first_name: user.user_metadata.first_name || "",
-          age: user.user_metadata.age || 0,
-          coordinates: user.user_metadata.coordinates || null,
-          postcode: user.user_metadata.postcode || "",
-          city: user.user_metadata.city || "",
-          country: user.user_metadata.country || "",
-          country_code: user.user_metadata.country_code || "",
-          longitude: user.user_metadata.longitude,
-          latitude: user.user_metadata.latitude,
-          interests: user.user_metadata.interests || [],
-          newsletter: user.user_metadata.newsletter || false,
-          created_at: user.created_at,
-          updated_at: user.updated_at,
-        };
+      // if (user.user_metadata && Object.keys(user.user_metadata)) {
+      //   const profile: UserProfile = {
+      //     id: user.id,
+      //     email: user.email || "",
+      //     first_name: user.user_metadata.first_name || "",
+      //     age: user.user_metadata.age || 0,
+      //     coordinates: user.user_metadata.coordinates || null,
+      //     postcode: user.user_metadata.postcode || "",
+      //     city: user.user_metadata.city || "",
+      //     country: user.user_metadata.country || "",
+      //     country_code: user.user_metadata.country_code || "",
+      //     longitude: user.user_metadata.longitude,
+      //     latitude: user.user_metadata.latitude,
+      //     user_interests: user.user_metadata.user_interests || [],
+      //     newsletter: user.user_metadata.newsletter || false,
+      //     created_at: user.created_at,
+      //     updated_at: user.updated_at,
+      //   };
 
-        setProfile(profile);
-        return;
-      }
+      //   setProfile(profile);
+      //   return;
+      // }
 
       // If no user_metadata, try to fetch from a profiles table (if it exists)
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(
+          `
+        *,
+        user_interests (
+          interest_id,
+          description,
+          interests (
+            interest_da,
+            interest_en,
+            icon
+          )
+        )
+        `
+        )
+        .eq("profile_id", user.id)
+        .single();
 
       if (error && error.code !== "PGRST116") {
         // PGRST116 is "not found"
         throw error;
       }
 
+      console.log("From database:", data, error);
       if (data) {
+        console.log("Profile loaded from database:", data);
         setProfile(data as UserProfile);
       } else {
         // Create a minimal profile from user data
@@ -94,7 +122,7 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
           city: "",
           country: "",
           country_code: "",
-          interests: [],
+          user_interests: [],
           newsletter: false,
           created_at: user.created_at,
           updated_at: user.updated_at,

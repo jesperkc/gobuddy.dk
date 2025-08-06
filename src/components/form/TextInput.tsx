@@ -25,7 +25,7 @@ type TextInputProps = {
  * displayed in or around the field to communicate the entry requirements.
  */
 export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(({ className, label, value, error, ...props }, ref) => {
-  const { name, required, id } = props;
+  const { name, id } = props;
   const inputId = id ?? `input-${name}`;
   const input = useSignal<string | number>("");
   useSignalEffect(() => {
@@ -36,7 +36,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(({ classNa
   return (
     <div className={clsx("space-y-2", className)}>
       {label && <Label htmlFor={inputId}>{label}</Label>}
-      <Input id={inputId} {...props} />
+      <Input id={inputId} {...props} value={input.value ?? ""} ref={ref} />
       {/* <input
           {...props}
           ref={ref}
@@ -52,7 +52,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(({ classNa
           aria-errormessage={`${name}-error`}
           required
         /> */}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error.value}</p>}
     </div>
   );
 });

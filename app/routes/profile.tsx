@@ -12,12 +12,12 @@ function Profile() {
   const { profile, loading, error, loadProfile } = useUserProfileStore();
 
   // Create userInterests array from profile.interests for compatibility
-  const userInterests =
-    profile?.interests?.map((interest, index) => ({
-      interest_id: index.toString(),
-      interest_da: interest,
-      description: interest,
-    })) || [];
+  // const userInterests =
+  //   profile?.interests?.map((interest, index) => ({
+  //     interest_id: index.toString(),
+  //     interest_da: interest,
+  //     description: interest,
+  //   })) || [];
 
   useEffect(() => {
     if (user && !profile) {
@@ -25,13 +25,15 @@ function Profile() {
     }
   }, [user, profile, loadProfile]);
 
+  console.log("Profile component loaded with user:", user);
+  console.log("Profile data:", profile);
   return (
     <DefaultLayout>
       <div>
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">Min profil</h1>
           <Button asChild variant="ghost" size="sm">
-            <Link to="/profile">Rediger profil</Link>
+            <Link to="/profile-edit">Rediger profil</Link>
           </Button>
         </div>
 
@@ -79,17 +81,17 @@ function Profile() {
               </div>
             </div>
 
-            {userInterests && userInterests.length > 0 && (
+            {profile && profile.user_interests && (
               <div className="p-6 bg-white shadow-xs rounded-lg border w-2/3">
                 <h2 className="text-lg font-medium text-gray-700">Interesser</h2>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  {userInterests.map((interest) => (
+                  {profile.user_interests.map((interest) => (
                     <span
                       key={interest.interest_id}
                       className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
                       title={interest.description}
                     >
-                      {interest.interest_da}
+                      {interest.interests.interest_da}
                     </span>
                   ))}
                 </div>

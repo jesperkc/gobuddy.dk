@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
 import { useOnboardingStore } from "../../src/store/onboarding";
 import { Button } from "../../src/components/ui/button";
+import { UnauthedRoute } from "@/components/UnauthedRoute";
 
 const INTERESTS = ["Technology", "Travel", "Food", "Sports", "Music", "Art", "Reading", "Gaming", "Photography", "Nature"];
 
@@ -52,6 +53,14 @@ function Interests() {
   );
 }
 
+function UnauthedPage() {
+  return (
+    <UnauthedRoute>
+      <Interests />
+    </UnauthedRoute>
+  );
+}
+
 export const Route = createFileRoute("/interests")({
-  component: Interests,
+  component: UnauthedPage,
 });

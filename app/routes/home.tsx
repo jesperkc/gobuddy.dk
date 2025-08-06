@@ -10,7 +10,7 @@ import { safeDate } from "../../src/lib/ssr-utils";
 
 function HomePage() {
   const { user } = useAuth();
-  const { profile, loading, loadProfile } = useUserProfileStore();
+  const { profile, loadProfile } = useUserProfileStore();
 
   useEffect(() => {
     if (user && !profile) {
@@ -18,16 +18,16 @@ function HomePage() {
     }
   }, [user, profile, loadProfile]);
 
-  if (loading) {
-    return (
-      <DefaultLayout>
-        <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600">Indlæser hjemmeside...</p>
-        </div>
-      </DefaultLayout>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <DefaultLayout>
+  //       <div className="flex flex-col items-center justify-center space-y-4">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  //         <p className="text-gray-600">Indlæser hjemmeside...</p>
+  //       </div>
+  //     </DefaultLayout>
+  //   );
+  // }
 
   const getGreeting = () => {
     return safeDate.getGreeting("Hej");
@@ -93,15 +93,15 @@ function HomePage() {
             <Heart className="w-5 h-5 text-gray-500" />
             <h3 className="font-medium">Dine interesser</h3>
           </div>
-          {profile?.interests && profile.interests.length > 0 ? (
+          {profile?.user_interests && profile.user_interests.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {profile.interests.slice(0, 6).map((interest, index) => (
+              {profile.user_interests.slice(0, 6).map((interest, index) => (
                 <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                  {interest}
+                  {interest.interests.interest_da}
                 </span>
               ))}
-              {profile.interests.length > 6 && (
-                <span className="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-sm">+{profile.interests.length - 6} flere</span>
+              {profile.user_interests.length > 6 && (
+                <span className="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-sm">+{profile.user_interests.length - 6} flere</span>
               )}
             </div>
           ) : (
@@ -122,7 +122,7 @@ function HomePage() {
         </div>
 
         {/* Profile Completion Reminder */}
-        {(!profile?.first_name || !profile?.age || !profile?.interests?.length) && (
+        {(!profile?.first_name || !profile?.age || !profile?.user_interests?.length) && (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <h4 className="font-medium text-yellow-800 mb-2">Fuldfør din profil</h4>
             <p className="text-sm text-yellow-800 mb-3">En komplet profil hjælper dig med at finde bedre matches og nye venner.</p>

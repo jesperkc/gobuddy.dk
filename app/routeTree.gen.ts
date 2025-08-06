@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
+import { Route as ProfileEditRouteImport } from './routes/profile-edit'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocationRouteImport } from './routes/location'
@@ -24,6 +25,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/profile-edit',
+  path: '/profile-edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRoutesByTo {
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRoutesById {
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
+  '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/location'
     | '/login'
     | '/profile'
+    | '/profile-edit'
     | '/signup'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/location'
     | '/login'
     | '/profile'
+    | '/profile-edit'
     | '/signup'
   id:
     | '__root__'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/location'
     | '/login'
     | '/profile'
+    | '/profile-edit'
     | '/signup'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   LocationRoute: typeof LocationRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
+  ProfileEditRoute: typeof ProfileEditRoute
   SignupRoute: typeof SignupRoute
 }
 
@@ -180,6 +193,13 @@ declare module '@tanstack/react-router' {
       path: '/signup'
       fullPath: '/signup'
       preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile-edit': {
+      id: '/profile-edit'
+      path: '/profile-edit'
+      fullPath: '/profile-edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -266,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   LocationRoute: LocationRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
+  ProfileEditRoute: ProfileEditRoute,
   SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport

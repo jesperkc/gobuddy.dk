@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SplitScreen } from "../../src/components/SplitScreen";
 import { ArrowRight } from "lucide-react";
+import { UnauthedRoute } from "@/components/UnauthedRoute";
 
 function Index() {
   return (
@@ -32,6 +33,14 @@ function Index() {
   );
 }
 
+function UnauthedIndex() {
+  return (
+    <UnauthedRoute>
+      <Index />
+    </UnauthedRoute>
+  );
+}
+
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: UnauthedIndex,
 });
