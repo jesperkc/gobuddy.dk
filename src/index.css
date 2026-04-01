@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @config '../tailwind.config.js';
 
@@ -27,7 +27,7 @@
   h4,
   h5,
   h6 {
-    @apply font-patua;
+    @apply font-amifer;
   }
 }
 
@@ -111,13 +111,17 @@
 }
 
 .logo {
+  --color-left: #27d489;
+  --color-right: #155dfc;
   path:nth-child(1) {
-    stroke: #27d489;
     /* animation: animateRightHand 1s infinite alternate; */
     transform-origin: 30px 20px;
   }
-  path:nth-child(2) {
-    stroke: #6501de;
+  #hand-left path {
+    stroke: var(--color-left, #4dbee3);
+  }
+  #hand-right path {
+    stroke: var(--color-right, #f33a3e);
   }
 }
 

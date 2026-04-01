@@ -12,21 +12,24 @@ export interface SignupRequestData {
   email: string;
   password: string;
   options: {
-    data: {
-      first_name: string;
-      age: number;
-      coordinates: string | null;
-      postcode: string;
-      city: string;
-      country: string;
-      country_code: string;
-      longitude?: number;
-      latitude?: number;
-      interests: string[];
-      newsletter: boolean;
-    };
+    data: SignupProfileData;
     emailRedirectTo: string;
   };
+}
+
+export interface SignupProfileData {
+  first_name: string;
+  age: number;
+  bio?: string;
+  coordinates: string | null;
+  postcode: string;
+  city: string;
+  country: string;
+  country_code: string;
+  longitude?: number;
+  latitude?: number;
+  interests: string[];
+  newsletter: boolean;
 }
 
 function Signup() {
@@ -51,7 +54,7 @@ function Signup() {
           country_code: address.country_code,
           longitude: coordinates?.lng,
           latitude: coordinates?.lat,
-          interests,
+          interests: interests.map((id) => ({ interest_id: id, description: "" })),
           newsletter,
         },
         emailRedirectTo:
@@ -77,7 +80,7 @@ function Signup() {
       const { data, error: signUpError } = await supabase.auth.signUp(signupObject);
 
       if (signUpError) throw signUpError;
-      console.log("data", data);
+
       if (data.user) {
         navigate({ to: "/confirmemail" });
       }
@@ -95,7 +98,7 @@ function Signup() {
         {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
         <form onSubmit={handleSignup} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block  font-medium text-gray-700 mb-2">
               Email
             </label>
             <input
@@ -108,7 +111,7 @@ function Signup() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block  font-medium text-gray-700 mb-2">
               Adgangskode
             </label>
             <input
@@ -133,7 +136,7 @@ function Signup() {
               />
             </div>
             <div className="ml-3">
-              <label htmlFor="newsletter" className="text-sm text-gray-600">
+              <label htmlFor="newsletter" className=" text-gray-600">
                 Modtag vores nyhedsbrev
               </label>
             </div>

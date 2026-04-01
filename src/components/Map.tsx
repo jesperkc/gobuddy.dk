@@ -45,9 +45,7 @@ export const Map = ({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://tiles.stadiamaps.com/tiles/outdoors/{z}/{x}/{y}{r}.png"
       />
-      {coords && coords.lng !== 0 && (
-        <Marker position={coords} icon={customIcon} />
-      )}
+      {coords && coords.lng !== 0 && <Marker position={coords} icon={customIcon} />}
       <MapUpdater coords={coords} />
     </MapContainer>
   );

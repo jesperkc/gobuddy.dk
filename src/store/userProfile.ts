@@ -4,9 +4,9 @@ import { supabase } from "../lib/supabase";
 
 interface UserProfile {
   id: string;
-  email: string;
   first_name: string;
   age: number;
+  email: string;
   coordinates: string | null;
   postcode: string;
   city: string;
@@ -100,13 +100,13 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
         )
         .eq("profile_id", user.id)
         .single();
+      console.log("From database:", data, error);
 
       if (error && error.code !== "PGRST116") {
         // PGRST116 is "not found"
         throw error;
       }
 
-      console.log("From database:", data, error);
       if (data) {
         console.log("Profile loaded from database:", data);
         setProfile(data as UserProfile);
@@ -114,7 +114,6 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
         // Create a minimal profile from user data
         const profile: UserProfile = {
           id: user.id,
-          email: user.email || "",
           first_name: "",
           age: 0,
           coordinates: null,
@@ -126,6 +125,7 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
           newsletter: false,
           created_at: user.created_at,
           updated_at: user.updated_at,
+          email: user.email || "",
         };
 
         setProfile(profile);

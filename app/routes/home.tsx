@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Home, User, Heart, MapPin, Users, MessageCircle } from "lucide-react";
+import { MapPin, ArrowRight, Sparkles, UserPen } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
@@ -18,140 +18,111 @@ function HomePage() {
     }
   }, [user, profile, loadProfile]);
 
-  // if (loading) {
-  //   return (
-  //     <DefaultLayout>
-  //       <div className="flex flex-col items-center justify-center space-y-4">
-  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-  //         <p className="text-gray-600">Indlæser hjemmeside...</p>
-  //       </div>
-  //     </DefaultLayout>
-  //   );
-  // }
-
   const getGreeting = () => {
     return safeDate.getGreeting("Hej");
   };
 
+  const interests = profile?.user_interests || [];
+  const hasInterests = interests.length > 0;
+  const hasLocation = !!profile?.city;
+  const profileComplete = !!profile?.first_name && !!profile?.age && hasInterests && hasLocation;
+
   return (
     <DefaultLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Welcome Header */}
-        <div className="text-center">
-          <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Home className="w-10 h-10 text-blue-600" />
-          </div>
-          <h1 className="text-2xl font-bold">
-            {getGreeting()}, {profile?.first_name || "Ven"}!
+      <div className="max-w-2xl mx-auto space-y-8">
+        {/* Greeting */}
+        <div>
+          <h1 className="text-3xl">
+            {getGreeting()}, {profile?.first_name || "Ven"}
           </h1>
-          <p className="text-gray-600">Velkommen til GoBuddy</p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 bg-blue-50 rounded-lg text-center">
-            <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-blue-800">0</p>
-            <p className="text-sm text-blue-600">Nye venner</p>
-          </div>
-          <div className="p-4 bg-green-50 rounded-lg text-center">
-            <MessageCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
-            <p className="text-2xl font-bold text-green-800">0</p>
-            <p className="text-sm text-green-600">Beskeder</p>
-          </div>
-        </div>
-
-        {/* Profile Summary */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <div className="flex items-center space-x-3 mb-4">
-            <User className="w-5 h-5 text-gray-500" />
-            <h3 className="font-medium">Din profil</h3>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Email:</span>
-              <span>{profile?.email || user?.email || "Ikke angivet"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Alder:</span>
-              <span>{profile?.age ? `${profile.age} år` : "Ikke angivet"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Lokation:</span>
-              <span>
-                {profile?.city && profile?.country
-                  ? `${profile.city}, ${profile.country}`
-                  : profile?.city || profile?.country || "Ikke angivet"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Interests */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <div className="flex items-center space-x-3 mb-4">
-            <Heart className="w-5 h-5 text-gray-500" />
-            <h3 className="font-medium">Dine interesser</h3>
-          </div>
-          {profile?.user_interests && profile.user_interests.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {profile.user_interests.slice(0, 6).map((interest, index) => (
-                <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                  {interest.interests.interest_da}
-                </span>
-              ))}
-              {profile.user_interests.length > 6 && (
-                <span className="px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-sm">+{profile.user_interests.length - 6} flere</span>
-              )}
-            </div>
-          ) : (
-            <p className="text-gray-500 italic">Ingen interesser angivet endnu</p>
+          {hasLocation && (
+            <p className="text-gray-500 mt-1 flex items-center gap-1">
+              <MapPin className="w-4 h-4" />
+              {profile.city}
+            </p>
           )}
         </div>
 
-        {/* Location Info */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <div className="flex items-center space-x-3 mb-4">
-            <MapPin className="w-5 h-5 text-gray-500" />
-            <h3 className="font-medium">Find venner i nærheden</h3>
-          </div>
-          <p className="text-sm text-gray-600 mb-4">Opdater din lokation for at finde venner med lignende interesser i dit område.</p>
-          <Button variant="outline" className="w-full">
-            Find venner i nærheden
-          </Button>
-        </div>
-
-        {/* Profile Completion Reminder */}
-        {(!profile?.first_name || !profile?.age || !profile?.user_interests?.length) && (
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h4 className="font-medium text-yellow-800 mb-2">Fuldfør din profil</h4>
-            <p className="text-sm text-yellow-800 mb-3">En komplet profil hjælper dig med at finde bedre matches og nye venner.</p>
-            <Button variant="outline" size="sm" className="text-yellow-800 border-yellow-300 hover:bg-yellow-100">
-              Fuldfør profil
-            </Button>
+        {/* What are you into? — Interest highlights */}
+        {hasInterests && (
+          <div>
+            <h2 className="text-lg font-medium mb-3">Dine interesser</h2>
+            <div className="flex flex-wrap gap-2">
+              {interests.map((interest) => (
+                <span
+                  key={interest.interest_id}
+                  className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm font-medium"
+                >
+                  {interest.interests.interest_da}
+                </span>
+              ))}
+            </div>
+            <Link
+              to="/profile-edit"
+              className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mt-3"
+            >
+              Rediger interesser
+              <ArrowRight className="w-3 h-3" />
+            </Link>
           </div>
         )}
 
-        {/* Quick Actions */}
-        <div className="space-y-3">
-          <h3 className="font-medium">Hurtige handlinger</h3>
-          <div className="space-y-2">
-            <Button variant="outline" className="w-full justify-start">
-              <User className="w-4 h-4 mr-2" />
-              Se min profil
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Users className="w-4 h-4 mr-2" />
-              Find nye venner
-            </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <MessageCircle className="w-4 h-4 mr-2" />
-              Mine beskeder
-            </Button>
+        {/* Buddy suggestions teaser */}
+        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center">
+          <Sparkles className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+          <h2 className="text-lg font-medium mb-1">Find din næste buddy</h2>
+          <p className="text-gray-500 text-sm max-w-sm mx-auto">
+            Vi arbejder på at matche dig med folk i nærheden, der deler dine interesser. Bliv klar ved at gøre din profil komplet.
+          </p>
+        </div>
+
+        {/* Profile completion nudge */}
+        {!profileComplete && (
+          <div className="rounded-xl bg-gray-50 p-5">
+            <h3 className="font-medium mb-3">Gør din profil klar</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Jo mere du deler, jo bedre kan vi finde de rigtige buddies til dig.
+            </p>
+            <div className="space-y-2">
+              {!profile?.first_name && (
+                <ProfileTask label="Tilføj dit navn" to="/profile-edit" />
+              )}
+              {!profile?.age && (
+                <ProfileTask label="Angiv din alder" to="/profile-edit" />
+              )}
+              {!hasInterests && (
+                <ProfileTask label="Vælg dine interesser" to="/profile-edit" />
+              )}
+              {!hasLocation && (
+                <ProfileTask label="Angiv din placering" to="/profile-edit" />
+              )}
+            </div>
           </div>
+        )}
+
+        {/* Quick links */}
+        <div className="flex gap-3">
+          <Button asChild variant="outline" className="flex-1">
+            <Link to="/profile">
+              <UserPen className="w-4 h-4" />
+              Min profil
+            </Link>
+          </Button>
         </div>
       </div>
     </DefaultLayout>
+  );
+}
+
+function ProfileTask({ label, to }: { label: string; to: string }) {
+  return (
+    <Link
+      to={to}
+      className="flex items-center justify-between p-3 bg-white rounded-lg border hover:border-gray-400 transition-colors"
+    >
+      <span className="text-sm">{label}</span>
+      <ArrowRight className="w-4 h-4 text-gray-400" />
+    </Link>
   );
 }
 

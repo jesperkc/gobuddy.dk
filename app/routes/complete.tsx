@@ -1,76 +1,30 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { SplitScreen } from "../../src/components/SplitScreen";
-import { useOnboardingStore } from "../../src/store/onboarding";
-import { supabase } from "../../src/lib/supabase";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { DefaultLayout } from "../../src/components/AppShell";
 import { useClientEffect } from "../../src/lib/ssr-utils";
+
 function Complete() {
-  const { name, email, age, interests, address, coordinates } = useOnboardingStore();
-  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useClientEffect(() => {
-    const saveProfile = async () => {
-      try {
-        // Save profile data
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
+    // User lands here after clicking the email confirmation link.
+    // Supabase handles the token exchange automatically via the URL hash.
+    // Redirect to home after a short delay to let the auth state update.
+    const timeout = setTimeout(() => {
+      navigate({ to: "/home" });
+    }, 1000);
 
-        if (userError) throw userError;
-        if (!user) throw new Error("No authenticated user found");
-
-        // Save profile data
-        const { error: profileError } = await supabase.from("profiles").insert({
-          user_id: user.id,
-          first_name: name,
-          email,
-          age,
-          location: coordinates ? `POINT(${coordinates.lng} ${coordinates.lat})` : null,
-          city: address?.city,
-          has_completed_profile_setup: true,
-        });
-
-        if (profileError) throw profileError;
-
-        // Save user interests
-        const { data: interestsData, error: interestsError } = await supabase
-          .from("interests")
-          .select("interest_id, interest_en")
-          .in("interest_en", interests);
-
-        if (interestsError) throw interestsError;
-
-        const interestIds = interestsData.map((i) => i.interest_id);
-
-        if (interestIds.length > 0) {
-          const { error: userInterestsError } = await supabase.from("user_interests").insert(
-            interestIds.map((interest_id) => ({
-              profile_id: user.id,
-              interest_id,
-            }))
-          );
-
-          if (userInterestsError) throw userInterestsError;
-        }
-        // navigate({ to: "/completed" });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      }
-    };
-
-    saveProfile();
-  }, [email, name, age, interests, address, coordinates]);
+    return () => clearTimeout(timeout);
+  }, [navigate]);
 
   return (
-    <SplitScreen>
-      <div className="text-center">
-        <div className="inline-flex items-center justify-center">
-          Saving profile
-          {error && <p className="text-red-500">{error}</p>}
+    <DefaultLayout>
+      <div className="max-w-md mx-auto text-center py-12">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+          <p className="text-gray-600">Email bekræftet — sender dig videre...</p>
         </div>
       </div>
-    </SplitScreen>
+    </DefaultLayout>
   );
 }
 

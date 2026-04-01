@@ -20,7 +20,19 @@ import { Route as DetailsRouteImport } from './routes/details'
 import { Route as ConfirmemailRouteImport } from './routes/confirmemail'
 import { Route as CompletedRouteImport } from './routes/completed'
 import { Route as CompleteRouteImport } from './routes/complete'
+import { Route as GodaddyRouteRouteImport } from './routes/godaddy/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GodaddyIndexRouteImport } from './routes/godaddy/index'
+import { Route as GodaddyAnalyticsRouteImport } from './routes/godaddy/analytics'
+import { Route as ApiGenerateUsersRouteImport } from './routes/api/generate-users'
+import { Route as ApiGenerateInterestsRouteImport } from './routes/api/generate-interests'
+import { Route as GodaddyUsersIndexRouteImport } from './routes/godaddy/users/index'
+import { Route as GodaddyInterestsIndexRouteImport } from './routes/godaddy/interests/index'
+import { Route as GodaddyUsersGenerateRouteImport } from './routes/godaddy/users/generate'
+import { Route as GodaddyUsersCreateRouteImport } from './routes/godaddy/users/create'
+import { Route as GodaddyInterestsGenerateRouteImport } from './routes/godaddy/interests/generate'
+import { Route as GodaddyInterestsCreateRouteImport } from './routes/godaddy/interests/create'
+import { Route as GodaddyUsersUserIdEditRouteImport } from './routes/godaddy/users/$userId/edit'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -77,14 +89,76 @@ const CompleteRoute = CompleteRouteImport.update({
   path: '/complete',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GodaddyRouteRoute = GodaddyRouteRouteImport.update({
+  id: '/godaddy',
+  path: '/godaddy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GodaddyIndexRoute = GodaddyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const GodaddyAnalyticsRoute = GodaddyAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const ApiGenerateUsersRoute = ApiGenerateUsersRouteImport.update({
+  id: '/api/generate-users',
+  path: '/api/generate-users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenerateInterestsRoute = ApiGenerateInterestsRouteImport.update({
+  id: '/api/generate-interests',
+  path: '/api/generate-interests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GodaddyUsersIndexRoute = GodaddyUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const GodaddyInterestsIndexRoute = GodaddyInterestsIndexRouteImport.update({
+  id: '/interests/',
+  path: '/interests/',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const GodaddyUsersGenerateRoute = GodaddyUsersGenerateRouteImport.update({
+  id: '/users/generate',
+  path: '/users/generate',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const GodaddyUsersCreateRoute = GodaddyUsersCreateRouteImport.update({
+  id: '/users/create',
+  path: '/users/create',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const GodaddyInterestsGenerateRoute =
+  GodaddyInterestsGenerateRouteImport.update({
+    id: '/interests/generate',
+    path: '/interests/generate',
+    getParentRoute: () => GodaddyRouteRoute,
+  } as any)
+const GodaddyInterestsCreateRoute = GodaddyInterestsCreateRouteImport.update({
+  id: '/interests/create',
+  path: '/interests/create',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const GodaddyUsersUserIdEditRoute = GodaddyUsersUserIdEditRouteImport.update({
+  id: '/users/$userId/edit',
+  path: '/users/$userId/edit',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/godaddy': typeof GodaddyRouteRouteWithChildren
   '/complete': typeof CompleteRoute
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
@@ -96,6 +170,17 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
+  '/api/generate-interests': typeof ApiGenerateInterestsRoute
+  '/api/generate-users': typeof ApiGenerateUsersRoute
+  '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/godaddy/': typeof GodaddyIndexRoute
+  '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
+  '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
+  '/godaddy/users/create': typeof GodaddyUsersCreateRoute
+  '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
+  '/godaddy/interests': typeof GodaddyInterestsIndexRoute
+  '/godaddy/users': typeof GodaddyUsersIndexRoute
+  '/godaddy/users/$userId/edit': typeof GodaddyUsersUserIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -110,10 +195,22 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
+  '/api/generate-interests': typeof ApiGenerateInterestsRoute
+  '/api/generate-users': typeof ApiGenerateUsersRoute
+  '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/godaddy': typeof GodaddyIndexRoute
+  '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
+  '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
+  '/godaddy/users/create': typeof GodaddyUsersCreateRoute
+  '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
+  '/godaddy/interests': typeof GodaddyInterestsIndexRoute
+  '/godaddy/users': typeof GodaddyUsersIndexRoute
+  '/godaddy/users/$userId/edit': typeof GodaddyUsersUserIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/godaddy': typeof GodaddyRouteRouteWithChildren
   '/complete': typeof CompleteRoute
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
@@ -125,11 +222,23 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
+  '/api/generate-interests': typeof ApiGenerateInterestsRoute
+  '/api/generate-users': typeof ApiGenerateUsersRoute
+  '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/godaddy/': typeof GodaddyIndexRoute
+  '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
+  '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
+  '/godaddy/users/create': typeof GodaddyUsersCreateRoute
+  '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
+  '/godaddy/interests/': typeof GodaddyInterestsIndexRoute
+  '/godaddy/users/': typeof GodaddyUsersIndexRoute
+  '/godaddy/users/$userId/edit': typeof GodaddyUsersUserIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/godaddy'
     | '/complete'
     | '/completed'
     | '/confirmemail'
@@ -141,6 +250,17 @@ export interface FileRouteTypes {
     | '/profile'
     | '/profile-edit'
     | '/signup'
+    | '/api/generate-interests'
+    | '/api/generate-users'
+    | '/godaddy/analytics'
+    | '/godaddy/'
+    | '/godaddy/interests/create'
+    | '/godaddy/interests/generate'
+    | '/godaddy/users/create'
+    | '/godaddy/users/generate'
+    | '/godaddy/interests'
+    | '/godaddy/users'
+    | '/godaddy/users/$userId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -155,9 +275,21 @@ export interface FileRouteTypes {
     | '/profile'
     | '/profile-edit'
     | '/signup'
+    | '/api/generate-interests'
+    | '/api/generate-users'
+    | '/godaddy/analytics'
+    | '/godaddy'
+    | '/godaddy/interests/create'
+    | '/godaddy/interests/generate'
+    | '/godaddy/users/create'
+    | '/godaddy/users/generate'
+    | '/godaddy/interests'
+    | '/godaddy/users'
+    | '/godaddy/users/$userId/edit'
   id:
     | '__root__'
     | '/'
+    | '/godaddy'
     | '/complete'
     | '/completed'
     | '/confirmemail'
@@ -169,10 +301,22 @@ export interface FileRouteTypes {
     | '/profile'
     | '/profile-edit'
     | '/signup'
+    | '/api/generate-interests'
+    | '/api/generate-users'
+    | '/godaddy/analytics'
+    | '/godaddy/'
+    | '/godaddy/interests/create'
+    | '/godaddy/interests/generate'
+    | '/godaddy/users/create'
+    | '/godaddy/users/generate'
+    | '/godaddy/interests/'
+    | '/godaddy/users/'
+    | '/godaddy/users/$userId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GodaddyRouteRoute: typeof GodaddyRouteRouteWithChildren
   CompleteRoute: typeof CompleteRoute
   CompletedRoute: typeof CompletedRoute
   ConfirmemailRoute: typeof ConfirmemailRoute
@@ -184,6 +328,8 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ProfileEditRoute: typeof ProfileEditRoute
   SignupRoute: typeof SignupRoute
+  ApiGenerateInterestsRoute: typeof ApiGenerateInterestsRoute
+  ApiGenerateUsersRoute: typeof ApiGenerateUsersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -265,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompleteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/godaddy': {
+      id: '/godaddy'
+      path: '/godaddy'
+      fullPath: '/godaddy'
+      preLoaderRoute: typeof GodaddyRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -272,11 +425,117 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/godaddy/': {
+      id: '/godaddy/'
+      path: '/'
+      fullPath: '/godaddy/'
+      preLoaderRoute: typeof GodaddyIndexRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/analytics': {
+      id: '/godaddy/analytics'
+      path: '/analytics'
+      fullPath: '/godaddy/analytics'
+      preLoaderRoute: typeof GodaddyAnalyticsRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/api/generate-users': {
+      id: '/api/generate-users'
+      path: '/api/generate-users'
+      fullPath: '/api/generate-users'
+      preLoaderRoute: typeof ApiGenerateUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate-interests': {
+      id: '/api/generate-interests'
+      path: '/api/generate-interests'
+      fullPath: '/api/generate-interests'
+      preLoaderRoute: typeof ApiGenerateInterestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/godaddy/users/': {
+      id: '/godaddy/users/'
+      path: '/users'
+      fullPath: '/godaddy/users'
+      preLoaderRoute: typeof GodaddyUsersIndexRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/interests/': {
+      id: '/godaddy/interests/'
+      path: '/interests'
+      fullPath: '/godaddy/interests'
+      preLoaderRoute: typeof GodaddyInterestsIndexRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/users/generate': {
+      id: '/godaddy/users/generate'
+      path: '/users/generate'
+      fullPath: '/godaddy/users/generate'
+      preLoaderRoute: typeof GodaddyUsersGenerateRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/users/create': {
+      id: '/godaddy/users/create'
+      path: '/users/create'
+      fullPath: '/godaddy/users/create'
+      preLoaderRoute: typeof GodaddyUsersCreateRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/interests/generate': {
+      id: '/godaddy/interests/generate'
+      path: '/interests/generate'
+      fullPath: '/godaddy/interests/generate'
+      preLoaderRoute: typeof GodaddyInterestsGenerateRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/interests/create': {
+      id: '/godaddy/interests/create'
+      path: '/interests/create'
+      fullPath: '/godaddy/interests/create'
+      preLoaderRoute: typeof GodaddyInterestsCreateRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/users/$userId/edit': {
+      id: '/godaddy/users/$userId/edit'
+      path: '/users/$userId/edit'
+      fullPath: '/godaddy/users/$userId/edit'
+      preLoaderRoute: typeof GodaddyUsersUserIdEditRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
   }
 }
 
+interface GodaddyRouteRouteChildren {
+  GodaddyAnalyticsRoute: typeof GodaddyAnalyticsRoute
+  GodaddyIndexRoute: typeof GodaddyIndexRoute
+  GodaddyInterestsCreateRoute: typeof GodaddyInterestsCreateRoute
+  GodaddyInterestsGenerateRoute: typeof GodaddyInterestsGenerateRoute
+  GodaddyUsersCreateRoute: typeof GodaddyUsersCreateRoute
+  GodaddyUsersGenerateRoute: typeof GodaddyUsersGenerateRoute
+  GodaddyInterestsIndexRoute: typeof GodaddyInterestsIndexRoute
+  GodaddyUsersIndexRoute: typeof GodaddyUsersIndexRoute
+  GodaddyUsersUserIdEditRoute: typeof GodaddyUsersUserIdEditRoute
+}
+
+const GodaddyRouteRouteChildren: GodaddyRouteRouteChildren = {
+  GodaddyAnalyticsRoute: GodaddyAnalyticsRoute,
+  GodaddyIndexRoute: GodaddyIndexRoute,
+  GodaddyInterestsCreateRoute: GodaddyInterestsCreateRoute,
+  GodaddyInterestsGenerateRoute: GodaddyInterestsGenerateRoute,
+  GodaddyUsersCreateRoute: GodaddyUsersCreateRoute,
+  GodaddyUsersGenerateRoute: GodaddyUsersGenerateRoute,
+  GodaddyInterestsIndexRoute: GodaddyInterestsIndexRoute,
+  GodaddyUsersIndexRoute: GodaddyUsersIndexRoute,
+  GodaddyUsersUserIdEditRoute: GodaddyUsersUserIdEditRoute,
+}
+
+const GodaddyRouteRouteWithChildren = GodaddyRouteRoute._addFileChildren(
+  GodaddyRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GodaddyRouteRoute: GodaddyRouteRouteWithChildren,
   CompleteRoute: CompleteRoute,
   CompletedRoute: CompletedRoute,
   ConfirmemailRoute: ConfirmemailRoute,
@@ -288,6 +547,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ProfileEditRoute: ProfileEditRoute,
   SignupRoute: SignupRoute,
+  ApiGenerateInterestsRoute: ApiGenerateInterestsRoute,
+  ApiGenerateUsersRoute: ApiGenerateUsersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

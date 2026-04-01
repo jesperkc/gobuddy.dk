@@ -1,94 +1,75 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { MapPin, Calendar, Mail, Pencil } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { Button } from "../../src/components/ui/button";
-import LoadingValue from "../../src/components/LoadingValue";
 
 function Profile() {
   const { user } = useAuth();
   const { profile, loading, error, loadProfile } = useUserProfileStore();
 
-  // Create userInterests array from profile.interests for compatibility
-  // const userInterests =
-  //   profile?.interests?.map((interest, index) => ({
-  //     interest_id: index.toString(),
-  //     interest_da: interest,
-  //     description: interest,
-  //   })) || [];
-
   useEffect(() => {
-    if (user && !profile) {
+    if (user && !profile && !loading) {
       loadProfile(user);
     }
-  }, [user, profile, loadProfile]);
+  }, [user, profile, loadProfile, loading]);
 
-  console.log("Profile component loaded with user:", user);
-  console.log("Profile data:", profile);
+  const interests = profile?.user_interests || [];
+
   return (
     <DefaultLayout>
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold">Min profil</h1>
-          <Button asChild variant="ghost" size="sm">
-            <Link to="/profile-edit">Rediger profil</Link>
-          </Button>
-        </div>
-
+      <div className="max-w-2xl mx-auto">
         {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
 
-        <div className="grid grid-cols-1 gap-4">
-          <div className="flex w-full gap-4">
-            <div className="p-6 bg-white shadow-xs rounded-lg border w-1/3">
-              <h2 className="text-lg font-medium text-gray-700">Personlige oplysninger</h2>
-              <div className="mt-4 space-y-3">
-                <div>
-                  <span className="text-sm text-gray-500">Navn</span>
-                  <p className="font-medium">
-                    <LoadingValue value={profile && profile.first_name} loading={loading}></LoadingValue>
+        {loading ? (
+          <div className="space-y-4 animate-pulse">
+            <div className="h-8 bg-gray-100 rounded w-48" />
+            <div className="h-4 bg-gray-100 rounded w-32" />
+            <div className="flex gap-2 mt-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-8 bg-gray-100 rounded-full w-24" />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Header — name + location + edit */}
+            <div className="flex items-start justify-between">
+              <div>
+                <h1 className="text-3xl">
+                  {profile?.first_name || "Unavngivet"}
+                  {profile?.age ? `, ${profile.age}` : ""}
+                </h1>
+                {profile?.city && (
+                  <p className="text-gray-500 mt-1 flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    {profile.city}
+                    {profile.country ? `, ${profile.country}` : ""}
                   </p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Alder</span>
-                  <p className="font-medium">
-                    <LoadingValue value={profile && profile.age} loading={loading} width={8}></LoadingValue>
-                  </p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Email</span>
-                  <p className="font-medium">
-                    <LoadingValue value={user?.email} loading={loading} width={"1/2"}></LoadingValue>
-                  </p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">By</span>
-                  <p className="font-medium">
-                    <LoadingValue value={profile && profile.city} loading={loading} width={"1/2"}></LoadingValue>
-                  </p>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Medlem siden</span>
-                  <p className="font-medium">
-                    <LoadingValue
-                      value={profile && profile.created_at ? new Date(profile.created_at).toLocaleDateString("da-DK") : ""}
-                      loading={loading}
-                      width={50}
-                    ></LoadingValue>
-                  </p>
-                </div>
+                )}
               </div>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/profile-edit">
+                  <Pencil className="w-3.5 h-3.5" />
+                  Rediger
+                </Link>
+              </Button>
             </div>
 
-            {profile && profile.user_interests && (
-              <div className="p-6 bg-white shadow-xs rounded-lg border w-2/3">
-                <h2 className="text-lg font-medium text-gray-700">Interesser</h2>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {profile.user_interests.map((interest) => (
+            {/* Interests — the main event */}
+            {interests.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                  Interesser
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {interests.map((interest) => (
                     <span
                       key={interest.interest_id}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                      className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
                       title={interest.description}
                     >
                       {interest.interests.interest_da}
@@ -97,10 +78,54 @@ function Profile() {
                 </div>
               </div>
             )}
+
+            {/* Details */}
+            <div className="border-t pt-6 space-y-3">
+              <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                Detaljer
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <DetailRow
+                  icon={<Mail className="w-4 h-4" />}
+                  label="Email"
+                  value={user?.email}
+                />
+                <DetailRow
+                  icon={<Calendar className="w-4 h-4" />}
+                  label="Medlem siden"
+                  value={
+                    profile?.created_at
+                      ? new Date(profile.created_at).toLocaleDateString("da-DK", {
+                          month: "long",
+                          year: "numeric",
+                        })
+                      : undefined
+                  }
+                />
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </DefaultLayout>
+  );
+}
+
+function DetailRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value?: string | null;
+}) {
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <span className="text-gray-400">{icon}</span>
+      <span className="text-gray-500">{label}:</span>
+      <span className="text-gray-900">{value || "Ikke angivet"}</span>
+    </div>
   );
 }
 

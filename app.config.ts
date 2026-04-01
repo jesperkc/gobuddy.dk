@@ -10,7 +10,7 @@ export default defineConfig({
       },
     },
     optimizeDeps: {
-      exclude: ["lucide-react"],
+      include: ["lucide-react"],
     },
     define: {
       // Fix for browser compatibility issues with Node.js modules
@@ -18,6 +18,6 @@ export default defineConfig({
     },
   },
   server: {
-    preset: "vercel",
+    preset: "node-server",
   },
 });

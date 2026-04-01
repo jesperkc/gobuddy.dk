@@ -161,7 +161,7 @@ function Location() {
             )}
           </Button>
 
-          {locationError && <div className="text-red-600 text-sm">{locationError}</div>}
+          {locationError && <div className="text-red-600 ">{locationError}</div>}
           <Or />
 
           <form onSubmit={handleSubmit} className="space-y-4">

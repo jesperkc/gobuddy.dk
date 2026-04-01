@@ -6,7 +6,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        patua: ["Patua One", "Sans-serif"],
+        // patua: ["Patua One", "Sans-serif"],
+        amifer: ["amifer", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

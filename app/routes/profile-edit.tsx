@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/form/TextInput";
-import { required, setValues, useForm } from "@modular-forms/react";
+import { required, useForm } from "@modular-forms/react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +16,7 @@ import { fetchProfileWithInterests } from "../../src/lib/fetchProfileWithInteres
 export interface UserProfile {
   profile_id: string;
   first_name: string | null;
+  last_name?: string | null;
   age: number | null;
   email: string | null;
   city: string | null;
@@ -36,6 +37,7 @@ type DetailsForm = {
 type TabType = "details" | "interests" | "location";
 
 export function ProfileEdit() {
+  const { profileData } = Route.useLoaderData(); // Access preloaded data
   const { user, loading: loadingUser } = useAuth();
   const navigate = useNavigate();
 
@@ -44,7 +46,7 @@ export function ProfileEdit() {
 
   // Data state
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -59,51 +61,41 @@ export function ProfileEdit() {
   });
 
   // Form setup for details
-  const [detailsForm, { Form, Field }] = useForm<DetailsForm>({
+  const [, { Form, Field }] = useForm<DetailsForm>({
     initialValues: {
-      first_name: profile?.first_name || "",
-      age: profile?.age || undefined,
+      first_name: profileData?.profile?.first_name || "",
+      age: profileData?.profile.age || undefined,
     },
   });
 
-  // Fetch initial data
   useEffect(() => {
-    const fetchData = async () => {
+    const handleData = async () => {
       if (!user?.id || loadingUser) return; // Wait for auth to fully initialize
       // console.log("Fetching profile data for user:", user.id, loadingUser);
 
       try {
-        setLoading(true);
-
-        // Fetch profile and interests
-        const { profile: profileData, interests } = await fetchProfileWithInterests(user.id);
-        setProfile(profileData);
-
-        setValues(detailsForm, {
-          first_name: profileData.first_name || "",
-          age: profileData.age || undefined,
-        });
+        setProfile(profileData.profile);
 
         // Initialize selected interests with descriptions
         const interestsWithDescriptions: Record<string, string> = {};
-        interests.forEach((interest) => {
+        profileData.interests.forEach((interest) => {
           interestsWithDescriptions[interest.interest_id] = interest.description || "";
         });
         setSelectedInterestsWithDescriptions(interestsWithDescriptions);
 
         // Set initial location data
-        if (profileData.city) {
+        if (profileData.profile.city) {
           // setSearchQuery(profileData.city);
           setAddress({
             postcode: "",
-            city: profileData.city,
+            city: profileData.profile.city,
             country: "",
             country_code: "",
           });
         }
         setCoordinates({
-          lat: profileData.latitude || 0,
-          lng: profileData.longitude || 0,
+          lat: profileData.profile.latitude || 0,
+          lng: profileData.profile.longitude || 0,
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred while fetching data");
@@ -113,8 +105,8 @@ export function ProfileEdit() {
       }
     };
 
-    fetchData();
-  }, [user?.id, loadingUser]);
+    handleData();
+  }, [profileData]);
 
   // Tab navigation
   const tabs = [
@@ -260,7 +252,7 @@ export function ProfileEdit() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium  ${
                 activeTab === tab.id
                   ? "border-blue-500 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -385,4 +377,27 @@ function ProtectedProfile() {
 
 export const Route = createFileRoute("/profile-edit")({
   component: ProtectedProfile,
+  loader: async () => {
+    // Get user directly from Supabase
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      throw new Error("Unauthorized");
+    }
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    // Fetch profile data
+    const profileData = await fetchProfileWithInterests(user.id);
+
+    console.log("Profile data loaded:", profileData);
+    return {
+      user,
+      profileData,
+    };
+  },
 });

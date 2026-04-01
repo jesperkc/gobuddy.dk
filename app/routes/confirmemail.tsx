@@ -16,7 +16,7 @@ function ConfirmEmail() {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("AuthContext onAuthStateChange", event, session);
       if (session?.user?.email_confirmed_at) {
-        navigate({ to: "/completed" });
+        navigate({ to: "/home" });
       }
     });
 

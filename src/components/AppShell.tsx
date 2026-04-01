@@ -6,7 +6,6 @@ import React from "react";
 // import { useUserProfileStore } from "../store/userProfile";
 // import { Button } from "./ui/button";
 import { Navbar } from "./NavBar";
-
 interface AppShellProps {
   children: React.ReactNode;
   title?: string;

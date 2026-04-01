@@ -52,7 +52,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(({ classNa
           aria-errormessage={`${name}-error`}
           required
         /> */}
-      {error && <p className="text-sm text-red-600">{error.value}</p>}
+      {error && <p className=" text-red-600">{error.value}</p>}
     </div>
   );
 });

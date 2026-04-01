@@ -146,7 +146,7 @@ export const LocationPicker = ({ coordinates, setAddress, setCoordinates }: Loca
         )}
       </Button>
 
-      {locationError && <div className="text-red-600 text-sm">{locationError}</div>}
+      {locationError && <div className="text-red-600 ">{locationError}</div>}
       <Or />
 
       <div className="search-container relative">

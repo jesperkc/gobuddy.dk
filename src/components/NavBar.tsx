@@ -1,15 +1,15 @@
 import { useState, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 // No need to import logo as we'll use a div placeholder
-import Logo from "../assets/gobuddy-logo.svg?react";
 import { Button } from "./ui/button";
 import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { useClientEffect, isBrowser } from "../lib/ssr-utils";
+import { GobuddyLogo } from "./GobuddyLogo";
 // import { useUserProfileStore } from "@/store/userProfile";
 
 export function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   // const { profile } = useUserProfileStore();
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -51,16 +51,16 @@ export function Navbar() {
           {/* Logo */}
           <div className="shrink-0 flex items-center">
             <Link to="/" className="flex items-center">
-              <Logo className="logo w-12 h-12" />
+              <GobuddyLogo className="logo h-12" withText={true} />
             </Link>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/home" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+            <Link to="/home" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Hjem
             </Link>
-            <Link to="/" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+            <Link to="/" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Find venner
             </Link>
           </div>
@@ -94,12 +94,23 @@ export function Navbar() {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 ring-1 ring-black ring-opacity-5">
                     <Link
                       to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="block px-4 py-2  text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsDropdownOpen(false)}
                     >
                       Min Profil
                     </Link>
-                    <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    {/* Admin link - only show for admins */}
+                    {isAdmin && (
+                      <Link
+                        to="/godaddy"
+                        className="block px-4 py-2  text-red-600 hover:bg-red-50 font-medium"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        🛡️ Admin Dashboard
+                      </Link>
+                    )}
+                    <div className="border-t border-gray-100"></div>
+                    <button onClick={handleLogout} className="block w-full text-left px-4 py-2  text-gray-700 hover:bg-gray-100">
                       Log ud
                     </button>
                   </div>
@@ -155,6 +166,16 @@ export function Navbar() {
               >
                 Min Profil
               </Link>
+              {/* Admin link for mobile - only show for admins */}
+              {isAdmin && (
+                <Link
+                  to="/godaddy"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  🛡️ Admin Dashboard
+                </Link>
+              )}
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
