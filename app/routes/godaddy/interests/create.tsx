@@ -4,10 +4,12 @@ import { AdminShell } from "../../../../src/components/AdminShell";
 import { supabase } from "../../../../src/lib/supabase";
 import { useState } from "react";
 import { Button } from "../../../../src/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../src/components/ui/select";
 import { TextInput } from "../../../../src/components/form/TextInput";
 import { useForm, required } from "@modular-forms/react";
 import { SuccessCard } from "@/components/form/SuccessCard";
 import { ErrorCard } from "@/components/form/ErrorCard";
+import { generateRelationsForInterest } from "../../api/generate-relations";
 
 interface CreateInterestForm extends Record<string, string | undefined> {
   interestDa: string;
@@ -19,6 +21,21 @@ const CreateInterest = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>();
   const [success, setSuccess] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [category, setCategory] = useState("");
+
+  // Fetch existing categories for suggestions
+  useState(() => {
+    supabase
+      .from("interests")
+      .select("category")
+      .then(({ data }) => {
+        if (data) {
+          const unique = [...new Set(data.map((d) => d.category).filter(Boolean))].sort();
+          setCategories(unique);
+        }
+      });
+  });
 
   // Form setup with useForm
   const [, { Form, Field }] = useForm<CreateInterestForm>({
@@ -31,6 +48,12 @@ const CreateInterest = () => {
   const handleSubmit = async (values: CreateInterestForm) => {
     setLoading(true);
     setError(null);
+
+    if (!category) {
+      setError("Vælg venligst en kategori");
+      setLoading(false);
+      return;
+    }
 
     try {
       // Check if interest already exists (Danish version)
@@ -50,18 +73,27 @@ const CreateInterest = () => {
       }
 
       // Create the new interest
-      const { error: createError } = await supabase
+      const { data: created, error: createError } = await supabase
         .from("interests")
         .insert({
           interest_da: values.interestDa,
-          interest_en: values.interestEn || values.interestDa, // Use Danish as fallback if English not provided
+          interest_en: values.interestEn || values.interestDa,
+          category,
         })
-        .select()
+        .select("interest_id")
         .single();
 
       if (createError) throw createError;
 
       setSuccess(true);
+
+      // Auto-generate relations for the new interest (fire and forget)
+      generateRelationsForInterest(created.interest_id).then((result) => {
+        if (result.count > 0) {
+          console.log(`Generated ${result.count} relations for new interest`);
+        }
+      });
+
       setTimeout(() => {
         navigate({ to: "/godaddy/interests" });
       }, 2000);
@@ -134,6 +166,22 @@ const CreateInterest = () => {
                   </div>
                 )}
               </Field>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kategori *</label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Vælg kategori..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Examples section */}

@@ -1,14 +1,13 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useSearch } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 import { MailCheck } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
-import { useOnboardingStore } from "../../src/store/onboarding";
 import { supabase } from "../../src/lib/supabase";
 import { useClientEffect } from "../../src/lib/ssr-utils";
 
 function ConfirmEmail() {
   const navigate = useNavigate();
-  const { email } = useOnboardingStore();
+  const { email } = useSearch({ from: "/confirmemail" });
 
   useClientEffect(() => {
     const {
@@ -33,7 +32,7 @@ function ConfirmEmail() {
             <MailCheck />
           </div>
         </div>
-        <p className="mt-4 text-gray-600">Check your inbox to confirm your email address ({email})</p>
+        <p className="mt-4 text-gray-600">Tjek din indbakke for at bekræfte din e-mailadresse{email ? ` (${email})` : ""}</p>
       </div>
     </SplitScreen>
   );
@@ -41,4 +40,7 @@ function ConfirmEmail() {
 
 export const Route = createFileRoute("/confirmemail")({
   component: ConfirmEmail,
+  validateSearch: (search: Record<string, unknown>) => ({
+    email: (search.email as string) || "",
+  }),
 });

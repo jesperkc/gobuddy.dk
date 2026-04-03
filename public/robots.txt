@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /interesser/
+
+Disallow: /home
+Disallow: /profile
+Disallow: /profile-edit
+Disallow: /discover
+Disallow: /chat
+Disallow: /buddy
+Disallow: /godaddy
+
+Sitemap: https://gobuddy.dk/sitemap.xml

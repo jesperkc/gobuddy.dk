@@ -60,8 +60,11 @@ export function Navbar() {
             <Link to="/home" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Hjem
             </Link>
-            <Link to="/" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
+            <Link to="/discover" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Find venner
+            </Link>
+            <Link to="/chat" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
+              Beskeder
             </Link>
           </div>
 
@@ -150,11 +153,18 @@ export function Navbar() {
             Hjem
           </Link>
           <Link
-            to="/"
+            to="/discover"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Find venner
+          </Link>
+          <Link
+            to="/chat"
+            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Beskeder
           </Link>
           {/* SSR-safe user authentication for mobile menu */}
           {isBrowser && user && (

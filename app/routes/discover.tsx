@@ -32,8 +32,8 @@ function DiscoverPage() {
   const [buddies, setBuddies] = useState<BuddyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // Maps: buddy's interest_id → RelatedInterestInfo[] for that buddy
   const [relatedMap, setRelatedMap] = useState<Map<string, Map<string, RelatedInterestInfo[]>>>(new Map());
+  const [hi5SentIds, setHi5SentIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user && !profile) {
@@ -62,8 +62,8 @@ function DiscoverPage() {
       try {
         const myIds = Array.from(myInterestIds);
 
-        // Fetch profiles and interest_relations in parallel
-        const [profilesResult, relationsAResult, relationsBResult] = await Promise.all([
+        // Fetch profiles, interest_relations, and hi5s in parallel
+        const [profilesResult, relationsAResult, relationsBResult, hi5sResult] = await Promise.all([
           supabase
             .from("profiles")
             .select(
@@ -95,9 +95,17 @@ function DiscoverPage() {
             .select("interest_id_a, interest_id_b, score")
             .in("interest_id_b", myIds)
             .gte("score", 0.5),
+          supabase
+            .from("hi5s")
+            .select("receiver_id")
+            .eq("sender_id", user!.id),
         ]);
 
         if (profilesResult.error) throw profilesResult.error;
+
+        // Build hi5 sent set
+        const sentIds = new Set((hi5sResult.data || []).map((h: { receiver_id: string }) => h.receiver_id));
+        setHi5SentIds(sentIds);
 
         // Build map: my interest_id → Set of related interest_ids
         const myToRelated = new Map<string, Set<string>>();
@@ -186,18 +194,9 @@ function DiscoverPage() {
     return relatedMap.get(buddyId)?.get("interests") || [];
   }
 
-  // Sort: most shared interests first (related interests count less), then by distance
+  // Sort: closest first, then by shared interest score as tiebreaker
   const sortedBuddies = useMemo(() => {
     return [...buddies].sort((a, b) => {
-      const sharedA = a.interests.filter((i) => myInterestIds.has(i.interest_id)).length;
-      const sharedB = b.interests.filter((i) => myInterestIds.has(i.interest_id)).length;
-      const relatedA = getRelatedInterests(a.profile_id).length;
-      const relatedB = getRelatedInterests(b.profile_id).length;
-      // Score: exact match = 1, related = 0.5
-      const scoreA = sharedA + relatedA * 0.5;
-      const scoreB = sharedB + relatedB * 0.5;
-      if (scoreB !== scoreA) return scoreB - scoreA;
-
       if (myLat != null && myLng != null) {
         const distA =
           a.latitude != null && a.longitude != null
@@ -207,10 +206,17 @@ function DiscoverPage() {
           b.latitude != null && b.longitude != null
             ? haversineDistance(myLat, myLng, b.latitude, b.longitude)
             : Infinity;
-        return distA - distB;
+        if (distA !== distB) return distA - distB;
       }
 
-      return 0;
+      // Tiebreaker: more shared interests first
+      const sharedA = a.interests.filter((i) => myInterestIds.has(i.interest_id)).length;
+      const sharedB = b.interests.filter((i) => myInterestIds.has(i.interest_id)).length;
+      const relatedA = getRelatedInterests(a.profile_id).length;
+      const relatedB = getRelatedInterests(b.profile_id).length;
+      const scoreA = sharedA + relatedA * 0.5;
+      const scoreB = sharedB + relatedB * 0.5;
+      return scoreB - scoreA;
     });
   }, [buddies, myInterestIds, myLat, myLng, relatedMap]);
 
@@ -304,6 +310,7 @@ function DiscoverPage() {
                   sharedInterestIds={myInterestIds}
                   relatedInterests={getRelatedInterests(buddy.profile_id)}
                   distanceKm={getDistance(buddy)}
+                  hi5Sent={hi5SentIds.has(buddy.profile_id)}
                 />
               ))}
             </div>

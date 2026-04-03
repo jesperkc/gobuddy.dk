@@ -49,6 +49,20 @@ function BuddyProfile() {
     }
   }, [user, myProfile, loadProfile]);
 
+  // Check if hi5 already sent to this buddy
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("hi5s")
+      .select("sender_id")
+      .eq("sender_id", user.id)
+      .eq("receiver_id", profileId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setWaveSent(true);
+      });
+  }, [user, profileId]);
+
   useEffect(() => {
     async function fetchProfile() {
       setLoading(true);
@@ -198,13 +212,21 @@ function BuddyProfile() {
     setSendingWave(true);
 
     try {
-      const { error: msgError } = await supabase.from("messages").insert({
-        sender_id: user.id,
-        receiver_id: profileId,
-        content: "👋",
-      });
+      // Send message and record hi5 in parallel
+      const [msgResult, hi5Result] = await Promise.all([
+        supabase.from("messages").insert({
+          sender_id: user.id,
+          receiver_id: profileId,
+          content: "👋",
+        }),
+        supabase.from("hi5s").upsert(
+          { sender_id: user.id, receiver_id: profileId, updated_at: new Date().toISOString() },
+          { onConflict: "sender_id,receiver_id" }
+        ),
+      ]);
 
-      if (msgError) throw msgError;
+      if (msgResult.error) throw msgResult.error;
+      if (hi5Result.error) console.error("Hi5 record error:", hi5Result.error);
       setWaveSent(true);
     } catch (err) {
       console.error("Error sending wave:", err);
@@ -281,15 +303,20 @@ function BuddyProfile() {
               <div>
                 <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Interesser</h2>
                 <div className="flex flex-wrap gap-2">
-                  {profile.interests.map((interest) => (
-                    <div
-                      key={interest.interest_id}
-                      className="inline-flex flex-col px-3 py-1.5 rounded-xl text-sm bg-gray-100 text-gray-800"
-                    >
+                  {profile.interests.map((interest) => {
+                    const isShared = myInterestIds.has(interest.interest_id);
+                    return (
+                      <div
+                        key={interest.interest_id}
+                        className={`inline-flex flex-col px-3 py-1.5 rounded-xl text-sm ${
+                          isShared ? "bg-blue-50 text-blue-700 ring-1 ring-blue-200" : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
                       <span className="font-medium">{interest.interest_da}</span>
                       {interest.description && <span className="text-xs text-gray-500 mt-0.5">{interest.description}</span>}
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}

@@ -1,4 +1,4 @@
-import { MapPin, Users, Sparkles } from "lucide-react";
+import { MapPin, Users, Sparkles, Hand } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistance } from "@/lib/geo";
@@ -28,9 +28,10 @@ interface BuddyCardProps {
   sharedInterestIds: Set<string>;
   relatedInterests?: RelatedInterestInfo[];
   distanceKm: number | null;
+  hi5Sent?: boolean;
 }
 
-export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], distanceKm }: BuddyCardProps) {
+export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], distanceKm, hi5Sent }: BuddyCardProps) {
   const initials = buddy.first_name
     ? buddy.first_name.slice(0, 2).toUpperCase()
     : "?";
@@ -53,11 +54,18 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
       className="block rounded-xl border bg-white p-5 hover:shadow-md transition-shadow no-underline text-inherit"
     >
       <div className="flex items-start gap-4">
-        <Avatar className="h-12 w-12 text-lg">
-          <AvatarFallback className="bg-blue-100 text-blue-700">
-            {initials}
-          </AvatarFallback>
-        </Avatar>
+        <div className="relative">
+          <Avatar className="h-12 w-12 text-lg">
+            <AvatarFallback className="bg-blue-100 text-blue-700">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          {hi5Sent && (
+            <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center ring-2 ring-white">
+              <Hand className="w-3 h-3 -rotate-12" />
+            </div>
+          )}
+        </div>
 
         <div className="flex-1 min-w-0">
           {/* Name + age */}

@@ -82,7 +82,7 @@ function Signup() {
       if (signUpError) throw signUpError;
 
       if (data.user) {
-        navigate({ to: "/confirmemail" });
+        navigate({ to: "/confirmemail", search: { email } });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

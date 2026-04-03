@@ -238,6 +238,13 @@ const InterestManagement = () => {
                 <h3 className="text-lg leading-6 font-medium text-gray-900">Interesseliste ({filteredInterests.length})</h3>
                 <div className="flex space-x-3">
                   <Link
+                    to="/godaddy/interests/relations"
+                    className="inline-flex items-center px-4 py-2 border border-transparent  font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                  >
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Relationer
+                  </Link>
+                  <Link
                     to="/godaddy/interests/generate"
                     className="inline-flex items-center px-4 py-2 border border-transparent  font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                   >

@@ -16,20 +16,28 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocationRouteImport } from './routes/location'
 import { Route as InterestsRouteImport } from './routes/interests'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DetailsRouteImport } from './routes/details'
 import { Route as ConfirmemailRouteImport } from './routes/confirmemail'
 import { Route as CompletedRouteImport } from './routes/completed'
 import { Route as CompleteRouteImport } from './routes/complete'
 import { Route as GodaddyRouteRouteImport } from './routes/godaddy/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InteresserIndexRouteImport } from './routes/interesser/index'
 import { Route as GodaddyIndexRouteImport } from './routes/godaddy/index'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
+import { Route as InteresserInterestIdRouteImport } from './routes/interesser/$interestId'
 import { Route as GodaddyAnalyticsRouteImport } from './routes/godaddy/analytics'
+import { Route as ChatBuddyIdRouteImport } from './routes/chat/$buddyId'
+import { Route as BuddyProfileIdRouteImport } from './routes/buddy/$profileId'
 import { Route as ApiGenerateUsersRouteImport } from './routes/api/generate-users'
+import { Route as ApiGenerateRelationsRouteImport } from './routes/api/generate-relations'
 import { Route as ApiGenerateInterestsRouteImport } from './routes/api/generate-interests'
 import { Route as GodaddyUsersIndexRouteImport } from './routes/godaddy/users/index'
 import { Route as GodaddyInterestsIndexRouteImport } from './routes/godaddy/interests/index'
 import { Route as GodaddyUsersGenerateRouteImport } from './routes/godaddy/users/generate'
 import { Route as GodaddyUsersCreateRouteImport } from './routes/godaddy/users/create'
+import { Route as GodaddyInterestsRelationsRouteImport } from './routes/godaddy/interests/relations'
 import { Route as GodaddyInterestsGenerateRouteImport } from './routes/godaddy/interests/generate'
 import { Route as GodaddyInterestsCreateRouteImport } from './routes/godaddy/interests/create'
 import { Route as GodaddyUsersUserIdEditRouteImport } from './routes/godaddy/users/$userId/edit'
@@ -69,6 +77,11 @@ const HomeRoute = HomeRouteImport.update({
   path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiscoverRoute = DiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DetailsRoute = DetailsRouteImport.update({
   id: '/details',
   path: '/details',
@@ -99,19 +112,49 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InteresserIndexRoute = InteresserIndexRouteImport.update({
+  id: '/interesser/',
+  path: '/interesser/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GodaddyIndexRoute = GodaddyIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InteresserInterestIdRoute = InteresserInterestIdRouteImport.update({
+  id: '/interesser/$interestId',
+  path: '/interesser/$interestId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GodaddyAnalyticsRoute = GodaddyAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
   getParentRoute: () => GodaddyRouteRoute,
 } as any)
+const ChatBuddyIdRoute = ChatBuddyIdRouteImport.update({
+  id: '/chat/$buddyId',
+  path: '/chat/$buddyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuddyProfileIdRoute = BuddyProfileIdRouteImport.update({
+  id: '/buddy/$profileId',
+  path: '/buddy/$profileId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGenerateUsersRoute = ApiGenerateUsersRouteImport.update({
   id: '/api/generate-users',
   path: '/api/generate-users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenerateRelationsRoute = ApiGenerateRelationsRouteImport.update({
+  id: '/api/generate-relations',
+  path: '/api/generate-relations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGenerateInterestsRoute = ApiGenerateInterestsRouteImport.update({
@@ -139,6 +182,12 @@ const GodaddyUsersCreateRoute = GodaddyUsersCreateRouteImport.update({
   path: '/users/create',
   getParentRoute: () => GodaddyRouteRoute,
 } as any)
+const GodaddyInterestsRelationsRoute =
+  GodaddyInterestsRelationsRouteImport.update({
+    id: '/interests/relations',
+    path: '/interests/relations',
+    getParentRoute: () => GodaddyRouteRoute,
+  } as any)
 const GodaddyInterestsGenerateRoute =
   GodaddyInterestsGenerateRouteImport.update({
     id: '/interests/generate',
@@ -163,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
+  '/discover': typeof DiscoverRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
@@ -171,11 +221,18 @@ export interface FileRoutesByFullPath {
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
+  '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
+  '/buddy/$profileId': typeof BuddyProfileIdRoute
+  '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/interesser/$interestId': typeof InteresserInterestIdRoute
+  '/chat': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
+  '/interesser': typeof InteresserIndexRoute
   '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
   '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
+  '/godaddy/interests/relations': typeof GodaddyInterestsRelationsRoute
   '/godaddy/users/create': typeof GodaddyUsersCreateRoute
   '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
   '/godaddy/interests': typeof GodaddyInterestsIndexRoute
@@ -188,6 +245,7 @@ export interface FileRoutesByTo {
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
+  '/discover': typeof DiscoverRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
@@ -196,11 +254,18 @@ export interface FileRoutesByTo {
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
+  '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
+  '/buddy/$profileId': typeof BuddyProfileIdRoute
+  '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/interesser/$interestId': typeof InteresserInterestIdRoute
+  '/chat': typeof ChatIndexRoute
   '/godaddy': typeof GodaddyIndexRoute
+  '/interesser': typeof InteresserIndexRoute
   '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
   '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
+  '/godaddy/interests/relations': typeof GodaddyInterestsRelationsRoute
   '/godaddy/users/create': typeof GodaddyUsersCreateRoute
   '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
   '/godaddy/interests': typeof GodaddyInterestsIndexRoute
@@ -215,6 +280,7 @@ export interface FileRoutesById {
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
+  '/discover': typeof DiscoverRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
@@ -223,11 +289,18 @@ export interface FileRoutesById {
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
+  '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
+  '/buddy/$profileId': typeof BuddyProfileIdRoute
+  '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/interesser/$interestId': typeof InteresserInterestIdRoute
+  '/chat/': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
+  '/interesser/': typeof InteresserIndexRoute
   '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
   '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
+  '/godaddy/interests/relations': typeof GodaddyInterestsRelationsRoute
   '/godaddy/users/create': typeof GodaddyUsersCreateRoute
   '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
   '/godaddy/interests/': typeof GodaddyInterestsIndexRoute
@@ -243,6 +316,7 @@ export interface FileRouteTypes {
     | '/completed'
     | '/confirmemail'
     | '/details'
+    | '/discover'
     | '/home'
     | '/interests'
     | '/location'
@@ -251,11 +325,18 @@ export interface FileRouteTypes {
     | '/profile-edit'
     | '/signup'
     | '/api/generate-interests'
+    | '/api/generate-relations'
     | '/api/generate-users'
+    | '/buddy/$profileId'
+    | '/chat/$buddyId'
     | '/godaddy/analytics'
+    | '/interesser/$interestId'
+    | '/chat'
     | '/godaddy/'
+    | '/interesser'
     | '/godaddy/interests/create'
     | '/godaddy/interests/generate'
+    | '/godaddy/interests/relations'
     | '/godaddy/users/create'
     | '/godaddy/users/generate'
     | '/godaddy/interests'
@@ -268,6 +349,7 @@ export interface FileRouteTypes {
     | '/completed'
     | '/confirmemail'
     | '/details'
+    | '/discover'
     | '/home'
     | '/interests'
     | '/location'
@@ -276,11 +358,18 @@ export interface FileRouteTypes {
     | '/profile-edit'
     | '/signup'
     | '/api/generate-interests'
+    | '/api/generate-relations'
     | '/api/generate-users'
+    | '/buddy/$profileId'
+    | '/chat/$buddyId'
     | '/godaddy/analytics'
+    | '/interesser/$interestId'
+    | '/chat'
     | '/godaddy'
+    | '/interesser'
     | '/godaddy/interests/create'
     | '/godaddy/interests/generate'
+    | '/godaddy/interests/relations'
     | '/godaddy/users/create'
     | '/godaddy/users/generate'
     | '/godaddy/interests'
@@ -294,6 +383,7 @@ export interface FileRouteTypes {
     | '/completed'
     | '/confirmemail'
     | '/details'
+    | '/discover'
     | '/home'
     | '/interests'
     | '/location'
@@ -302,11 +392,18 @@ export interface FileRouteTypes {
     | '/profile-edit'
     | '/signup'
     | '/api/generate-interests'
+    | '/api/generate-relations'
     | '/api/generate-users'
+    | '/buddy/$profileId'
+    | '/chat/$buddyId'
     | '/godaddy/analytics'
+    | '/interesser/$interestId'
+    | '/chat/'
     | '/godaddy/'
+    | '/interesser/'
     | '/godaddy/interests/create'
     | '/godaddy/interests/generate'
+    | '/godaddy/interests/relations'
     | '/godaddy/users/create'
     | '/godaddy/users/generate'
     | '/godaddy/interests/'
@@ -321,6 +418,7 @@ export interface RootRouteChildren {
   CompletedRoute: typeof CompletedRoute
   ConfirmemailRoute: typeof ConfirmemailRoute
   DetailsRoute: typeof DetailsRoute
+  DiscoverRoute: typeof DiscoverRoute
   HomeRoute: typeof HomeRoute
   InterestsRoute: typeof InterestsRoute
   LocationRoute: typeof LocationRoute
@@ -329,7 +427,13 @@ export interface RootRouteChildren {
   ProfileEditRoute: typeof ProfileEditRoute
   SignupRoute: typeof SignupRoute
   ApiGenerateInterestsRoute: typeof ApiGenerateInterestsRoute
+  ApiGenerateRelationsRoute: typeof ApiGenerateRelationsRoute
   ApiGenerateUsersRoute: typeof ApiGenerateUsersRoute
+  BuddyProfileIdRoute: typeof BuddyProfileIdRoute
+  ChatBuddyIdRoute: typeof ChatBuddyIdRoute
+  InteresserInterestIdRoute: typeof InteresserInterestIdRoute
+  ChatIndexRoute: typeof ChatIndexRoute
+  InteresserIndexRoute: typeof InteresserIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -383,6 +487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/details': {
       id: '/details'
       path: '/details'
@@ -425,12 +536,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/interesser/': {
+      id: '/interesser/'
+      path: '/interesser'
+      fullPath: '/interesser'
+      preLoaderRoute: typeof InteresserIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/godaddy/': {
       id: '/godaddy/'
       path: '/'
       fullPath: '/godaddy/'
       preLoaderRoute: typeof GodaddyIndexRouteImport
       parentRoute: typeof GodaddyRouteRoute
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interesser/$interestId': {
+      id: '/interesser/$interestId'
+      path: '/interesser/$interestId'
+      fullPath: '/interesser/$interestId'
+      preLoaderRoute: typeof InteresserInterestIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/godaddy/analytics': {
       id: '/godaddy/analytics'
@@ -439,11 +571,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GodaddyAnalyticsRouteImport
       parentRoute: typeof GodaddyRouteRoute
     }
+    '/chat/$buddyId': {
+      id: '/chat/$buddyId'
+      path: '/chat/$buddyId'
+      fullPath: '/chat/$buddyId'
+      preLoaderRoute: typeof ChatBuddyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buddy/$profileId': {
+      id: '/buddy/$profileId'
+      path: '/buddy/$profileId'
+      fullPath: '/buddy/$profileId'
+      preLoaderRoute: typeof BuddyProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/generate-users': {
       id: '/api/generate-users'
       path: '/api/generate-users'
       fullPath: '/api/generate-users'
       preLoaderRoute: typeof ApiGenerateUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate-relations': {
+      id: '/api/generate-relations'
+      path: '/api/generate-relations'
+      fullPath: '/api/generate-relations'
+      preLoaderRoute: typeof ApiGenerateRelationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/generate-interests': {
@@ -481,6 +634,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GodaddyUsersCreateRouteImport
       parentRoute: typeof GodaddyRouteRoute
     }
+    '/godaddy/interests/relations': {
+      id: '/godaddy/interests/relations'
+      path: '/interests/relations'
+      fullPath: '/godaddy/interests/relations'
+      preLoaderRoute: typeof GodaddyInterestsRelationsRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
     '/godaddy/interests/generate': {
       id: '/godaddy/interests/generate'
       path: '/interests/generate'
@@ -510,6 +670,7 @@ interface GodaddyRouteRouteChildren {
   GodaddyIndexRoute: typeof GodaddyIndexRoute
   GodaddyInterestsCreateRoute: typeof GodaddyInterestsCreateRoute
   GodaddyInterestsGenerateRoute: typeof GodaddyInterestsGenerateRoute
+  GodaddyInterestsRelationsRoute: typeof GodaddyInterestsRelationsRoute
   GodaddyUsersCreateRoute: typeof GodaddyUsersCreateRoute
   GodaddyUsersGenerateRoute: typeof GodaddyUsersGenerateRoute
   GodaddyInterestsIndexRoute: typeof GodaddyInterestsIndexRoute
@@ -522,6 +683,7 @@ const GodaddyRouteRouteChildren: GodaddyRouteRouteChildren = {
   GodaddyIndexRoute: GodaddyIndexRoute,
   GodaddyInterestsCreateRoute: GodaddyInterestsCreateRoute,
   GodaddyInterestsGenerateRoute: GodaddyInterestsGenerateRoute,
+  GodaddyInterestsRelationsRoute: GodaddyInterestsRelationsRoute,
   GodaddyUsersCreateRoute: GodaddyUsersCreateRoute,
   GodaddyUsersGenerateRoute: GodaddyUsersGenerateRoute,
   GodaddyInterestsIndexRoute: GodaddyInterestsIndexRoute,
@@ -540,6 +702,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompletedRoute: CompletedRoute,
   ConfirmemailRoute: ConfirmemailRoute,
   DetailsRoute: DetailsRoute,
+  DiscoverRoute: DiscoverRoute,
   HomeRoute: HomeRoute,
   InterestsRoute: InterestsRoute,
   LocationRoute: LocationRoute,
@@ -548,7 +711,13 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileEditRoute: ProfileEditRoute,
   SignupRoute: SignupRoute,
   ApiGenerateInterestsRoute: ApiGenerateInterestsRoute,
+  ApiGenerateRelationsRoute: ApiGenerateRelationsRoute,
   ApiGenerateUsersRoute: ApiGenerateUsersRoute,
+  BuddyProfileIdRoute: BuddyProfileIdRoute,
+  ChatBuddyIdRoute: ChatBuddyIdRoute,
+  InteresserInterestIdRoute: InteresserInterestIdRoute,
+  ChatIndexRoute: ChatIndexRoute,
+  InteresserIndexRoute: InteresserIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

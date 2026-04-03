@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { MapPin, ArrowRight, Sparkles, UserPen } from "lucide-react";
+import { MapPin, ArrowRight, Compass, UserPen } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
@@ -67,14 +67,32 @@ function HomePage() {
           </div>
         )}
 
-        {/* Buddy suggestions teaser */}
-        <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center">
-          <Sparkles className="w-8 h-8 text-gray-400 mx-auto mb-3" />
-          <h2 className="text-lg font-medium mb-1">Find din næste buddy</h2>
-          <p className="text-gray-500 text-sm max-w-sm mx-auto">
-            Vi arbejder på at matche dig med folk i nærheden, der deler dine interesser. Bliv klar ved at gøre din profil komplet.
-          </p>
-        </div>
+        {/* Find buddies CTA */}
+        {profileComplete && (
+          <Link
+            to="/discover"
+            className="block rounded-xl border border-blue-200 bg-blue-50 p-6 text-center hover:bg-blue-100 transition-colors"
+          >
+            <Compass className="w-8 h-8 text-blue-500 mx-auto mb-3" />
+            <h2 className="text-lg font-medium mb-1">Find din næste buddy</h2>
+            <p className="text-gray-600 text-sm max-w-sm mx-auto">
+              Se folk i nærheden der deler dine interesser
+            </p>
+          </Link>
+        )}
+
+        {!profileComplete && (
+          <Link
+            to="/discover"
+            className="block rounded-xl border border-dashed border-gray-300 p-6 text-center hover:border-gray-400 transition-colors"
+          >
+            <Compass className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+            <h2 className="text-lg font-medium mb-1">Find din næste buddy</h2>
+            <p className="text-gray-500 text-sm max-w-sm mx-auto">
+              Gør din profil komplet for bedre matches
+            </p>
+          </Link>
+        )}
 
         {/* Profile completion nudge */}
         {!profileComplete && (
@@ -102,6 +120,12 @@ function HomePage() {
 
         {/* Quick links */}
         <div className="flex gap-3">
+          <Button asChild variant="outline" className="flex-1">
+            <Link to="/discover">
+              <Compass className="w-4 h-4" />
+              Find buddies
+            </Link>
+          </Button>
           <Button asChild variant="outline" className="flex-1">
             <Link to="/profile">
               <UserPen className="w-4 h-4" />
