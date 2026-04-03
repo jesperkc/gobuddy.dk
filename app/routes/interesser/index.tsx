@@ -6,6 +6,7 @@ import { supabase } from "../../../src/lib/supabase";
 
 interface InterestWithCount {
   interest_id: string;
+  slug: string;
   interest_da: string;
   interest_en: string;
   icon: string;
@@ -26,6 +27,7 @@ function InteresserPage() {
           .from("interests")
           .select(`
             interest_id,
+            slug,
             interest_da,
             interest_en,
             icon,
@@ -41,6 +43,7 @@ function InteresserPage() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mapped: InterestWithCount[] = (data || []).map((row: any) => ({
           interest_id: row.interest_id,
+          slug: row.slug,
           interest_da: row.interest_da,
           interest_en: row.interest_en,
           icon: row.icon,
@@ -123,8 +126,8 @@ function InteresserPage() {
                 {items.map((interest) => (
                   <Link
                     key={interest.interest_id}
-                    to="/interesser/$interestId"
-                    params={{ interestId: interest.interest_id }}
+                    to="/interesser/$slug"
+                    params={{ slug: interest.slug }}
                     className="group rounded-xl border p-4 hover:border-blue-300 hover:bg-blue-50/50 transition-colors no-underline text-inherit"
                   >
                     <div className="flex items-start justify-between">

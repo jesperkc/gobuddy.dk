@@ -5,6 +5,7 @@ import { formatDistance } from "@/lib/geo";
 
 export interface BuddyProfile {
   profile_id: string;
+  slug: string;
   first_name: string | null;
   age: number | null;
   city: string | null;
@@ -49,8 +50,8 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
 
   return (
     <Link
-      to="/buddy/$profileId"
-      params={{ profileId: buddy.profile_id }}
+      to="/buddy/$slug"
+      params={{ slug: buddy.slug }}
       className="block rounded-xl border bg-white p-5 hover:shadow-md transition-shadow no-underline text-inherit"
     >
       <div className="flex items-start gap-4">

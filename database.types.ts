@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      hi5s: {
+        Row: {
+          created_at: string
+          receiver_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          receiver_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          receiver_id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      interest_relations: {
+        Row: {
+          created_at: string
+          interest_id_a: string
+          interest_id_b: string
+          score: number
+        }
+        Insert: {
+          created_at?: string
+          interest_id_a: string
+          interest_id_b: string
+          score: number
+        }
+        Update: {
+          created_at?: string
+          interest_id_a?: string
+          interest_id_b?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interest_relations_interest_id_a_fkey"
+            columns: ["interest_id_a"]
+            isOneToOne: false
+            referencedRelation: "interests"
+            referencedColumns: ["interest_id"]
+          },
+          {
+            foreignKeyName: "interest_relations_interest_id_b_fkey"
+            columns: ["interest_id_b"]
+            isOneToOne: false
+            referencedRelation: "interests"
+            referencedColumns: ["interest_id"]
+          },
+        ]
+      }
       interests: {
         Row: {
           category: string
@@ -25,6 +82,7 @@ export type Database = {
           interest_en: string
           interest_id: string
           onboarding: boolean
+          slug: string
         }
         Insert: {
           category?: string
@@ -36,6 +94,7 @@ export type Database = {
           interest_en?: string
           interest_id?: string
           onboarding?: boolean
+          slug?: string
         }
         Update: {
           category?: string
@@ -47,6 +106,7 @@ export type Database = {
           interest_en?: string
           interest_id?: string
           onboarding?: boolean
+          slug?: string
         }
         Relationships: [
           {
@@ -58,16 +118,56 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: number
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: never
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: never
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           age: number | null
           bio: string | null
           city: string | null
-          coordinates: unknown | null
+          coordinates: unknown
           country: string | null
           country_code: string | null
           created_at: string | null
           email: string | null
+          email_verified: boolean
           first_name: string | null
           house_number: string | null
           last_name: string | null
@@ -77,16 +177,18 @@ export type Database = {
           postcode: string | null
           profile_id: string
           road: string | null
+          slug: string
         }
         Insert: {
           age?: number | null
           bio?: string | null
           city?: string | null
-          coordinates?: unknown | null
+          coordinates?: unknown
           country?: string | null
           country_code?: string | null
           created_at?: string | null
           email?: string | null
+          email_verified?: boolean
           first_name?: string | null
           house_number?: string | null
           last_name?: string | null
@@ -96,16 +198,18 @@ export type Database = {
           postcode?: string | null
           profile_id?: string
           road?: string | null
+          slug?: string
         }
         Update: {
           age?: number | null
           bio?: string | null
           city?: string | null
-          coordinates?: unknown | null
+          coordinates?: unknown
           country?: string | null
           country_code?: string | null
           created_at?: string | null
           email?: string | null
+          email_verified?: boolean
           first_name?: string | null
           house_number?: string | null
           last_name?: string | null
@@ -115,6 +219,7 @@ export type Database = {
           postcode?: string | null
           profile_id?: string
           road?: string | null
+          slug?: string
         }
         Relationships: []
       }
@@ -206,10 +311,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      delete_unused_custom_interests_delete: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      delete_unused_custom_interests_delete: { Args: never; Returns: undefined }
     }
     Enums: {
       app_permission: "channels.delete" | "messages.delete"

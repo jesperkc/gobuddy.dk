@@ -21,7 +21,7 @@ interface BuddyPreview {
 }
 
 function InterestPage() {
-  const { interestId } = Route.useParams();
+  const { slug } = Route.useParams();
   const [interest, setInterest] = useState<InterestDetail | null>(null);
   const [buddies, setBuddies] = useState<BuddyPreview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,8 +33,8 @@ function InterestPage() {
         // Fetch interest details
         const { data: interestData, error: intError } = await supabase
           .from("interests")
-          .select("interest_id, interest_da, interest_en, icon, category")
-          .eq("interest_id", interestId)
+          .select("interest_id, interest_da, interest_en, icon, category, slug")
+          .eq("slug", slug)
           .single();
 
         if (intError) throw intError;
@@ -51,7 +51,7 @@ function InterestPage() {
               city
             )
           `)
-          .eq("interest_id", interestId)
+          .eq("interest_id", interestData.interest_id)
           .limit(50);
 
         if (uiError) throw uiError;
@@ -77,7 +77,7 @@ function InterestPage() {
     }
 
     fetchData();
-  }, [interestId]);
+  }, [slug]);
 
   return (
     <DefaultLayout>
@@ -197,6 +197,6 @@ function InterestPage() {
   );
 }
 
-export const Route = createFileRoute("/interesser/$interestId")({
+export const Route = createFileRoute("/interesser/$slug")({
   component: InterestPage,
 });

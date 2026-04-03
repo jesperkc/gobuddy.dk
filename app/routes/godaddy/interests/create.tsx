@@ -10,6 +10,7 @@ import { useForm, required } from "@modular-forms/react";
 import { SuccessCard } from "@/components/form/SuccessCard";
 import { ErrorCard } from "@/components/form/ErrorCard";
 import { generateRelationsForInterest } from "../../api/generate-relations";
+import { slugify } from "@/lib/slugs";
 
 interface CreateInterestForm extends Record<string, string | undefined> {
   interestDa: string;
@@ -79,6 +80,7 @@ const CreateInterest = () => {
           interest_da: values.interestDa,
           interest_en: values.interestEn || values.interestDa,
           category,
+          slug: slugify(values.interestDa),
         })
         .select("interest_id")
         .single();

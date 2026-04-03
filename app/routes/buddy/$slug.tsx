@@ -32,7 +32,7 @@ interface RelatedPair {
 }
 
 function BuddyProfile() {
-  const { profileId } = Route.useParams();
+  const { slug } = Route.useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { profile: myProfile, loadProfile } = useUserProfileStore();
@@ -51,17 +51,17 @@ function BuddyProfile() {
 
   // Check if hi5 already sent to this buddy
   useEffect(() => {
-    if (!user) return;
+    if (!user || !profile) return;
     supabase
       .from("hi5s")
       .select("sender_id")
       .eq("sender_id", user.id)
-      .eq("receiver_id", profileId)
+      .eq("receiver_id", profile.profile_id)
       .maybeSingle()
       .then(({ data }) => {
         if (data) setWaveSent(true);
       });
-  }, [user, profileId]);
+  }, [user, profile]);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -88,7 +88,7 @@ function BuddyProfile() {
             )
           `,
           )
-          .eq("profile_id", profileId)
+          .eq("slug", slug)
           .single();
 
         if (queryError) throw queryError;
@@ -120,7 +120,7 @@ function BuddyProfile() {
     }
 
     fetchProfile();
-  }, [profileId]);
+  }, [slug]);
 
   // Fetch related interests between my interests and the buddy's interests
   const myInterestIds = useMemo(() => {
@@ -201,14 +201,15 @@ function BuddyProfile() {
   }, [profile, myInterestIds, myInterestMap]);
 
   function goToChat() {
+    if (!profile) return;
     navigate({
       to: "/chat/$buddyId",
-      params: { buddyId: profileId },
+      params: { buddyId: profile.profile_id },
     });
   }
 
   async function sendWave() {
-    if (!user || sendingWave) return;
+    if (!user || !profile || sendingWave) return;
     setSendingWave(true);
 
     try {
@@ -216,11 +217,11 @@ function BuddyProfile() {
       const [msgResult, hi5Result] = await Promise.all([
         supabase.from("messages").insert({
           sender_id: user.id,
-          receiver_id: profileId,
+          receiver_id: profile.profile_id,
           content: "👋",
         }),
         supabase.from("hi5s").upsert(
-          { sender_id: user.id, receiver_id: profileId, updated_at: new Date().toISOString() },
+          { sender_id: user.id, receiver_id: profile.profile_id, updated_at: new Date().toISOString() },
           { onConflict: "sender_id,receiver_id" }
         ),
       ]);
@@ -404,6 +405,6 @@ function ProtectedBuddyProfile() {
   );
 }
 
-export const Route = createFileRoute("/buddy/$profileId")({
+export const Route = createFileRoute("/buddy/$slug")({
   component: ProtectedBuddyProfile,
 });

@@ -26,10 +26,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as InteresserIndexRouteImport } from './routes/interesser/index'
 import { Route as GodaddyIndexRouteImport } from './routes/godaddy/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
-import { Route as InteresserInterestIdRouteImport } from './routes/interesser/$interestId'
+import { Route as InteresserSlugRouteImport } from './routes/interesser/$slug'
 import { Route as GodaddyAnalyticsRouteImport } from './routes/godaddy/analytics'
 import { Route as ChatBuddyIdRouteImport } from './routes/chat/$buddyId'
-import { Route as BuddyProfileIdRouteImport } from './routes/buddy/$profileId'
+import { Route as BuddySlugRouteImport } from './routes/buddy/$slug'
 import { Route as ApiGenerateUsersRouteImport } from './routes/api/generate-users'
 import { Route as ApiGenerateRelationsRouteImport } from './routes/api/generate-relations'
 import { Route as ApiGenerateInterestsRouteImport } from './routes/api/generate-interests'
@@ -127,9 +127,9 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   path: '/chat/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InteresserInterestIdRoute = InteresserInterestIdRouteImport.update({
-  id: '/interesser/$interestId',
-  path: '/interesser/$interestId',
+const InteresserSlugRoute = InteresserSlugRouteImport.update({
+  id: '/interesser/$slug',
+  path: '/interesser/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GodaddyAnalyticsRoute = GodaddyAnalyticsRouteImport.update({
@@ -142,9 +142,9 @@ const ChatBuddyIdRoute = ChatBuddyIdRouteImport.update({
   path: '/chat/$buddyId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BuddyProfileIdRoute = BuddyProfileIdRouteImport.update({
-  id: '/buddy/$profileId',
-  path: '/buddy/$profileId',
+const BuddySlugRoute = BuddySlugRouteImport.update({
+  id: '/buddy/$slug',
+  path: '/buddy/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGenerateUsersRoute = ApiGenerateUsersRouteImport.update({
@@ -223,10 +223,10 @@ export interface FileRoutesByFullPath {
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
   '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
-  '/buddy/$profileId': typeof BuddyProfileIdRoute
+  '/buddy/$slug': typeof BuddySlugRoute
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
-  '/interesser/$interestId': typeof InteresserInterestIdRoute
+  '/interesser/$slug': typeof InteresserSlugRoute
   '/chat': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
   '/interesser': typeof InteresserIndexRoute
@@ -256,10 +256,10 @@ export interface FileRoutesByTo {
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
   '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
-  '/buddy/$profileId': typeof BuddyProfileIdRoute
+  '/buddy/$slug': typeof BuddySlugRoute
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
-  '/interesser/$interestId': typeof InteresserInterestIdRoute
+  '/interesser/$slug': typeof InteresserSlugRoute
   '/chat': typeof ChatIndexRoute
   '/godaddy': typeof GodaddyIndexRoute
   '/interesser': typeof InteresserIndexRoute
@@ -291,10 +291,10 @@ export interface FileRoutesById {
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
   '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
-  '/buddy/$profileId': typeof BuddyProfileIdRoute
+  '/buddy/$slug': typeof BuddySlugRoute
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
-  '/interesser/$interestId': typeof InteresserInterestIdRoute
+  '/interesser/$slug': typeof InteresserSlugRoute
   '/chat/': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
   '/interesser/': typeof InteresserIndexRoute
@@ -327,10 +327,10 @@ export interface FileRouteTypes {
     | '/api/generate-interests'
     | '/api/generate-relations'
     | '/api/generate-users'
-    | '/buddy/$profileId'
+    | '/buddy/$slug'
     | '/chat/$buddyId'
     | '/godaddy/analytics'
-    | '/interesser/$interestId'
+    | '/interesser/$slug'
     | '/chat'
     | '/godaddy/'
     | '/interesser'
@@ -360,10 +360,10 @@ export interface FileRouteTypes {
     | '/api/generate-interests'
     | '/api/generate-relations'
     | '/api/generate-users'
-    | '/buddy/$profileId'
+    | '/buddy/$slug'
     | '/chat/$buddyId'
     | '/godaddy/analytics'
-    | '/interesser/$interestId'
+    | '/interesser/$slug'
     | '/chat'
     | '/godaddy'
     | '/interesser'
@@ -394,10 +394,10 @@ export interface FileRouteTypes {
     | '/api/generate-interests'
     | '/api/generate-relations'
     | '/api/generate-users'
-    | '/buddy/$profileId'
+    | '/buddy/$slug'
     | '/chat/$buddyId'
     | '/godaddy/analytics'
-    | '/interesser/$interestId'
+    | '/interesser/$slug'
     | '/chat/'
     | '/godaddy/'
     | '/interesser/'
@@ -429,9 +429,9 @@ export interface RootRouteChildren {
   ApiGenerateInterestsRoute: typeof ApiGenerateInterestsRoute
   ApiGenerateRelationsRoute: typeof ApiGenerateRelationsRoute
   ApiGenerateUsersRoute: typeof ApiGenerateUsersRoute
-  BuddyProfileIdRoute: typeof BuddyProfileIdRoute
+  BuddySlugRoute: typeof BuddySlugRoute
   ChatBuddyIdRoute: typeof ChatBuddyIdRoute
-  InteresserInterestIdRoute: typeof InteresserInterestIdRoute
+  InteresserSlugRoute: typeof InteresserSlugRoute
   ChatIndexRoute: typeof ChatIndexRoute
   InteresserIndexRoute: typeof InteresserIndexRoute
 }
@@ -557,11 +557,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/interesser/$interestId': {
-      id: '/interesser/$interestId'
-      path: '/interesser/$interestId'
-      fullPath: '/interesser/$interestId'
-      preLoaderRoute: typeof InteresserInterestIdRouteImport
+    '/interesser/$slug': {
+      id: '/interesser/$slug'
+      path: '/interesser/$slug'
+      fullPath: '/interesser/$slug'
+      preLoaderRoute: typeof InteresserSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/godaddy/analytics': {
@@ -578,11 +578,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatBuddyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/buddy/$profileId': {
-      id: '/buddy/$profileId'
-      path: '/buddy/$profileId'
-      fullPath: '/buddy/$profileId'
-      preLoaderRoute: typeof BuddyProfileIdRouteImport
+    '/buddy/$slug': {
+      id: '/buddy/$slug'
+      path: '/buddy/$slug'
+      fullPath: '/buddy/$slug'
+      preLoaderRoute: typeof BuddySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/generate-users': {
@@ -713,9 +713,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGenerateInterestsRoute: ApiGenerateInterestsRoute,
   ApiGenerateRelationsRoute: ApiGenerateRelationsRoute,
   ApiGenerateUsersRoute: ApiGenerateUsersRoute,
-  BuddyProfileIdRoute: BuddyProfileIdRoute,
+  BuddySlugRoute: BuddySlugRoute,
   ChatBuddyIdRoute: ChatBuddyIdRoute,
-  InteresserInterestIdRoute: InteresserInterestIdRoute,
+  InteresserSlugRoute: InteresserSlugRoute,
   ChatIndexRoute: ChatIndexRoute,
   InteresserIndexRoute: InteresserIndexRoute,
 }

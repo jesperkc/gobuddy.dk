@@ -16,6 +16,7 @@ function ChatPage() {
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [buddyName, setBuddyName] = useState<string | null>(null);
+  const [buddySlug, setBuddySlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -29,10 +30,11 @@ function ChatPage() {
     if (!buddyId) return;
 
     async function loadBuddy() {
-      const { data } = await supabase.from("profiles").select("first_name").eq("profile_id", buddyId).single();
+      const { data } = await supabase.from("profiles").select("first_name, slug").eq("profile_id", buddyId).single();
 
       if (data) {
         setBuddyName(data.first_name);
+        setBuddySlug(data.slug);
       }
     }
 
@@ -162,7 +164,7 @@ function ChatPage() {
           <Link to="/chat" className="text-gray-500 hover:text-gray-800">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <Link to="/buddy/$profileId" params={{ profileId: buddyId }} className="flex items-center gap-3 no-underline text-inherit">
+          <Link to="/buddy/$slug" params={{ slug: buddySlug || buddyId }} className="flex items-center gap-3 no-underline text-inherit">
             <Avatar className="h-9 w-9">
               <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">{buddyInitials}</AvatarFallback>
             </Avatar>

@@ -11,6 +11,7 @@ import { BuddyCard, type BuddyProfile, type RelatedInterestInfo } from "../../sr
 
 interface RawBuddyRow {
   profile_id: string;
+  slug: string;
   first_name: string | null;
   age: number | null;
   city: string | null;
@@ -69,6 +70,7 @@ function DiscoverPage() {
             .select(
               `
               profile_id,
+              slug,
               first_name,
               age,
               city,
@@ -134,6 +136,7 @@ function DiscoverPage() {
         const mapped: BuddyProfile[] = rows
           .map((row) => ({
             profile_id: row.profile_id,
+            slug: row.slug,
             first_name: row.first_name,
             age: row.age,
             city: row.city,
