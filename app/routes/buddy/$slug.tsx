@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
-import { MapPin, Calendar, ArrowLeft, MessageCircle, Hand, Sparkles } from "lucide-react";
+import { MapPin, Calendar, ArrowLeft, MessageCircle, Hand, Sparkles, Ban } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
 import { useAuth } from "../../../src/contexts/AuthContext";
@@ -23,6 +23,11 @@ interface PublicProfile {
     interest_da: string;
     icon: string;
     description: string | null;
+  }[];
+  nonInterests: {
+    interest_id: string;
+    interest_da: string;
+    icon: string;
   }[];
 }
 
@@ -81,6 +86,7 @@ function BuddyProfile() {
             user_interests (
               interest_id,
               description,
+              is_non_interest,
               interests (
                 interest_da,
                 interest_en,
@@ -96,6 +102,9 @@ function BuddyProfile() {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const row = data as any;
+        const allInterests = (row.user_interests || []).filter(
+          (ui: { interests: unknown }) => ui.interests,
+        );
         setProfile({
           profile_id: row.profile_id,
           first_name: row.first_name,
@@ -103,13 +112,20 @@ function BuddyProfile() {
           city: row.city,
           country: row.country,
           created_at: row.created_at,
-          interests: (row.user_interests || [])
-            .filter((ui: { interests: unknown }) => ui.interests)
+          interests: allInterests
+            .filter((ui: { is_non_interest: boolean }) => !ui.is_non_interest)
             .map((ui: { interest_id: string; description: string | null; interests: { interest_da: string; icon: string } }) => ({
               interest_id: ui.interest_id,
               interest_da: ui.interests.interest_da,
               icon: ui.interests.icon,
               description: ui.description,
+            })),
+          nonInterests: allInterests
+            .filter((ui: { is_non_interest: boolean }) => ui.is_non_interest)
+            .map((ui: { interest_id: string; interests: { interest_da: string; icon: string } }) => ({
+              interest_id: ui.interest_id,
+              interest_da: ui.interests.interest_da,
+              icon: ui.interests.icon,
             })),
         });
       } catch (err) {
@@ -126,14 +142,23 @@ function BuddyProfile() {
   // Fetch related interests between my interests and the buddy's interests
   const myInterestIds = useMemo(() => {
     if (!myProfile?.user_interests) return new Set<string>();
-    return new Set(myProfile.user_interests.map((i) => i.interest_id));
+    return new Set(
+      myProfile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id),
+    );
+  }, [myProfile]);
+
+  const myNonInterestIds = useMemo(() => {
+    if (!myProfile?.user_interests) return new Set<string>();
+    return new Set(
+      myProfile.user_interests.filter((i) => i.is_non_interest).map((i) => i.interest_id),
+    );
   }, [myProfile]);
 
   const myInterestMap = useMemo(() => {
     const m = new Map<string, string>();
     if (!myProfile?.user_interests) return m;
     for (const ui of myProfile.user_interests) {
-      if (ui.interests?.interest_da) m.set(ui.interest_id, ui.interests.interest_da);
+      if (!ui.is_non_interest && ui.interests?.interest_da) m.set(ui.interest_id, ui.interests.interest_da);
     }
     return m;
   }, [myProfile]);
@@ -146,7 +171,7 @@ function BuddyProfile() {
         const myIds = Array.from(myInterestIds);
         const buddyIds = profile!.interests.map((i) => i.interest_id);
         // Exclude exact matches
-        const buddyOnlyIds = buddyIds.filter((id) => !myInterestIds.has(id));
+        const buddyOnlyIds = buddyIds.filter((id) => !myInterestIds.has(id) && !myNonInterestIds.has(id));
         if (buddyOnlyIds.length === 0) return;
 
         const [relA, relB] = await Promise.all([
@@ -354,6 +379,27 @@ function BuddyProfile() {
                           {Math.round(pair.score * 100)}%
                         </span>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Non-interests */}
+            {profile.nonInterests.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-red-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                  <Ban className="w-4 h-4" />
+                  Ikke-interesser
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {profile.nonInterests.map((interest) => (
+                    <div
+                      key={interest.interest_id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium bg-red-50 text-red-700 border border-red-200"
+                    >
+                      <Ban className="w-3.5 h-3.5" />
+                      {interest.interest_da}
                     </div>
                   ))}
                 </div>

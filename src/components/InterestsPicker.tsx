@@ -8,6 +8,7 @@ export interface InterestsPickerProps {
   toggleInterest: (interestId: string) => void;
   removeInterest: (interestId: string) => void;
   updateInterestDescription: (interestId: string, description: string) => void;
+  disabledInterestIds?: Set<string>;
 }
 
 export const InterestsPicker = ({
@@ -15,6 +16,7 @@ export const InterestsPicker = ({
   toggleInterest,
   removeInterest,
   updateInterestDescription,
+  disabledInterestIds = new Set(),
 }: InterestsPickerProps) => {
   const [availableInterests, setAvailableInterests] = useState<Tables<"interests">[]>([]);
 
@@ -36,20 +38,27 @@ export const InterestsPicker = ({
   return (
     <>
       {/* Interest Selection Grid */}
-      <div className="flex gap-3 mb-8">
-        {availableInterests.map((interest) => (
-          <button
-            key={interest.interest_id}
-            onClick={() => toggleInterest(interest.interest_id)}
-            className={`p-3 rounded-lg border text-left transition-colors ${
-              interest.interest_id in selectedInterestsWithDescriptions
-                ? "bg-blue-600 text-white border-blue-600"
-                : "border-gray-300 hover:border-blue-500"
-            }`}
-          >
-            {interest.interest_da}
-          </button>
-        ))}
+      <div className="flex flex-wrap gap-3 mb-8">
+        {availableInterests.map((interest) => {
+          const isSelected = interest.interest_id in selectedInterestsWithDescriptions;
+          const isDisabled = disabledInterestIds.has(interest.interest_id);
+          return (
+            <button
+              key={interest.interest_id}
+              onClick={() => toggleInterest(interest.interest_id)}
+              disabled={isDisabled}
+              className={`p-3 rounded-lg border text-left transition-colors ${
+                isSelected
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : isDisabled
+                    ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
+                    : "border-gray-300 hover:border-blue-500"
+              }`}
+            >
+              {interest.interest_da}
+            </button>
+          );
+        })}
       </div>
 
       {/* Selected Interests with Descriptions */}

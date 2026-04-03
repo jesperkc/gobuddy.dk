@@ -19,6 +19,7 @@ interface RawBuddyRow {
   longitude: number | null;
   user_interests: Array<{
     interest_id: string;
+    is_non_interest: boolean;
     interests: {
       interest_da: string;
       interest_en: string;
@@ -44,7 +45,16 @@ function DiscoverPage() {
 
   const myInterestIds = useMemo(() => {
     if (!profile?.user_interests) return new Set<string>();
-    return new Set(profile.user_interests.map((i) => i.interest_id));
+    return new Set(
+      profile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id),
+    );
+  }, [profile]);
+
+  const myNonInterestIds = useMemo(() => {
+    if (!profile?.user_interests) return new Set<string>();
+    return new Set(
+      profile.user_interests.filter((i) => i.is_non_interest).map((i) => i.interest_id),
+    );
   }, [profile]);
 
   const myLat = profile?.latitude;
@@ -146,6 +156,7 @@ function DiscoverPage() {
               longitude,
               user_interests (
                 interest_id,
+                is_non_interest,
                 interests (
                   interest_da,
                   interest_en,
@@ -191,11 +202,11 @@ function DiscoverPage() {
           myToRelated.get(myId)!.add(otherId);
         }
 
-        // Collect all related interest IDs (not including exact matches)
+        // Collect all related interest IDs (not including exact matches or my non-interests)
         const allRelatedIds = new Set<string>();
         for (const relatedSet of myToRelated.values()) {
           for (const id of relatedSet) {
-            if (!myInterestIds.has(id)) allRelatedIds.add(id);
+            if (!myInterestIds.has(id) && !myNonInterestIds.has(id)) allRelatedIds.add(id);
           }
         }
 
@@ -211,7 +222,7 @@ function DiscoverPage() {
             latitude: row.latitude,
             longitude: row.longitude,
             interests: (row.user_interests || [])
-              .filter((ui) => ui.interests)
+              .filter((ui) => ui.interests && !ui.is_non_interest)
               .map((ui) => ({
                 interest_id: ui.interest_id,
                 interest_da: ui.interests!.interest_da,

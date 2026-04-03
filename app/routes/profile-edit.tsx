@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/form/TextInput";
 import { required, useForm } from "@modular-forms/react";
@@ -10,6 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { IAddress, LocationPicker } from "@/components/LocationPicker";
 import { DefaultLayout } from "@/components/AppShell";
 import { InterestsPicker } from "@/components/InterestsPicker";
+import { NonInterestsPicker } from "@/components/NonInterestsPicker";
 import { fetchProfileWithInterests } from "../../src/lib/fetchProfileWithInterests";
 
 // Reuse interfaces from profile.tsx
@@ -52,6 +53,7 @@ export function ProfileEdit() {
 
   // Form states for editing
   const [selectedInterestsWithDescriptions, setSelectedInterestsWithDescriptions] = useState<Record<string, string>>({});
+  const [selectedNonInterests, setSelectedNonInterests] = useState<Set<string>>(new Set());
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | undefined>();
   const [address, setAddress] = useState<IAddress>({
     postcode: "",
@@ -78,10 +80,16 @@ export function ProfileEdit() {
 
         // Initialize selected interests with descriptions
         const interestsWithDescriptions: Record<string, string> = {};
+        const nonInterestIds = new Set<string>();
         profileData.interests.forEach((interest) => {
-          interestsWithDescriptions[interest.interest_id] = interest.description || "";
+          if (interest.is_non_interest) {
+            nonInterestIds.add(interest.interest_id);
+          } else {
+            interestsWithDescriptions[interest.interest_id] = interest.description || "";
+          }
         });
         setSelectedInterestsWithDescriptions(interestsWithDescriptions);
+        setSelectedNonInterests(nonInterestIds);
 
         // Set initial location data
         if (profileData.profile.city) {
@@ -149,17 +157,31 @@ export function ProfileEdit() {
       // Delete existing interests
       await supabase.from("user_interests").delete().eq("profile_id", user.id);
 
-      // Insert new interests with descriptions
-      const selectedInterestIds = Object.keys(selectedInterestsWithDescriptions);
-      if (selectedInterestIds.length > 0) {
-        const interestData = selectedInterestIds.map((interestId) => ({
+      // Build rows for both interests and non-interests
+      const rows: { profile_id: string; interest_id: string; description: string; is_non_interest: boolean }[] = [];
+
+      // Regular interests with descriptions
+      for (const [interestId, description] of Object.entries(selectedInterestsWithDescriptions)) {
+        rows.push({
           profile_id: user.id,
           interest_id: interestId,
-          description: selectedInterestsWithDescriptions[interestId] || "",
-        }));
+          description: description || "",
+          is_non_interest: false,
+        });
+      }
 
-        const { error } = await supabase.from("user_interests").insert(interestData);
+      // Non-interests
+      for (const interestId of selectedNonInterests) {
+        rows.push({
+          profile_id: user.id,
+          interest_id: interestId,
+          description: "",
+          is_non_interest: true,
+        });
+      }
 
+      if (rows.length > 0) {
+        const { error } = await supabase.from("user_interests").insert(rows);
         if (error) throw error;
       }
     } catch (err) {
@@ -198,6 +220,13 @@ export function ProfileEdit() {
 
   // Interest toggle function (updated for descriptions)
   const toggleInterest = (interestId: string) => {
+    // Remove from non-interests if it was there
+    if (selectedNonInterests.has(interestId)) {
+      const next = new Set(selectedNonInterests);
+      next.delete(interestId);
+      setSelectedNonInterests(next);
+    }
+
     const newSelection = { ...selectedInterestsWithDescriptions };
     if (interestId in newSelection) {
       delete newSelection[interestId];
@@ -205,6 +234,24 @@ export function ProfileEdit() {
       newSelection[interestId] = "";
     }
     setSelectedInterestsWithDescriptions(newSelection);
+  };
+
+  // Toggle non-interest
+  const toggleNonInterest = (interestId: string) => {
+    // Remove from regular interests if it was there
+    if (interestId in selectedInterestsWithDescriptions) {
+      const newSelection = { ...selectedInterestsWithDescriptions };
+      delete newSelection[interestId];
+      setSelectedInterestsWithDescriptions(newSelection);
+    }
+
+    const next = new Set(selectedNonInterests);
+    if (next.has(interestId)) {
+      next.delete(interestId);
+    } else {
+      next.add(interestId);
+    }
+    setSelectedNonInterests(next);
   };
 
   // Update description for selected interest
@@ -325,8 +372,26 @@ export function ProfileEdit() {
               toggleInterest={toggleInterest}
               removeInterest={removeInterest}
               updateInterestDescription={updateInterestDescription}
+              disabledInterestIds={selectedNonInterests}
             />
-            <div className="flex justify-end">
+
+            <div className="border-t border-gray-200 mt-8 pt-8">
+              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                <Ban className="w-6 h-6 text-red-500" />
+                Ikke-interesser
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Vælg de ting du <strong>ikke</strong> er interesseret i — det hjælper med at finde bedre matches
+              </p>
+
+              <NonInterestsPicker
+                selectedNonInterests={selectedNonInterests}
+                toggleNonInterest={toggleNonInterest}
+                disabledInterestIds={new Set(Object.keys(selectedInterestsWithDescriptions))}
+              />
+            </div>
+
+            <div className="flex justify-end mt-8">
               <Button onClick={saveInterests} disabled={saving}>
                 {saving ? (
                   <>

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { MapPin, Calendar, Mail, Pencil } from "lucide-react";
+import { MapPin, Calendar, Mail, Pencil, Ban } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
@@ -17,7 +17,8 @@ function Profile() {
     }
   }, [user, profile, loadProfile, loading]);
 
-  const interests = profile?.user_interests || [];
+  const interests = (profile?.user_interests || []).filter((i) => !i.is_non_interest);
+  const nonInterests = (profile?.user_interests || []).filter((i) => i.is_non_interest);
 
   return (
     <DefaultLayout>
@@ -72,6 +73,27 @@ function Profile() {
                       className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
                       title={interest.description}
                     >
+                      {interest.interests.interest_da}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Non-interests */}
+            {nonInterests.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-red-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                  <Ban className="w-4 h-4" />
+                  Ikke-interesser
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {nonInterests.map((interest) => (
+                    <span
+                      key={interest.interest_id}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-red-50 text-red-700 border border-red-200"
+                    >
+                      <Ban className="w-3.5 h-3.5" />
                       {interest.interests.interest_da}
                     </span>
                   ))}

@@ -17,6 +17,7 @@ interface UserProfile {
   user_interests: {
     interest_id: string;
     description: string;
+    is_non_interest: boolean;
     interests: {
       interest_id: string;
       interest_da: string;
@@ -90,6 +91,7 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
         user_interests (
           interest_id,
           description,
+          is_non_interest,
           interests (
             interest_da,
             interest_en,

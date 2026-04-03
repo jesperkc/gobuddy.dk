@@ -247,6 +247,7 @@ export type Database = {
           description: string
           id: number
           interest_id: string
+          is_non_interest: boolean
           profile_id: string
         }
         Insert: {
@@ -254,6 +255,7 @@ export type Database = {
           description?: string
           id?: number
           interest_id?: string
+          is_non_interest?: boolean
           profile_id?: string
         }
         Update: {
@@ -261,6 +263,7 @@ export type Database = {
           description?: string
           id?: number
           interest_id?: string
+          is_non_interest?: boolean
           profile_id?: string
         }
         Relationships: [

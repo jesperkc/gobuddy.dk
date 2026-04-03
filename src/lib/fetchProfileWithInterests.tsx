@@ -4,6 +4,7 @@ import { UserProfile } from "../../app/routes/profile-edit";
 interface UserInterest {
   interest_id: string;
   description: string;
+  is_non_interest: boolean;
   interest_da: string;
   interest_en: string;
   icon: string;
@@ -25,6 +26,7 @@ interface ProfileWithInterestsQueryResult {
   user_interests: Array<{
     interest_id: string;
     description: string;
+    is_non_interest: boolean;
     interests: {
       interest_da: string;
       interest_en: string;
@@ -47,6 +49,7 @@ export async function fetchProfileWithInterests(profileId: string): Promise<{
         user_interests (
           interest_id,
           description,
+          is_non_interest,
           interests (
             interest_da,
             interest_en,
@@ -83,6 +86,7 @@ export async function fetchProfileWithInterests(profileId: string): Promise<{
       .map((item) => ({
         interest_id: item.interest_id,
         description: item.description,
+        is_non_interest: item.is_non_interest,
         interest_da: item.interests?.interest_da || "",
         interest_en: item.interests?.interest_en || "",
         icon: item.interests?.icon || "",
