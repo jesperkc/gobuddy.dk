@@ -1,10 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { MapPin, Calendar, ArrowLeft, MessageCircle, Hand, Sparkles } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
 import { useAuth } from "../../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../../src/store/userProfile";
+import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
 import { Button } from "../../../src/components/ui/button";
 import { Link } from "@tanstack/react-router";
@@ -33,9 +34,9 @@ interface RelatedPair {
 
 function BuddyProfile() {
   const { slug } = Route.useParams();
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { profile: myProfile, loadProfile } = useUserProfileStore();
+  const openChat = useChatPopupStore((s) => s.openChat);
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -202,10 +203,7 @@ function BuddyProfile() {
 
   function goToChat() {
     if (!profile) return;
-    navigate({
-      to: "/chat/$buddyId",
-      params: { buddyId: profile.profile_id },
-    });
+    openChat(profile.profile_id, profile.first_name);
   }
 
   async function sendWave() {
@@ -229,6 +227,7 @@ function BuddyProfile() {
       if (msgResult.error) throw msgResult.error;
       if (hi5Result.error) console.error("Hi5 record error:", hi5Result.error);
       setWaveSent(true);
+      openChat(profile.profile_id, profile.first_name);
     } catch (err) {
       console.error("Error sending wave:", err);
       setError("Kunne ikke sende highfive. Prøv igen.");
