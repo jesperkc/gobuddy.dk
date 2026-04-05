@@ -1,5 +1,6 @@
 import { Tables } from "database.types";
 import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "./ui/button";
 import { supabase } from "../lib/supabase";
 
@@ -21,6 +22,7 @@ export const InterestsPicker = ({
   onboardingOnly = false,
 }: InterestsPickerProps) => {
   const [availableInterests, setAvailableInterests] = useState<Tables<"interests">[]>([]);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const fetchInterests = async () => {
@@ -40,17 +42,59 @@ export const InterestsPicker = ({
     fetchInterests();
   }, [onboardingOnly]);
 
-  const grouped = useMemo(() => {
+  const popularInterests = useMemo(
+    () => availableInterests.filter((i) => i.onboarding),
+    [availableInterests],
+  );
+  const otherInterests = useMemo(
+    () => availableInterests.filter((i) => !i.onboarding),
+    [availableInterests],
+  );
+
+  const groupByCategory = (interests: Tables<"interests">[]) => {
     const map = new Map<string, Tables<"interests">[]>();
-    for (const interest of availableInterests) {
+    for (const interest of interests) {
       const cat = interest.category || "Andet";
       if (!map.has(cat)) map.set(cat, []);
       map.get(cat)!.push(interest);
     }
     return map;
-  }, [availableInterests]);
+  };
+
+  const popularGrouped = useMemo(() => groupByCategory(popularInterests), [popularInterests]);
+  const otherGrouped = useMemo(() => groupByCategory(otherInterests), [otherInterests]);
 
   const selectedCount = Object.keys(selectedInterestsWithDescriptions).length;
+
+  const renderGrid = (grouped: Map<string, Tables<"interests">[]>) =>
+    Array.from(grouped.entries()).map(([category, interests]) => (
+      <div key={category}>
+        <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{category}</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {interests.map((interest) => {
+            const isSelected = interest.interest_id in selectedInterestsWithDescriptions;
+            const isDisabled = disabledInterestIds.has(interest.interest_id);
+            return (
+              <button
+                key={interest.interest_id}
+                onClick={() => toggleInterest(interest.interest_id)}
+                disabled={isDisabled}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all text-sm ${
+                  isSelected
+                    ? "bg-blue-50 text-blue-700 border-blue-300 ring-1 ring-blue-200 font-medium"
+                    : isDisabled
+                      ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
+                      : "border-gray-200 hover:border-blue-400 hover:bg-blue-50/50"
+                }`}
+              >
+                {interest.icon && <span className="text-lg shrink-0">{interest.icon}</span>}
+                <span className="truncate">{interest.interest_da}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    ));
 
   return (
     <>
@@ -68,37 +112,31 @@ export const InterestsPicker = ({
         )}
       </div>
 
-      {/* Categorized interest grid */}
-      <div className="space-y-6 mb-8">
-        {Array.from(grouped.entries()).map(([category, interests]) => (
-          <div key={category}>
-            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{category}</h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {interests.map((interest) => {
-                const isSelected = interest.interest_id in selectedInterestsWithDescriptions;
-                const isDisabled = disabledInterestIds.has(interest.interest_id);
-                return (
-                  <button
-                    key={interest.interest_id}
-                    onClick={() => toggleInterest(interest.interest_id)}
-                    disabled={isDisabled}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all text-sm ${
-                      isSelected
-                        ? "bg-blue-50 text-blue-700 border-blue-300 ring-1 ring-blue-200 font-medium"
-                        : isDisabled
-                          ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
-                          : "border-gray-200 hover:border-blue-400 hover:bg-blue-50/50"
-                    }`}
-                  >
-                    {interest.icon && <span className="text-lg shrink-0">{interest.icon}</span>}
-                    <span className="truncate">{interest.interest_da}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+      {/* Popular interests (always visible) */}
+      <div className="space-y-6 mb-6">
+        {renderGrid(popularGrouped)}
       </div>
+
+      {/* Other interests (collapsible) — only when not in onboardingOnly mode */}
+      {!onboardingOnly && otherInterests.length > 0 && (
+        <>
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 mb-6 cursor-pointer"
+          >
+            {showAll ? (
+              <>Skjul flere interesser <ChevronUp className="w-4 h-4" /></>
+            ) : (
+              <>Vis {otherInterests.length} flere interesser <ChevronDown className="w-4 h-4" /></>
+            )}
+          </button>
+          {showAll && (
+            <div className="space-y-6 mb-8">
+              {renderGrid(otherGrouped)}
+            </div>
+          )}
+        </>
+      )}
 
       {/* Selected Interests with Descriptions */}
       {selectedCount > 0 && (

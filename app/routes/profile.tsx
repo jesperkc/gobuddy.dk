@@ -61,7 +61,7 @@ function Profile() {
               </Button>
             </div>
 
-            {/* Interests — the main event */}
+            {/* Interests */}
             {interests.length > 0 && (
               <div>
                 <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">

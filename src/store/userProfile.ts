@@ -23,6 +23,7 @@ interface UserProfile {
       interest_da: string;
       interest_en: string;
       icon: string;
+      onboarding: boolean;
     };
   }[];
   newsletter: boolean;
@@ -95,7 +96,8 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
           interests (
             interest_da,
             interest_en,
-            icon
+            icon,
+            onboarding
           )
         )
         `
