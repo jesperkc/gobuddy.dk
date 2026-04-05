@@ -97,7 +97,7 @@ function Signup() {
       <div>
         <OnboardingStepper step={4} />
         <h1 className="text-2xl font-bold mb-6">Opret din konto</h1>
-        {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+        {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
         <form onSubmit={handleSignup} className="space-y-6">
           <div>
             <label htmlFor="email" className="block  font-medium text-gray-700 mb-2">
@@ -113,7 +113,7 @@ function Signup() {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block  font-medium text-gray-700 mb-2">
+            <label htmlFor="password" className="block font-medium text-gray-700 mb-2">
               Adgangskode
             </label>
             <input
@@ -125,24 +125,46 @@ function Signup() {
               required
               minLength={6}
             />
+            {/* Password strength indicator */}
+            {password.length > 0 && (
+              <div className="mt-2">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4].map((level) => {
+                    const strength = password.length >= 12 ? 4 : password.length >= 8 ? 3 : password.length >= 6 ? 2 : 1;
+                    const colors = ["bg-red-400", "bg-orange-400", "bg-yellow-400", "bg-green-500"];
+                    return (
+                      <div
+                        key={level}
+                        className={`h-1.5 flex-1 rounded-full transition-colors ${
+                          level <= strength ? colors[strength - 1] : "bg-gray-200"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {password.length < 6
+                    ? "For kort — mindst 6 tegn"
+                    : password.length < 8
+                      ? "Svag — prøv mindst 8 tegn"
+                      : password.length < 12
+                        ? "God"
+                        : "Stærk"}
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="flex items-start">
-            <div className="flex items-center h-5">
-              <input
-                id="newsletter"
-                type="checkbox"
-                checked={newsletter}
-                onChange={(e) => setNewsletter(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-            </div>
-            <div className="ml-3">
-              <label htmlFor="newsletter" className=" text-gray-600">
-                Modtag vores nyhedsbrev
-              </label>
-            </div>
-          </div>
+          <label htmlFor="newsletter" className="flex items-center gap-3 cursor-pointer select-none">
+            <input
+              id="newsletter"
+              type="checkbox"
+              checked={newsletter}
+              onChange={(e) => setNewsletter(e.target.checked)}
+              className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600 cursor-pointer"
+            />
+            <span className="text-gray-600">Modtag vores nyhedsbrev</span>
+          </label>
           <Button type="submit" disabled={isLoading} variant={"glow"} size={"xl"} className="w-full">
             {isLoading ? (
               <>

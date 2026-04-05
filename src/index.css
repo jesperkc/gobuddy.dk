@@ -225,3 +225,34 @@
   animation: cardReveal 0.4s ease-out both;
 }
 
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .card-reveal {
+    animation: none;
+    opacity: 1;
+  }
+  .glow-button {
+    transition: none;
+  }
+  .glow-button::after {
+    animation: none;
+    transition: none;
+  }
+  .glow-button:hover {
+    transform: none;
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Consistent focus-visible ring */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+

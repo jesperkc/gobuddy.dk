@@ -1,10 +1,4 @@
 import React from "react";
-// import { Link } from "@tanstack/react-router";
-// import { LogOut, User, Menu, X } from "lucide-react";
-// import Logo from "../assets/gobuddy-logo.svg?react";
-// import { useAuth } from "../contexts/AuthContext";
-// import { useUserProfileStore } from "../store/userProfile";
-// import { Button } from "./ui/button";
 import { Navbar } from "./NavBar";
 interface AppShellProps {
   children: React.ReactNode;
@@ -15,12 +9,15 @@ interface AppShellProps {
 export function DefaultLayout({ children, title }: AppShellProps) {
   return (
     <div>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-md"
+      >
+        Gå til indhold
+      </a>
       <Navbar />
       <div className="min-h-screen bg-white max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top Navigation */}
-
-        {/* Main Content */}
-        <main className="flex-1">
+        <main id="main-content" className="flex-1">
           {title && (
             <div className="bg-gray-50 border-b border-gray-200">
               <div className="px-4 sm:px-6 lg:px-8 py-6">

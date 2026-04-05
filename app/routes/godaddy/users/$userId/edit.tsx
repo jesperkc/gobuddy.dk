@@ -344,7 +344,7 @@ export function EditUser() {
         title={`Rediger bruger`}
         crumbs={[{ label: "Brugere", href: "/godaddy/users" }, { label: `Rediger bruger: ${userName}` }]}
       >
-        {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+        {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
 
         {/* Tabs */}
         <div className="border-b border-gray-200 mb-6">

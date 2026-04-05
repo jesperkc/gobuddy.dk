@@ -8,7 +8,7 @@ export default {
       fontFamily: {
         // patua: ["Patua One", "Sans-serif"],
         amifer: ["amifer", "sans-serif"],
-        sans: ['"Plus Jakarta Sans"', "system-ui", "sans-serif"],
+        sans: ['"Inter"', "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

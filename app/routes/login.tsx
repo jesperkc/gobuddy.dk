@@ -13,6 +13,13 @@ type LoginForm = {
   password: string;
 };
 
+function translateAuthError(message: string): string {
+  if (message.includes("Invalid login credentials")) return "Forkert email eller adgangskode";
+  if (message.includes("Email not confirmed")) return "Din email er ikke bekræftet. Tjek din indbakke.";
+  if (message.includes("Too many requests")) return "For mange forsøg. Prøv igen om lidt.";
+  return "Der opstod en fejl. Prøv igen.";
+}
+
 function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
@@ -31,7 +38,7 @@ function Login() {
       });
 
       if (error) {
-        setError(error.message);
+        setError(translateAuthError(error.message));
       } else {
         navigate({ to: "/" });
       }
@@ -43,12 +50,12 @@ function Login() {
   return (
     <SplitScreen>
       <div>
-        <h1 className="text-2xl font-bold mb-6">Welcome Back!</h1>
-        {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+        <h1 className="text-2xl font-bold mb-6">Velkommen tilbage!</h1>
+        {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
 
         <Form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <Field name="email" validate={[required("Please enter your email."), email("The email address is badly formatted.")]}>
+            <Field name="email" validate={[required("Indtast venligst din email."), email("Emailadressen er ikke gyldig.")]}>
               {(field, props) => (
                 <TextInput
                   {...props}
@@ -56,14 +63,14 @@ function Login() {
                   error={field.error}
                   type="email"
                   label="Email"
-                  placeholder="example@email.com"
+                  placeholder="eksempel@email.dk"
                   required
                 />
               )}
             </Field>
             <Field
               name="password"
-              validate={[required("Please enter your password."), minLength(8, "Your password must have 8 characters or more.")]}
+              validate={[required("Indtast venligst din adgangskode."), minLength(8, "Din adgangskode skal have mindst 8 tegn.")]}
             >
               {(field, props) => (
                 <TextInput
@@ -71,12 +78,18 @@ function Login() {
                   value={field.value}
                   error={field.error}
                   type="password"
-                  label="Password"
+                  label="Adgangskode"
                   placeholder="********"
                   required
                 />
               )}
             </Field>
+          </div>
+
+          <div className="text-right">
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
+              Glemt adgangskode?
+            </Link>
           </div>
 
           <Button type="submit" variant={"glow"} size={"xl"} className="w-full" disabled={isLoading}>
