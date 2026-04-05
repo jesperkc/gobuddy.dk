@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { X, Send, Hand, Minimize2, ArrowLeft } from "lucide-react";
+import { X, Send, Hand, Minimize2, Maximize2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
@@ -59,6 +59,16 @@ export function ChatPopup() {
       prevBuddyIdRef.current = buddyId;
     }
   }, [buddyId]);
+
+  // Escape key closes chat
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeChat();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, closeChat]);
 
   // Load buddy slug for profile link
   useEffect(() => {
@@ -200,6 +210,7 @@ export function ChatPopup() {
               e.stopPropagation();
               closeChat();
             }}
+            aria-label="Luk chat"
           />
         </button>
       </div>
@@ -238,27 +249,30 @@ export function ChatPopup() {
             </span>
           </div>
         )}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-0.5 shrink-0">
           <Link
             to="/chat/$buddyId"
             params={{ buddyId }}
-            className="p-1.5 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2.5 -m-1 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors"
             title="Åbn fuld chat"
+            aria-label="Åbn fuld chat"
             onClick={closeChat}
           >
-            <ArrowLeft className="w-4 h-4 rotate-135" />
+            <Maximize2 className="w-4 h-4" />
           </Link>
           <button
             onClick={() => setMinimized(true)}
-            className="p-1.5 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2.5 -m-1 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors"
             title="Minimer"
+            aria-label="Minimer chat"
           >
             <Minimize2 className="w-4 h-4" />
           </button>
           <button
             onClick={closeChat}
-            className="p-1.5 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2.5 -m-1 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors"
             title="Luk"
+            aria-label="Luk chat"
           >
             <X className="w-4 h-4" />
           </button>

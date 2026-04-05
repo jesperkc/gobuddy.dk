@@ -1,5 +1,5 @@
 import { Tables } from "database.types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { supabase } from "../lib/supabase";
 
@@ -40,34 +40,68 @@ export const InterestsPicker = ({
     fetchInterests();
   }, [onboardingOnly]);
 
+  const grouped = useMemo(() => {
+    const map = new Map<string, Tables<"interests">[]>();
+    for (const interest of availableInterests) {
+      const cat = interest.category || "Andet";
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat)!.push(interest);
+    }
+    return map;
+  }, [availableInterests]);
+
+  const selectedCount = Object.keys(selectedInterestsWithDescriptions).length;
+
   return (
     <>
-      {/* Interest Selection Grid */}
-      <div className="flex flex-wrap gap-3 mb-8">
-        {availableInterests.map((interest) => {
-          const isSelected = interest.interest_id in selectedInterestsWithDescriptions;
-          const isDisabled = disabledInterestIds.has(interest.interest_id);
-          return (
-            <button
-              key={interest.interest_id}
-              onClick={() => toggleInterest(interest.interest_id)}
-              disabled={isDisabled}
-              className={`p-3 rounded-lg border text-left transition-colors ${
-                isSelected
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : isDisabled
-                    ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
-                    : "border-gray-300 hover:border-blue-500"
-              }`}
-            >
-              {interest.interest_da}
-            </button>
-          );
-        })}
+      {/* Selection counter */}
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-sm text-gray-500">
+          {selectedCount === 0
+            ? "Vælg dine interesser nedenfor"
+            : `${selectedCount} interesse${selectedCount !== 1 ? "r" : ""} valgt`}
+        </span>
+        {selectedCount > 0 && (
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-semibold">
+            {selectedCount}
+          </span>
+        )}
+      </div>
+
+      {/* Categorized interest grid */}
+      <div className="space-y-6 mb-8">
+        {Array.from(grouped.entries()).map(([category, interests]) => (
+          <div key={category}>
+            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{category}</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {interests.map((interest) => {
+                const isSelected = interest.interest_id in selectedInterestsWithDescriptions;
+                const isDisabled = disabledInterestIds.has(interest.interest_id);
+                return (
+                  <button
+                    key={interest.interest_id}
+                    onClick={() => toggleInterest(interest.interest_id)}
+                    disabled={isDisabled}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all text-sm ${
+                      isSelected
+                        ? "bg-blue-50 text-blue-700 border-blue-300 ring-1 ring-blue-200 font-medium"
+                        : isDisabled
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
+                          : "border-gray-200 hover:border-blue-400 hover:bg-blue-50/50"
+                    }`}
+                  >
+                    {interest.icon && <span className="text-lg shrink-0">{interest.icon}</span>}
+                    <span className="truncate">{interest.interest_da}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Selected Interests with Descriptions */}
-      {Object.keys(selectedInterestsWithDescriptions).length > 0 && (
+      {selectedCount > 0 && (
         <div className="mb-8">
           <h3 className="text-lg font-semibold mb-4">Valgte interesser</h3>
           <p className="text-gray-600 mb-4">Tilføj beskrivelser til dine interesser for at fortælle andre mere om dig</p>
@@ -81,6 +115,7 @@ export const InterestsPicker = ({
                 <div key={interestId} className="bg-white p-4 rounded-lg border border-gray-200">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
+                      {interest.icon && <span className="text-lg">{interest.icon}</span>}
                       <span className="font-medium">{interest.interest_da}</span>
                     </div>
                     <Button
@@ -94,7 +129,7 @@ export const InterestsPicker = ({
                   </div>
 
                   <div>
-                    <label className="block  font-medium text-gray-700 mb-2">
+                    <label className="block font-medium text-gray-700 mb-2">
                       Beskriv hvor, hvordan og hvor ofte du udøver denne interesse...
                     </label>
                     <textarea

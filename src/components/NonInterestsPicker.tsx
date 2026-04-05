@@ -1,5 +1,5 @@
 import { Tables } from "database.types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Ban } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -29,34 +29,65 @@ export const NonInterestsPicker = ({
     fetchInterests();
   }, []);
 
+  const grouped = useMemo(() => {
+    const map = new Map<string, Tables<"interests">[]>();
+    for (const interest of availableInterests) {
+      const cat = interest.category || "Andet";
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat)!.push(interest);
+    }
+    return map;
+  }, [availableInterests]);
+
   return (
     <>
-      <div className="flex flex-wrap gap-3 mb-6">
-        {availableInterests.map((interest) => {
-          const isSelected = selectedNonInterests.has(interest.interest_id);
-          const isDisabled = disabledInterestIds.has(interest.interest_id);
-          return (
-            <button
-              key={interest.interest_id}
-              onClick={() => toggleNonInterest(interest.interest_id)}
-              disabled={isDisabled}
-              className={`p-3 rounded-lg border text-left transition-colors ${
-                isSelected
-                  ? "bg-red-50 text-red-700 border-red-300 ring-1 ring-red-200"
-                  : isDisabled
-                    ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
-                    : "border-gray-300 hover:border-red-400"
-              }`}
-            >
-              <span className="flex items-center gap-1.5">
-                {isSelected && <Ban className="w-3.5 h-3.5" />}
-                {interest.interest_da}
-              </span>
-            </button>
-          );
-        })}
+      {/* Selection counter */}
+      {selectedNonInterests.size > 0 && (
+        <div className="flex items-center gap-2 mb-4">
+          <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+            {selectedNonInterests.size}
+          </span>
+          <span className="text-sm text-gray-500">
+            {selectedNonInterests.size === 1 ? "ikke-interesse valgt" : "ikke-interesser valgt"}
+          </span>
+        </div>
+      )}
+
+      {/* Categorized grid */}
+      <div className="space-y-6 mb-6">
+        {Array.from(grouped.entries()).map(([category, interests]) => (
+          <div key={category}>
+            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{category}</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {interests.map((interest) => {
+                const isSelected = selectedNonInterests.has(interest.interest_id);
+                const isDisabled = disabledInterestIds.has(interest.interest_id);
+                return (
+                  <button
+                    key={interest.interest_id}
+                    onClick={() => toggleNonInterest(interest.interest_id)}
+                    disabled={isDisabled}
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all text-sm ${
+                      isSelected
+                        ? "bg-red-50 text-red-700 border-red-300 ring-1 ring-red-200 font-medium"
+                        : isDisabled
+                          ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
+                          : "border-gray-200 hover:border-red-400 hover:bg-red-50/50"
+                    }`}
+                  >
+                    {interest.icon && <span className="text-lg shrink-0">{isSelected ? "" : interest.icon}</span>}
+                    {isSelected && <Ban className="w-4 h-4 shrink-0" />}
+                    {!interest.icon && isSelected && null}
+                    <span className="truncate">{interest.interest_da}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
+      {/* Selected non-interests summary */}
       {selectedNonInterests.size > 0 && (
         <div className="flex flex-wrap gap-2">
           {Array.from(selectedNonInterests).map((interestId) => {
@@ -72,6 +103,7 @@ export const NonInterestsPicker = ({
                 <button
                   onClick={() => toggleNonInterest(interestId)}
                   className="ml-1 text-red-400 hover:text-red-600"
+                  aria-label={`Fjern ${interest.interest_da}`}
                 >
                   ×
                 </button>
