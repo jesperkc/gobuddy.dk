@@ -388,7 +388,7 @@ function DiscoverPage() {
               )}
             </p>
             <div className="space-y-3">
-              {sortedBuddies.map((buddy) => (
+              {sortedBuddies.map((buddy, i) => (
                 <BuddyCard
                   key={buddy.profile_id}
                   buddy={buddy}
@@ -396,6 +396,7 @@ function DiscoverPage() {
                   relatedInterests={getRelatedInterests(buddy.profile_id)}
                   distanceKm={getDistance(buddy)}
                   hi5Sent={hi5SentIds.has(buddy.profile_id)}
+                  index={i}
                 />
               ))}
             </div>

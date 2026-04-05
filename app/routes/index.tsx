@@ -7,11 +7,11 @@ function Index() {
   return (
     <SplitScreen>
       <div className="">
-        <h1 className="text-2xl mb-6">
+        <h1 className="text-3xl sm:text-4xl mb-6 leading-tight">
           Mød dine nye
           <br /> bedste venner
         </h1>
-        <p className="text-lg text-gray-600 mb-8">
+        <p className="text-lg text-gray-500 mb-8 leading-relaxed">
           Opret en profil og find nye venner med lignende hobbyer og passioner. Gør din hverdag sjovere og mere spændende ved at skabe
           forbindelser med ligesindede.
         </p>

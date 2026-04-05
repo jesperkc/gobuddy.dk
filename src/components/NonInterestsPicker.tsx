@@ -21,7 +21,6 @@ export const NonInterestsPicker = ({
       const { data, error } = await supabase
         .from("interests")
         .select("*")
-        .eq("onboarding", true)
         .order("interest_da");
 
       if (error) throw error;

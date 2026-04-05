@@ -102,9 +102,7 @@ function BuddyProfile() {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const row = data as any;
-        const allInterests = (row.user_interests || []).filter(
-          (ui: { interests: unknown }) => ui.interests,
-        );
+        const allInterests = (row.user_interests || []).filter((ui: { interests: unknown }) => ui.interests);
         setProfile({
           profile_id: row.profile_id,
           first_name: row.first_name,
@@ -142,16 +140,12 @@ function BuddyProfile() {
   // Fetch related interests between my interests and the buddy's interests
   const myInterestIds = useMemo(() => {
     if (!myProfile?.user_interests) return new Set<string>();
-    return new Set(
-      myProfile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id),
-    );
+    return new Set(myProfile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id));
   }, [myProfile]);
 
   const myNonInterestIds = useMemo(() => {
     if (!myProfile?.user_interests) return new Set<string>();
-    return new Set(
-      myProfile.user_interests.filter((i) => i.is_non_interest).map((i) => i.interest_id),
-    );
+    return new Set(myProfile.user_interests.filter((i) => i.is_non_interest).map((i) => i.interest_id));
   }, [myProfile]);
 
   const myInterestMap = useMemo(() => {
@@ -190,9 +184,7 @@ function BuddyProfile() {
         ]);
 
         const allRels = [...(relA.data || []), ...(relB.data || [])];
-        const buddyInterestMap = new Map(
-          profile!.interests.map((i) => [i.interest_id, i.interest_da])
-        );
+        const buddyInterestMap = new Map(profile!.interests.map((i) => [i.interest_id, i.interest_da]));
 
         const pairs: RelatedPair[] = [];
         const seen = new Set<string>();
@@ -243,10 +235,12 @@ function BuddyProfile() {
           receiver_id: profile.profile_id,
           content: "👋",
         }),
-        supabase.from("hi5s").upsert(
-          { sender_id: user.id, receiver_id: profile.profile_id, updated_at: new Date().toISOString() },
-          { onConflict: "sender_id,receiver_id" }
-        ),
+        supabase
+          .from("hi5s")
+          .upsert(
+            { sender_id: user.id, receiver_id: profile.profile_id, updated_at: new Date().toISOString() },
+            { onConflict: "sender_id,receiver_id" },
+          ),
       ]);
 
       if (msgResult.error) throw msgResult.error;
@@ -327,19 +321,19 @@ function BuddyProfile() {
             {profile.interests.length > 0 && (
               <div>
                 <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Interesser</h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-4">
                   {profile.interests.map((interest) => {
                     const isShared = myInterestIds.has(interest.interest_id);
                     return (
                       <div
                         key={interest.interest_id}
-                        className={`inline-flex flex-col px-3 py-1.5 rounded-xl text-sm ${
+                        className={`inline-flex flex-col px-3 py-1.5 rounded-xl text-base ${
                           isShared ? "bg-blue-50 text-blue-700 ring-1 ring-blue-200" : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                      <span className="font-medium">{interest.interest_da}</span>
-                      {interest.description && <span className="text-xs text-gray-500 mt-0.5">{interest.description}</span>}
-                    </div>
+                        <span className="font-medium">{interest.interest_da}</span>
+                        {interest.description && <span className="text-gray-500 mt-0.5">{interest.description}</span>}
+                      </div>
                     );
                   })}
                 </div>
@@ -360,24 +354,17 @@ function BuddyProfile() {
                       className="flex items-center gap-3 rounded-xl bg-violet-50 border border-violet-100 px-4 py-3"
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <span className="text-sm font-medium text-violet-800">
-                          Du: {pair.myInterest.interest_da}
-                        </span>
+                        <span className="text-base font-medium text-violet-800">Du: {pair.myInterest.interest_da}</span>
                         <span className="text-violet-400">→</span>
-                        <span className="text-sm font-medium text-violet-800">
+                        <span className="text-base font-medium text-violet-800">
                           {profile.first_name || "De"}: {pair.buddyInterest.interest_da}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
                         <div className="w-16 h-1.5 rounded-full bg-violet-200 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-violet-500"
-                            style={{ width: `${Math.round(pair.score * 100)}%` }}
-                          />
+                          <div className="h-full rounded-full bg-violet-500" style={{ width: `${Math.round(pair.score * 100)}%` }} />
                         </div>
-                        <span className="text-xs text-violet-500 font-medium w-8 text-right">
-                          {Math.round(pair.score * 100)}%
-                        </span>
+                        <span className="text-xs text-violet-500 font-medium w-8 text-right">{Math.round(pair.score * 100)}%</span>
                       </div>
                     </div>
                   ))}
@@ -396,7 +383,7 @@ function BuddyProfile() {
                   {profile.nonInterests.map((interest) => (
                     <div
                       key={interest.interest_id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium bg-red-50 text-red-700 border border-red-200"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-base font-medium bg-red-50 text-red-700 border border-red-200"
                     >
                       <Ban className="w-3.5 h-3.5" />
                       {interest.interest_da}
@@ -409,7 +396,7 @@ function BuddyProfile() {
             {/* Member since */}
             {profile.created_at && (
               <div className="border-t pt-6">
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-base">
                   <Calendar className="w-4 h-4 text-gray-400" />
                   <span className="text-gray-500">Medlem siden</span>
                   <span className="text-gray-900">
@@ -425,7 +412,7 @@ function BuddyProfile() {
             {/* Actions */}
             <div className="space-y-3">
               {waveSent && (
-                <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center text-sm text-green-700">
+                <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center text-base text-green-700">
                   👋 Highfive sendt! De kan se din besked i chatten.
                 </div>
               )}

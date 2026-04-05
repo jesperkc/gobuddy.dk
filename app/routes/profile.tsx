@@ -70,7 +70,7 @@ function Profile() {
                   {interests.map((interest) => (
                     <span
                       key={interest.interest_id}
-                      className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800"
+                      className="inline-flex items-center px-3 py-1.5 rounded-full text-base font-medium bg-gray-100 text-gray-800"
                       title={interest.description}
                     >
                       {interest.interests.interest_da}
@@ -91,7 +91,7 @@ function Profile() {
                   {nonInterests.map((interest) => (
                     <span
                       key={interest.interest_id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-red-50 text-red-700 border border-red-200"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-base font-medium bg-red-50 text-red-700 border border-red-200"
                     >
                       <Ban className="w-3.5 h-3.5" />
                       {interest.interests.interest_da}
@@ -143,7 +143,7 @@ function DetailRow({
   value?: string | null;
 }) {
   return (
-    <div className="flex items-center gap-2 text-sm">
+    <div className="flex items-center gap-2 text-base">
       <span className="text-gray-400">{icon}</span>
       <span className="text-gray-500">{label}:</span>
       <span className="text-gray-900">{value || "Ikke angivet"}</span>

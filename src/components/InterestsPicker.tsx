@@ -9,6 +9,7 @@ export interface InterestsPickerProps {
   removeInterest: (interestId: string) => void;
   updateInterestDescription: (interestId: string, description: string) => void;
   disabledInterestIds?: Set<string>;
+  onboardingOnly?: boolean;
 }
 
 export const InterestsPicker = ({
@@ -17,23 +18,27 @@ export const InterestsPicker = ({
   removeInterest,
   updateInterestDescription,
   disabledInterestIds = new Set(),
+  onboardingOnly = false,
 }: InterestsPickerProps) => {
   const [availableInterests, setAvailableInterests] = useState<Tables<"interests">[]>([]);
 
   useEffect(() => {
     const fetchInterests = async () => {
-      // Fetch available interests for selection
-      const { data: interestsData, error: interestsError } = await supabase
+      let query = supabase
         .from("interests")
-        .select("*")
-        .eq("onboarding", true)
-        .order("interest_da");
+        .select("*");
+
+      if (onboardingOnly) {
+        query = query.eq("onboarding", true);
+      }
+
+      const { data: interestsData, error: interestsError } = await query.order("interest_da");
 
       if (interestsError) throw interestsError;
       setAvailableInterests(interestsData || []);
     };
     fetchInterests();
-  }, []);
+  }, [onboardingOnly]);
 
   return (
     <>

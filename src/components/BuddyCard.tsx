@@ -30,9 +30,10 @@ interface BuddyCardProps {
   relatedInterests?: RelatedInterestInfo[];
   distanceKm: number | null;
   hi5Sent?: boolean;
+  index?: number;
 }
 
-export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], distanceKm, hi5Sent }: BuddyCardProps) {
+export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], distanceKm, hi5Sent, index = 0 }: BuddyCardProps) {
   const initials = buddy.first_name
     ? buddy.first_name.slice(0, 2).toUpperCase()
     : "?";
@@ -52,7 +53,8 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
     <Link
       to="/buddy/$slug"
       params={{ slug: buddy.slug }}
-      className="block rounded-xl border bg-white p-5 hover:shadow-md transition-shadow no-underline text-inherit"
+      className="card-reveal block rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 no-underline text-inherit"
+      style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="flex items-start gap-4">
         <div className="relative">
@@ -110,15 +112,16 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
                 {sharedInterests.map((interest) => (
                   <span
                     key={interest.interest_id}
-                    className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium ring-1 ring-blue-100"
                   >
+                    <span>{interest.icon}</span>
                     {interest.interest_da}
                   </span>
                 ))}
                 {relatedInterests.map((interest) => (
                   <span
                     key={interest.interest_id}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-violet-50 text-violet-700 rounded-full text-xs font-medium"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-violet-50 text-violet-700 rounded-full text-xs font-medium ring-1 ring-violet-100"
                   >
                     <Sparkles className="w-3 h-3" />
                     Relateret: {interest.interest_da}
@@ -127,8 +130,9 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
                 {otherInterests.map((interest) => (
                   <span
                     key={interest.interest_id}
-                    className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-600 rounded-full text-xs font-medium ring-1 ring-gray-100"
                   >
+                    <span>{interest.icon}</span>
                     {interest.interest_da}
                   </span>
                 ))}
