@@ -23,7 +23,7 @@ function Profile() {
 
   return (
     <DefaultLayout>
-      <div className="max-w-2xl mx-auto">
+      <div>
         <ErrorBanner message={error} />
 
         {loading ? (

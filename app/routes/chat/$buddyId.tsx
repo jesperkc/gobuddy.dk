@@ -158,7 +158,7 @@ function ChatPage() {
 
   return (
     <DefaultLayout>
-      <div className="max-w-2xl mx-auto flex flex-col" style={{ height: "calc(100vh - 10rem)" }}>
+      <div className="flex flex-col" style={{ height: "calc(100vh - 10rem)" }}>
         {/* Header */}
         <div className="flex items-center gap-3 pb-4 border-b">
           <Link to="/chat" className="text-gray-500 hover:text-gray-800">

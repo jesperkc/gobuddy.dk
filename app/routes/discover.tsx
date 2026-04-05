@@ -337,7 +337,7 @@ function DiscoverPage() {
 
   return (
     <DefaultLayout>
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl flex items-center gap-2">

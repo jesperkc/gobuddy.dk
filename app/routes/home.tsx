@@ -29,7 +29,7 @@ function HomePage() {
 
   return (
     <DefaultLayout>
-      <div className="max-w-2xl mx-auto space-y-8">
+      <div className="space-y-8">
         {/* Greeting */}
         <div>
           <h1 className="text-3xl">
