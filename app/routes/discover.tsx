@@ -39,7 +39,6 @@ function DiscoverPage() {
   const [relatedMap, setRelatedMap] = useState<Map<string, Map<string, RelatedInterestInfo[]>>>(new Map());
   const [hi5SentIds, setHi5SentIds] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<"interests" | "newest">("interests");
-  const [activeCategory, setActiveCategory] = useState("alle");
   const [visibleCount, setVisibleCount] = useState(12);
 
   useEffect(() => {
@@ -285,28 +284,9 @@ function DiscoverPage() {
     return relatedMap.get(buddyId)?.get("interests") || [];
   }
 
-  // Extract unique categories from buddy interests
-  const availableCategories = useMemo(() => {
-    const cats = new Set<string>();
-    for (const buddy of buddies) {
-      for (const interest of buddy.interests) {
-        if (interest.category) cats.add(interest.category);
-      }
-    }
-    return Array.from(cats).sort();
-  }, [buddies]);
-
-  // Filter by category
-  const filteredBuddies = useMemo(() => {
-    if (activeCategory === "alle") return buddies;
-    return buddies.filter((b) =>
-      b.interests.some((i) => i.category === activeCategory)
-    );
-  }, [buddies, activeCategory]);
-
   // Sort: by selected mode
   const sortedBuddies = useMemo(() => {
-    return [...filteredBuddies].sort((a, b) => {
+    return [...buddies].sort((a, b) => {
       if (sortMode === "newest") {
         const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
         const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
@@ -335,7 +315,7 @@ function DiscoverPage() {
       const scoreB = sharedB + relatedB * 0.5;
       return scoreB - scoreA;
     });
-  }, [filteredBuddies, sortMode, myInterestIds, myLat, myLng, relatedMap]);
+  }, [buddies, sortMode, myInterestIds, myLat, myLng, relatedMap]);
 
   const visibleBuddies = useMemo(
     () => sortedBuddies.slice(0, visibleCount),
@@ -442,35 +422,6 @@ function DiscoverPage() {
                 <option value="newest">Nyeste</option>
               </select>
             </div>
-
-            {/* Category filter chips */}
-            {availableCategories.length > 0 && (
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                <button
-                  onClick={() => { setActiveCategory("alle"); setVisibleCount(12); }}
-                  className={`shrink-0 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    activeCategory === "alle"
-                      ? "bg-blue-500 text-white"
-                      : "border border-gray-300 text-gray-600 hover:border-gray-400"
-                  }`}
-                >
-                  Alle
-                </button>
-                {availableCategories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => { setActiveCategory(cat); setVisibleCount(12); }}
-                    className={`shrink-0 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                      activeCategory === cat
-                        ? "bg-blue-500 text-white"
-                        : "border border-gray-300 text-gray-600 hover:border-gray-400"
-                    }`}
-                  >
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </button>
-                ))}
-              </div>
-            )}
 
             <div className="space-y-3">
               {visibleBuddies.map((buddy, i) => (
