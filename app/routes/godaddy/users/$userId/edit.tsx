@@ -6,7 +6,7 @@ import { TextInput } from "../../../../../src/components/form/TextInput";
 import { required, useForm } from "@modular-forms/react";
 import { RoleProtectedRoute } from "../../../../../src/components/RoleProtectedRoute";
 import { AdminShell } from "../../../../../src/components/AdminShell";
-import { supabase, adminAuthClient } from "../../../../../src/lib/supabase";
+import { supabase, supabaseAdmin, adminAuthClient } from "../../../../../src/lib/supabase";
 import { IAddress, LocationPicker } from "../../../../../src/components/LocationPicker";
 import { InterestsPicker } from "../../../../../src/components/InterestsPicker";
 import { fetchProfileWithInterests } from "../../../../../src/lib/fetchProfileWithInterests";
@@ -37,7 +37,7 @@ type DetailsForm = {
 type TabType = "details" | "interests" | "location" | "roles";
 
 export function EditUser() {
-  const { profileData, userRoles } = Route.useLoaderData();
+  const { userId, profileData, userRoles } = Route.useLoaderData();
   const navigate = useNavigate();
 
   // Tab state
@@ -66,7 +66,7 @@ export function EditUser() {
     initialValues: {
       first_name: profileData?.profile?.first_name || "",
       last_name: profileData?.profile?.last_name || "",
-      age: profileData?.profile.age || undefined,
+      age: profileData?.profile?.age || undefined,
       email: profileData?.profile?.email || "",
     },
   });
@@ -272,7 +272,8 @@ export function EditUser() {
 
   // Delete user function
   const handleDeleteUser = async () => {
-    if (!profile?.profile_id) return;
+    const targetId = profile?.profile_id || userId;
+    if (!targetId) return;
 
     const userName =
       profile?.first_name && profile?.last_name
@@ -288,27 +289,28 @@ export function EditUser() {
     try {
       setDeleting(true);
 
-      // Step 1: Delete from user_interests table where profile_id matches
-      const { error: interestsError } = await supabase.from("user_interests").delete().eq("profile_id", profile.profile_id);
+      // Step 1: Delete from messages table (FK dependency on profiles)
+      const { error: messagesError } = await supabaseAdmin.from("messages").delete().or(`sender_id.eq.${targetId},receiver_id.eq.${targetId}`);
+      if (messagesError) console.error("Error deleting messages:", messagesError);
 
-      if (interestsError) throw interestsError;
+      // Step 2: Delete from user_interests table
+      const { error: interestsError } = await supabaseAdmin.from("user_interests").delete().eq("profile_id", targetId);
+      if (interestsError) console.error("Error deleting interests:", interestsError);
 
-      // Step 2: Delete from user_roles table where user_id matches
-      const { error: rolesError } = await supabase.from("user_roles").delete().eq("user_id", profile.profile_id);
+      // Step 3: Delete from user_roles table
+      const { error: rolesError } = await supabaseAdmin.from("user_roles").delete().eq("user_id", targetId);
+      if (rolesError) console.error("Error deleting roles:", rolesError);
 
-      if (rolesError) throw rolesError;
-
-      // Step 3: Delete from profiles table where profile_id matches
-      const { error: profileError } = await supabase.from("profiles").delete().eq("profile_id", profile.profile_id);
-
-      if (profileError) throw profileError;
-
-      // Step 4: Delete from auth.users using adminAuthClient
-      if (profile.profile_id) {
-        const { error: authError } = await adminAuthClient.deleteUser(profile.profile_id);
-
-        if (authError) throw authError;
+      // Step 4: Delete from profiles table
+      const { error: profileError } = await supabaseAdmin.from("profiles").delete().eq("profile_id", targetId);
+      if (profileError) {
+        console.error("Error deleting profile:", profileError);
+        throw new Error("Kunne ikke slette profil: " + profileError.message);
       }
+
+      // Step 5: Delete from auth.users using adminAuthClient
+      const { error: authError } = await adminAuthClient.deleteUser(targetId);
+      if (authError) console.error("Error deleting auth user:", authError);
 
       // Navigate back to users list on success
       navigate({ to: "/godaddy/users" });
@@ -336,7 +338,43 @@ export function EditUser() {
       ? `${profile.first_name} ${profile.last_name}`
       : profile?.first_name
         ? profile.first_name
-        : profile?.email || "Ukendt bruger";
+        : profile?.email || userId || "Ukendt bruger";
+
+  // If no profile data was found, show a minimal page with delete option
+  if (!profileData) {
+    return (
+      <RoleProtectedRoute requiredRole="admin">
+        <AdminShell
+          title="Rediger bruger"
+          crumbs={[{ label: "Brugere", href: "/godaddy/users" }, { label: `Bruger: ${userId}` }]}
+        >
+          {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg mb-6">
+            Brugerprofil blev ikke fundet i databasen. Du kan stadig slette brugeren fra systemet.
+          </div>
+
+          <div className="bg-white shadow rounded-lg p-6">
+            <p className="text-gray-600 mb-2"><strong>User ID:</strong> {userId}</p>
+          </div>
+
+          <Button variant="destructive" size="sm" onClick={handleDeleteUser} disabled={deleting || saving} className="mt-4">
+            {deleting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Sletter...
+              </>
+            ) : (
+              <>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Slet bruger
+              </>
+            )}
+          </Button>
+        </AdminShell>
+      </RoleProtectedRoute>
+    );
+  }
 
   return (
     <RoleProtectedRoute requiredRole="admin">
@@ -571,16 +609,16 @@ export const Route = createFileRoute("/godaddy/users/$userId/edit")({
   loader: async ({ params }) => {
     const { userId } = params;
 
-    // Validate userId parameter
     if (!userId) {
       throw new Error("User ID is required");
     }
 
-    try {
-      // Fetch profile data using the existing utility
-      const profileData = await fetchProfileWithInterests(userId);
+    let profileData = null;
+    let userRoles: UserRole[] = [];
 
-      // Fetch user roles
+    try {
+      profileData = await fetchProfileWithInterests(userId);
+
       const { data: userRolesData, error: rolesError } = await supabase
         .from("user_roles")
         .select("role")
@@ -590,15 +628,15 @@ export const Route = createFileRoute("/godaddy/users/$userId/edit")({
         console.error("Error fetching user roles:", rolesError);
       }
 
-      const userRoles = userRolesData?.map((r) => r.role) || [];
-
-      return {
-        profileData,
-        userRoles,
-      };
+      userRoles = userRolesData?.map((r) => r.role) || [];
     } catch (error) {
-      console.error("Error loading user data:", error);
-      throw new Error("Failed to load user data");
+      console.error("Profile not found, continuing with delete option:", error);
     }
+
+    return {
+      userId,
+      profileData,
+      userRoles,
+    };
   },
 });

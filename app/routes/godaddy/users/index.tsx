@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleProtectedRoute } from "../../../../src/components/RoleProtectedRoute";
 import { AdminShell } from "../../../../src/components/AdminShell";
-import { supabase } from "../../../../src/lib/supabase";
+import { supabase, supabaseAdmin, adminAuthClient } from "../../../../src/lib/supabase";
 import { useClientEffect } from "../../../../src/lib/ssr-utils";
 import { useState } from "react";
 import type { Database } from "../../../../database.types";
-import { PencilLine, Plus, Search, ShieldUser, Users } from "lucide-react";
+import { PencilLine, Plus, Search, ShieldUser, Trash2, Users } from "lucide-react";
 import { AIIcon } from "@/components/icons";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -22,6 +22,8 @@ const UserManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState<UserRole | "all">("all");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deleting, setDeleting] = useState(false);
 
   // Load users with their roles
   useClientEffect(() => {
@@ -124,6 +126,68 @@ const UserManagement = () => {
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredUsers.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filteredUsers.map((u) => u.profile_id!)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+
+    const confirmed = confirm(
+      `Er du sikker på at du vil slette ${selectedIds.size} bruger${selectedIds.size !== 1 ? "e" : ""}? Dette kan ikke fortrydes.`
+    );
+    if (!confirmed) return;
+
+    try {
+      setDeleting(true);
+      const ids = Array.from(selectedIds);
+
+      // Delete related data in dependency order, then profiles, then auth users
+      const { error: messagesError } = await supabaseAdmin.from("messages").delete().or(ids.map(id => `sender_id.eq.${id},receiver_id.eq.${id}`).join(","));
+      if (messagesError) console.error("Error deleting messages:", messagesError);
+
+      const { error: interestsError } = await supabaseAdmin.from("user_interests").delete().in("profile_id", ids);
+      if (interestsError) console.error("Error deleting interests:", interestsError);
+
+      const { error: rolesError } = await supabaseAdmin.from("user_roles").delete().in("user_id", ids);
+      if (rolesError) console.error("Error deleting roles:", rolesError);
+
+      const { error: profilesError } = await supabaseAdmin.from("profiles").delete().in("profile_id", ids);
+      if (profilesError) {
+        console.error("Error deleting profiles:", profilesError);
+        alert("Fejl ved sletning af profiler: " + profilesError.message);
+        return;
+      }
+
+      // Delete auth users one by one (no bulk API)
+      for (const id of ids) {
+        const { error } = await adminAuthClient.deleteUser(id);
+        if (error) console.error(`Error deleting auth user ${id}:`, error);
+      }
+
+      setUsers((prev) => prev.filter((u) => !selectedIds.has(u.profile_id!)));
+      setSelectedIds(new Set());
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      alert("Fejl ved sletning: " + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -236,6 +300,25 @@ const UserManagement = () => {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg leading-6 font-medium text-gray-900">Brugerliste ({filteredUsers.length})</h3>
                 <div className="flex space-x-3">
+                  {selectedIds.size > 0 && (
+                    <button
+                      onClick={handleBulkDelete}
+                      disabled={deleting}
+                      className="inline-flex items-center px-4 py-2 border border-transparent font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                    >
+                      {deleting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Sletter {selectedIds.size}...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Slet {selectedIds.size} bruger{selectedIds.size !== 1 ? "e" : ""}
+                        </>
+                      )}
+                    </button>
+                  )}
                   <Link
                     to="/godaddy/users/generate"
                     className="inline-flex items-center px-4 py-2 border border-transparent  font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -263,6 +346,15 @@ const UserManagement = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
+                        <th className="px-4 py-3 text-left">
+                          <input
+                            type="checkbox"
+                            checked={filteredUsers.length > 0 && selectedIds.size === filteredUsers.length}
+                            onChange={toggleSelectAll}
+                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            aria-label="Vælg alle brugere"
+                          />
+                        </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bruger</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokation</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oprettet</th>
@@ -274,7 +366,16 @@ const UserManagement = () => {
                       {filteredUsers.map((user) => {
                         const userRoles = getUserRoles(user);
                         return (
-                          <tr key={user.profile_id} className="hover:bg-gray-50">
+                          <tr key={user.profile_id} className={`hover:bg-gray-50 ${selectedIds.has(user.profile_id!) ? "bg-blue-50" : ""}`}>
+                            <td className="px-4 py-4">
+                              <input
+                                type="checkbox"
+                                checked={selectedIds.has(user.profile_id!)}
+                                onChange={() => toggleSelect(user.profile_id!)}
+                                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                aria-label={`Vælg ${user.first_name || "bruger"}`}
+                              />
+                            </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10">
