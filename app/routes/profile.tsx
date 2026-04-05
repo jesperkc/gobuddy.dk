@@ -6,6 +6,7 @@ import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { Button } from "../../src/components/ui/button";
+import { ErrorBanner } from "@/components/ErrorBanner";
 
 function Profile() {
   const { user } = useAuth();
@@ -23,7 +24,7 @@ function Profile() {
   return (
     <DefaultLayout>
       <div className="max-w-2xl mx-auto">
-        {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+        <ErrorBanner message={error} />
 
         {loading ? (
           <div className="space-y-4 animate-pulse">

@@ -17,6 +17,7 @@ interface RawBuddyRow {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  created_at: string | null;
   user_interests: Array<{
     interest_id: string;
     is_non_interest: boolean;
@@ -24,6 +25,7 @@ interface RawBuddyRow {
       interest_da: string;
       interest_en: string;
       icon: string;
+      category: string | null;
     } | null;
   }>;
 }
@@ -36,6 +38,9 @@ function DiscoverPage() {
   const [error, setError] = useState<string | null>(null);
   const [relatedMap, setRelatedMap] = useState<Map<string, Map<string, RelatedInterestInfo[]>>>(new Map());
   const [hi5SentIds, setHi5SentIds] = useState<Set<string>>(new Set());
+  const [sortMode, setSortMode] = useState<"interests" | "newest">("interests");
+  const [activeCategory, setActiveCategory] = useState("alle");
+  const [visibleCount, setVisibleCount] = useState(12);
 
   useEffect(() => {
     if (user && !profile) {
@@ -154,13 +159,15 @@ function DiscoverPage() {
               city,
               latitude,
               longitude,
+              created_at,
               user_interests (
                 interest_id,
                 is_non_interest,
                 interests (
                   interest_da,
                   interest_en,
-                  icon
+                  icon,
+                  category
                 )
               )
             `
@@ -221,12 +228,14 @@ function DiscoverPage() {
             city: row.city,
             latitude: row.latitude,
             longitude: row.longitude,
+            created_at: row.created_at,
             interests: (row.user_interests || [])
               .filter((ui) => ui.interests && !ui.is_non_interest)
               .map((ui) => ({
                 interest_id: ui.interest_id,
                 interest_da: ui.interests!.interest_da,
                 icon: ui.interests!.icon,
+                category: ui.interests!.category,
               })),
           }))
           // Include buddies with exact OR related interest matches
@@ -276,9 +285,35 @@ function DiscoverPage() {
     return relatedMap.get(buddyId)?.get("interests") || [];
   }
 
-  // Sort: closest first, then by shared interest score as tiebreaker
+  // Extract unique categories from buddy interests
+  const availableCategories = useMemo(() => {
+    const cats = new Set<string>();
+    for (const buddy of buddies) {
+      for (const interest of buddy.interests) {
+        if (interest.category) cats.add(interest.category);
+      }
+    }
+    return Array.from(cats).sort();
+  }, [buddies]);
+
+  // Filter by category
+  const filteredBuddies = useMemo(() => {
+    if (activeCategory === "alle") return buddies;
+    return buddies.filter((b) =>
+      b.interests.some((i) => i.category === activeCategory)
+    );
+  }, [buddies, activeCategory]);
+
+  // Sort: by selected mode
   const sortedBuddies = useMemo(() => {
-    return [...buddies].sort((a, b) => {
+    return [...filteredBuddies].sort((a, b) => {
+      if (sortMode === "newest") {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateB - dateA;
+      }
+
+      // Default: closest first, then by shared interest score as tiebreaker
       if (myLat != null && myLng != null) {
         const distA =
           a.latitude != null && a.longitude != null
@@ -300,7 +335,12 @@ function DiscoverPage() {
       const scoreB = sharedB + relatedB * 0.5;
       return scoreB - scoreA;
     });
-  }, [buddies, myInterestIds, myLat, myLng, relatedMap]);
+  }, [filteredBuddies, sortMode, myInterestIds, myLat, myLng, relatedMap]);
+
+  const visibleBuddies = useMemo(
+    () => sortedBuddies.slice(0, visibleCount),
+    [sortedBuddies, visibleCount]
+  );
 
   function getDistance(buddy: BuddyProfile): number | null {
     if (
@@ -381,14 +421,59 @@ function DiscoverPage() {
         {/* Results */}
         {!loading && hasInterests && sortedBuddies.length > 0 && (
           <>
-            <p className="text-sm text-gray-500">
-              {sortedBuddies.length} {sortedBuddies.length === 1 ? "buddy" : "buddies"} fundet
-              {hasLocation && myCity && (
-                <span> · Afstand fra <span className="font-medium text-gray-700">{myCity}</span></span>
-              )}
-            </p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-gray-500">
+                {sortedBuddies.length} {sortedBuddies.length === 1 ? "buddy" : "buddies"} fundet
+                {hasLocation && myCity && (
+                  <span> · Afstand fra <span className="font-medium text-gray-700">{myCity}</span></span>
+                )}
+              </p>
+
+              {/* Sort dropdown */}
+              <select
+                value={sortMode}
+                onChange={(e) => {
+                  setSortMode(e.target.value as "interests" | "newest");
+                  setVisibleCount(12);
+                }}
+                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="interests">Flest fælles interesser</option>
+                <option value="newest">Nyeste</option>
+              </select>
+            </div>
+
+            {/* Category filter chips */}
+            {availableCategories.length > 0 && (
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <button
+                  onClick={() => { setActiveCategory("alle"); setVisibleCount(12); }}
+                  className={`shrink-0 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    activeCategory === "alle"
+                      ? "bg-blue-500 text-white"
+                      : "border border-gray-300 text-gray-600 hover:border-gray-400"
+                  }`}
+                >
+                  Alle
+                </button>
+                {availableCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => { setActiveCategory(cat); setVisibleCount(12); }}
+                    className={`shrink-0 px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                      activeCategory === cat
+                        ? "bg-blue-500 text-white"
+                        : "border border-gray-300 text-gray-600 hover:border-gray-400"
+                    }`}
+                  >
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="space-y-3">
-              {sortedBuddies.map((buddy, i) => (
+              {visibleBuddies.map((buddy, i) => (
                 <BuddyCard
                   key={buddy.profile_id}
                   buddy={buddy}
@@ -400,6 +485,18 @@ function DiscoverPage() {
                 />
               ))}
             </div>
+
+            {/* Show more button */}
+            {visibleBuddies.length < sortedBuddies.length && (
+              <div className="text-center pt-2">
+                <button
+                  onClick={() => setVisibleCount((c) => c + 12)}
+                  className="px-6 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Vis flere
+                </button>
+              </div>
+            )}
           </>
         )}
 

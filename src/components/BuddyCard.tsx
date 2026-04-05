@@ -11,10 +11,12 @@ export interface BuddyProfile {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  created_at?: string | null;
   interests: {
     interest_id: string;
     interest_da: string;
     icon: string;
+    category?: string | null;
   }[];
 }
 

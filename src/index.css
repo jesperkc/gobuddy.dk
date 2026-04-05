@@ -74,6 +74,8 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
     --ring-offset-width: 2px;
+    --transition-fast: 200ms;
+    --transition-normal: 300ms;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -222,12 +224,30 @@
 }
 
 .card-reveal {
-  animation: cardReveal 0.4s ease-out both;
+  animation: cardReveal 0.3s ease-out both;
+}
+
+/* Chat message fade-in */
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.message-fade-in {
+  animation: messageFadeIn var(--transition-fast, 200ms) ease-out both;
 }
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   .card-reveal {
+    animation: none;
+    opacity: 1;
+  }
+  .message-fade-in {
     animation: none;
     opacity: 1;
   }

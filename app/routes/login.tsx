@@ -3,6 +3,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Loader2, LogIn } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
+import { ErrorBanner } from "@/components/ErrorBanner";
 import { supabase } from "../../src/lib/supabase";
 import { Button } from "../../src/components/ui/button";
 import { email, minLength, required, useForm } from "@modular-forms/react";
@@ -51,7 +52,7 @@ function Login() {
     <SplitScreen>
       <div>
         <h1 className="text-2xl font-bold mb-6">Velkommen tilbage!</h1>
-        {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+        <ErrorBanner message={error} />
 
         <Form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-4">

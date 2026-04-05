@@ -313,7 +313,7 @@ export function ChatPopup() {
               <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-1`}>
                 {isHighfive ? (
                   <div
-                    className={`flex flex-col items-center justify-center w-14 h-14 rounded-2xl ${
+                    className={`message-fade-in flex flex-col items-center justify-center w-14 h-14 rounded-2xl ${
                       isMe
                         ? "bg-blue-600 rounded-br-md"
                         : "bg-gray-100 rounded-bl-md"
@@ -331,7 +331,7 @@ export function ChatPopup() {
                   </div>
                 ) : (
                   <div
-                    className={`max-w-[80%] px-3 py-1.5 rounded-2xl ${
+                    className={`message-fade-in max-w-[80%] px-3 py-1.5 rounded-2xl ${
                       isMe
                         ? "bg-blue-600 text-white rounded-br-md"
                         : "bg-gray-100 text-gray-900 rounded-bl-md"

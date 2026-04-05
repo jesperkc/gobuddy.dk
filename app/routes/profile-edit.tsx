@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { InterestsPicker } from "@/components/InterestsPicker";
 import { NonInterestsPicker } from "@/components/NonInterestsPicker";
 import { fetchProfileWithInterests } from "../../src/lib/fetchProfileWithInterests";
 import { toast } from "sonner";
+import { ErrorBanner } from "@/components/ErrorBanner";
 
 // Reuse interfaces from profile.tsx
 export interface UserProfile {
@@ -123,6 +124,28 @@ export function ProfileEdit() {
     { id: "interests" as TabType, label: "Interesser" },
     { id: "location" as TabType, label: "Placering" },
   ];
+
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleTabKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      const currentIndex = tabs.findIndex((t) => t.id === activeTab);
+      let nextIndex: number | null = null;
+
+      if (e.key === "ArrowRight") {
+        nextIndex = (currentIndex + 1) % tabs.length;
+      } else if (e.key === "ArrowLeft") {
+        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      }
+
+      if (nextIndex !== null) {
+        e.preventDefault();
+        setActiveTab(tabs[nextIndex].id);
+        tabRefs.current[nextIndex]?.focus();
+      }
+    },
+    [activeTab, tabs],
+  );
 
   // Save functions
   const saveDetails = async (values: DetailsForm) => {
@@ -297,15 +320,22 @@ export function ProfileEdit() {
         </Button>
       </div>
 
-      {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+      <ErrorBanner message={error} />
 
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-6">
-        <nav className="-mb-px flex space-x-8 overflow-x-auto">
-          {tabs.map((tab) => (
+        <div role="tablist" aria-label="Profil sektioner" className="-mb-px flex space-x-8 overflow-x-auto">
+          {tabs.map((tab, index) => (
             <button
               key={tab.id}
+              ref={(el) => { tabRefs.current[index] = el; }}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`tabpanel-${tab.id}`}
+              id={`tab-${tab.id}`}
+              tabIndex={activeTab === tab.id ? 0 : -1}
               onClick={() => setActiveTab(tab.id)}
+              onKeyDown={handleTabKeyDown}
               className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium  ${
                 activeTab === tab.id
                   ? "border-blue-500 text-blue-600"
@@ -315,11 +345,11 @@ export function ProfileEdit() {
               {tab.label}
             </button>
           ))}
-        </nav>
+        </div>
       </div>
 
       {/* Tab Content */}
-      <div>
+      <div role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
         {/* Details Tab */}
         {activeTab === "details" && (
           <div>

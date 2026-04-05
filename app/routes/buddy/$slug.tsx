@@ -8,6 +8,7 @@ import { useUserProfileStore } from "../../../src/store/userProfile";
 import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
 import { Button } from "../../../src/components/ui/button";
+import { ErrorBanner } from "@/components/ErrorBanner";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
 
@@ -265,7 +266,7 @@ function BuddyProfile() {
           Tilbage til buddies
         </Link>
 
-        {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
+        <ErrorBanner message={error} />
 
         {loading ? (
           <div className="space-y-4 animate-pulse">
