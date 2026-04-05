@@ -7,6 +7,7 @@ import { required, useForm } from "@modular-forms/react";
 import { Button } from "../../src/components/ui/button";
 import { TextInput } from "../../src/components/form/TextInput";
 import { UnauthedRoute } from "@/components/UnauthedRoute";
+import { OnboardingStepper } from "@/components/OnboardingStepper";
 
 type DetailsForm = {
   name: string;
@@ -34,6 +35,7 @@ function Details() {
   return (
     <SplitScreen>
       <div>
+        <OnboardingStepper step={1} />
         <h1 className="text-2xl font-bold mb-6">Fortæl os mere om dig</h1>
         <Form onSubmit={handleSubmit} className="space-y-6">
           <Field name="name" validate={[required("Indtast venligst et navn")]}>

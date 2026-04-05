@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import { supabase } from "../../src/lib/supabase";
 import { Button } from "../../src/components/ui/button";
 import { isBrowser, safeWindow } from "../../src/lib/ssr-utils";
+import { OnboardingStepper } from "@/components/OnboardingStepper";
 
 export interface SignupRequestData {
   email: string;
@@ -94,6 +95,7 @@ function Signup() {
   return (
     <SplitScreen>
       <div>
+        <OnboardingStepper step={4} />
         <h1 className="text-2xl font-bold mb-6">Opret din konto</h1>
         {error && <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
         <form onSubmit={handleSignup} className="space-y-6">

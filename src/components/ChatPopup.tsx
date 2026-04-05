@@ -7,6 +7,7 @@ import { useChatPopupStore } from "../store/chatPopup";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
 import type { Message } from "../lib/chat-types";
+import { toast } from "sonner";
 
 function formatTime(dateStr: string) {
   return new Date(dateStr).toLocaleTimeString("da-DK", {
@@ -159,6 +160,7 @@ export function ChatPopup() {
     } catch (err) {
       console.error("Error sending message:", err);
       setNewMessage(content);
+      toast.error("Kunne ikke sende besked");
     } finally {
       setSending(false);
       inputRef.current?.focus();

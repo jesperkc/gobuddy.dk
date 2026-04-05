@@ -12,6 +12,7 @@ import { DefaultLayout } from "@/components/AppShell";
 import { InterestsPicker } from "@/components/InterestsPicker";
 import { NonInterestsPicker } from "@/components/NonInterestsPicker";
 import { fetchProfileWithInterests } from "../../src/lib/fetchProfileWithInterests";
+import { toast } from "sonner";
 
 // Reuse interfaces from profile.tsx
 export interface UserProfile {
@@ -141,8 +142,10 @@ export function ProfileEdit() {
 
       // Update local state
       setProfile({ ...profile, first_name: values.first_name, age: values.age === undefined ? null : values.age });
+      toast.success("Detaljer gemt!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error saving details");
+      toast.error("Kunne ikke gemme detaljer");
     } finally {
       setSaving(false);
     }
@@ -184,8 +187,10 @@ export function ProfileEdit() {
         const { error } = await supabase.from("user_interests").insert(rows);
         if (error) throw error;
       }
+      toast.success("Interesser gemt!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error saving interests");
+      toast.error("Kunne ikke gemme interesser");
     } finally {
       setSaving(false);
     }
@@ -211,8 +216,10 @@ export function ProfileEdit() {
 
       // Update local state
       setProfile({ ...profile, city: address.city });
+      toast.success("Placering gemt!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error saving location");
+      toast.error("Kunne ikke gemme placering");
     } finally {
       setSaving(false);
     }

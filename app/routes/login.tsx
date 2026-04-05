@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { LogIn } from "lucide-react";
+import { Loader2, LogIn } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
 import { supabase } from "../../src/lib/supabase";
 import { Button } from "../../src/components/ui/button";
@@ -16,21 +16,27 @@ type LoginForm = {
 function Login() {
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [, { Form, Field }] = useForm<LoginForm>();
 
   const handleSubmit = async (values: LoginForm) => {
     setError("");
+    setIsLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      navigate({ to: "/" });
+      if (error) {
+        setError(error.message);
+      } else {
+        navigate({ to: "/" });
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -73,9 +79,18 @@ function Login() {
             </Field>
           </div>
 
-          <Button type="submit" variant={"glow"} size={"xl"} className="w-full">
-            Log ind
-            <LogIn size={20} />
+          <Button type="submit" variant={"glow"} size={"xl"} className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                Logger ind...
+                <Loader2 size={20} className="animate-spin" />
+              </>
+            ) : (
+              <>
+                Log ind
+                <LogIn size={20} />
+              </>
+            )}
           </Button>
         </Form>
         <p className="mt-6 text-center text-gray-600">

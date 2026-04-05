@@ -10,6 +10,7 @@ import { Or } from "../../src/components/ui/ui";
 import { InputWithIcon } from "../../src/components/ui/input-width-icon";
 import { safeGeolocation, safeSetTimeout, safeClearTimeout, ClientOnly } from "../../src/lib/ssr-utils";
 import { UnauthedRoute } from "@/components/UnauthedRoute";
+import { OnboardingStepper } from "@/components/OnboardingStepper";
 
 interface SearchResult {
   display_name: string;
@@ -133,6 +134,7 @@ function Location() {
   return (
     <SplitScreen>
       <div>
+        <OnboardingStepper step={3} />
         <h1 className="text-2xl font-bold mb-6">Hvor i verden er du?</h1>
         <div className="space-y-6">
           <div className="h-[300px] w-full rounded-lg overflow-hidden shadow-md mb-6">

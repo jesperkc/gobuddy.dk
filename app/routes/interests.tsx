@@ -8,6 +8,7 @@ import { UnauthedRoute } from "@/components/UnauthedRoute";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Tables } from "database.types";
+import { OnboardingStepper } from "@/components/OnboardingStepper";
 
 function Interests() {
   const navigate = useNavigate();
@@ -42,6 +43,7 @@ function Interests() {
   return (
     <SplitScreen>
       <div>
+        <OnboardingStepper step={2} />
         <h1 className="text-2xl font-bold mb-6">Hvad er dine interesser?</h1>
         <p className="text-gray-600 mb-6">Vælg de ting du godt kan lide at lave</p>
         <div className="flex flex-wrap gap-2 mb-6">
