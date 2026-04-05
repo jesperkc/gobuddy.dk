@@ -55,9 +55,13 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
     <Link
       to="/buddy/$slug"
       params={{ slug: buddy.slug }}
-      className="card-reveal block rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 no-underline text-inherit"
+      className="card-reveal group block rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 no-underline text-inherit relative overflow-hidden"
       style={{ animationDelay: `${index * 60}ms` }}
     >
+      {/* Hi5 hover animation */}
+      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <Hand className="w-7 h-7 text-yellow-500 hi5-wave" />
+      </div>
       <div className="flex items-start gap-4">
         <div className="relative">
           <Avatar className="h-12 w-12 text-lg">
