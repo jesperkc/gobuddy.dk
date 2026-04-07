@@ -12,6 +12,7 @@ import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
 import { BuddyCard, type BuddyProfile } from "../../src/components/BuddyCard";
 import { EventCard } from "../../src/components/EventCard";
+import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
 
 interface RawBuddyRow {
   profile_id: string;
@@ -44,6 +45,8 @@ function HomePage() {
       loadProfile(user);
     }
   }, [user, profile, loadProfile]);
+
+  useLocationUpdate(user, profile, loadProfile);
 
   useEffect(() => {
     fetchEvents();

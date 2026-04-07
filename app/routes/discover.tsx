@@ -8,6 +8,7 @@ import { useUserProfileStore } from "../../src/store/userProfile";
 import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
 import { BuddyCard, type BuddyProfile, type RelatedInterestInfo } from "../../src/components/BuddyCard";
+import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
 
 interface RawBuddyRow {
   profile_id: string;
@@ -65,72 +66,7 @@ function DiscoverPage() {
   const myLng = profile?.longitude;
   const myCity = profile?.city;
 
-  // Update location from browser geolocation on each visit if user has shared location before
-  useEffect(() => {
-    if (!user || !profile) return;
-
-    console.log("[Location Debug] Profile coords:", { lat: myLat, lng: myLng, city: myCity });
-
-    if (myLat == null || myLng == null) {
-      console.log("[Location Debug] No stored coordinates — skipping geolocation");
-      return;
-    }
-
-    if (!navigator.geolocation) {
-      console.log("[Location Debug] Geolocation API not available");
-      return;
-    }
-
-    console.log("[Location Debug] Requesting browser geolocation...");
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
-        console.log("[Location Debug] Browser position:", { latitude, longitude, accuracy: `${Math.round(accuracy)}m` });
-
-        const distance = haversineDistance(myLat, myLng, latitude, longitude);
-        console.log("[Location Debug] Distance from stored:", `${distance.toFixed(2)} km`);
-
-        if (distance < 0.1) {
-          console.log("[Location Debug] Less than 100m — no update needed");
-          return;
-        }
-
-        // Reverse geocode to get city name
-        let city: string | undefined;
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=da_DK`
-          );
-          const geo = await res.json();
-          city = geo.address?.city || geo.address?.town || geo.address?.village || geo.address?.municipality;
-          console.log("[Location Debug] Reverse geocode city:", city, "| full address:", geo.address);
-        } catch (err) {
-          console.log("[Location Debug] Reverse geocode failed:", err);
-        }
-
-        const updates: Record<string, unknown> = { coordinates: `POINT(${latitude} ${longitude})` };
-        if (city) updates.city = city;
-
-        console.log("[Location Debug] Updating profile with:", updates);
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update(updates)
-          .eq("profile_id", user.id);
-
-        if (updateError) {
-          console.log("[Location Debug] Update error:", updateError);
-        } else {
-          console.log("[Location Debug] Profile updated — reloading");
-          loadProfile(user);
-        }
-      },
-      (err) => {
-        console.log("[Location Debug] Geolocation error:", err.code, err.message);
-      },
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
-    );
-  }, [user, profile?.profile_id]);
+  useLocationUpdate(user, profile, loadProfile);
 
   useEffect(() => {
     if (!user || myInterestIds.size === 0) {
