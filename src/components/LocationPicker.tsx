@@ -132,7 +132,7 @@ export const LocationPicker = ({ coordinates, setAddress, setCoordinates }: Loca
         <Map coords={coordinates} />
       </div>
 
-      <Button onClick={handleGeolocation} disabled={isLocating}>
+      <Button type="button" onClick={handleGeolocation} disabled={isLocating}>
         {isLocating ? (
           <>
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>

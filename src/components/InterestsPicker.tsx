@@ -76,6 +76,7 @@ export const InterestsPicker = ({
             const isDisabled = disabledInterestIds.has(interest.interest_id);
             return (
               <button
+                type="button"
                 key={interest.interest_id}
                 onClick={() => toggleInterest(interest.interest_id)}
                 disabled={isDisabled}
@@ -121,6 +122,7 @@ export const InterestsPicker = ({
       {!onboardingOnly && otherInterests.length > 0 && (
         <>
           <button
+            type="button"
             onClick={() => setShowAll(!showAll)}
             className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 mb-6 cursor-pointer"
           >
@@ -157,6 +159,7 @@ export const InterestsPicker = ({
                       <span className="font-medium">{interest.interest_da}</span>
                     </div>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => removeInterest(interestId)}

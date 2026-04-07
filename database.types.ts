@@ -14,6 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_interests: {
+        Row: {
+          event_id: string
+          interest_id: string
+        }
+        Insert: {
+          event_id: string
+          interest_id: string
+        }
+        Update: {
+          event_id?: string
+          interest_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_interests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_interests_interest_id_fkey"
+            columns: ["interest_id"]
+            isOneToOne: false
+            referencedRelation: "interests"
+            referencedColumns: ["interest_id"]
+          },
+        ]
+      }
+      event_participants: {
+        Row: {
+          event_id: string
+          joined_at: string
+          profile_id: string
+        }
+        Insert: {
+          event_id: string
+          joined_at?: string
+          profile_id: string
+        }
+        Update: {
+          event_id?: string
+          joined_at?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_participants_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          creator_id: string
+          date_type: string
+          description: string | null
+          event_date: string | null
+          event_id: string
+          event_time: string | null
+          event_weekdays: number[] | null
+          latitude: number
+          longitude: number
+          max_participants: number | null
+          place_name: string
+          slug: string
+          time_of_day: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          creator_id: string
+          date_type?: string
+          description?: string | null
+          event_date?: string | null
+          event_id?: string
+          event_time?: string | null
+          event_weekdays?: number[] | null
+          latitude: number
+          longitude: number
+          max_participants?: number | null
+          place_name: string
+          slug?: string
+          time_of_day?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          creator_id?: string
+          date_type?: string
+          description?: string | null
+          event_date?: string | null
+          event_id?: string
+          event_time?: string | null
+          event_weekdays?: number[] | null
+          latitude?: number
+          longitude?: number
+          max_participants?: number | null
+          place_name?: string
+          slug?: string
+          time_of_day?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       hi5s: {
         Row: {
           created_at: string
