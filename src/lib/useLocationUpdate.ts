@@ -53,5 +53,5 @@ export function useLocationUpdate(
       () => {},
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
     );
-  }, [user, profile?.profile_id]);
+  }, [user, profile?.profile_id, lat, lng]);
 }

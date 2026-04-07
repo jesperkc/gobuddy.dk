@@ -7,29 +7,9 @@ import { useAuth } from "../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
-import { BuddyCard, type BuddyProfile, type RelatedInterestInfo } from "../../src/components/BuddyCard";
+import { BuddyCard, type BuddyProfile, type RawBuddyRow, type RelatedInterestInfo, mapBuddyRow } from "../../src/components/BuddyCard";
 import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
 
-interface RawBuddyRow {
-  profile_id: string;
-  slug: string;
-  first_name: string | null;
-  age: number | null;
-  city: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  created_at: string | null;
-  user_interests: Array<{
-    interest_id: string;
-    is_non_interest: boolean;
-    interests: {
-      interest_da: string;
-      interest_en: string;
-      icon: string;
-      category: string | null;
-    } | null;
-  }>;
-}
 
 function DiscoverPage() {
   const { user } = useAuth();
@@ -154,26 +134,8 @@ function DiscoverPage() {
 
         const rows = (profilesResult.data || []) as unknown as RawBuddyRow[];
 
-        const mapped: BuddyProfile[] = rows
-          .map((row) => ({
-            profile_id: row.profile_id,
-            slug: row.slug,
-            first_name: row.first_name,
-            age: row.age,
-            city: row.city,
-            latitude: row.latitude,
-            longitude: row.longitude,
-            created_at: row.created_at,
-            interests: (row.user_interests || [])
-              .filter((ui) => ui.interests && !ui.is_non_interest)
-              .map((ui) => ({
-                interest_id: ui.interest_id,
-                interest_da: ui.interests!.interest_da,
-                icon: ui.interests!.icon,
-                category: ui.interests!.category,
-              })),
-          }))
-          // Include buddies with exact OR related interest matches
+        const mapped = rows
+          .map(mapBuddyRow)
           .filter((b) =>
             b.interests.some(
               (i) => myInterestIds.has(i.interest_id) || allRelatedIds.has(i.interest_id)

@@ -20,6 +20,48 @@ export interface BuddyProfile {
   }[];
 }
 
+export interface RawBuddyRow {
+  profile_id: string;
+  slug: string;
+  first_name: string | null;
+  age: number | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  created_at?: string | null;
+  user_interests: Array<{
+    interest_id: string;
+    is_non_interest: boolean;
+    interests: {
+      interest_da: string;
+      interest_en: string;
+      icon: string;
+      category: string | null;
+    } | null;
+  }>;
+}
+
+export function mapBuddyRow(row: RawBuddyRow): BuddyProfile {
+  return {
+    profile_id: row.profile_id,
+    slug: row.slug,
+    first_name: row.first_name,
+    age: row.age,
+    city: row.city,
+    latitude: row.latitude,
+    longitude: row.longitude,
+    created_at: row.created_at,
+    interests: (row.user_interests || [])
+      .filter((ui) => ui.interests && !ui.is_non_interest)
+      .map((ui) => ({
+        interest_id: ui.interest_id,
+        interest_da: ui.interests!.interest_da,
+        icon: ui.interests!.icon,
+        category: ui.interests!.category,
+      })),
+  };
+}
+
 export interface RelatedInterestInfo {
   interest_id: string;
   interest_da: string;

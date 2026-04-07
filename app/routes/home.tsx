@@ -10,29 +10,10 @@ import { Button } from "../../src/components/ui/button";
 import { safeDate } from "../../src/lib/ssr-utils";
 import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
-import { BuddyCard, type BuddyProfile } from "../../src/components/BuddyCard";
+import { BuddyCard, type BuddyProfile, type RawBuddyRow, mapBuddyRow } from "../../src/components/BuddyCard";
 import { EventCard } from "../../src/components/EventCard";
 import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
 
-interface RawBuddyRow {
-  profile_id: string;
-  slug: string;
-  first_name: string | null;
-  age: number | null;
-  city: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  user_interests: Array<{
-    interest_id: string;
-    is_non_interest: boolean;
-    interests: {
-      interest_da: string;
-      interest_en: string;
-      icon: string;
-      category: string | null;
-    } | null;
-  }>;
-}
 
 function HomePage() {
   const { user } = useAuth();
@@ -52,12 +33,15 @@ function HomePage() {
     fetchEvents();
   }, [fetchEvents]);
 
+  const interestKey = useMemo(
+    () => (profile?.user_interests ?? []).filter((i) => !i.is_non_interest).map((i) => i.interest_id).sort().join(","),
+    [profile?.user_interests],
+  );
+
   const myInterestIds = useMemo(() => {
-    if (!profile?.user_interests) return new Set<string>();
-    return new Set(
-      profile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id),
-    );
-  }, [profile]);
+    if (!interestKey) return new Set<string>();
+    return new Set(interestKey.split(","));
+  }, [interestKey]);
 
   const myLat = profile?.latitude;
   const myLng = profile?.longitude;
@@ -80,26 +64,9 @@ function HomePage() {
 
       if (error || !data) return;
 
-      const myIds = myInterestIds;
-      const mapped: BuddyProfile[] = (data as unknown as RawBuddyRow[])
-        .map((row) => ({
-          profile_id: row.profile_id,
-          slug: row.slug,
-          first_name: row.first_name,
-          age: row.age,
-          city: row.city,
-          latitude: row.latitude,
-          longitude: row.longitude,
-          interests: (row.user_interests || [])
-            .filter((ui) => ui.interests && !ui.is_non_interest)
-            .map((ui) => ({
-              interest_id: ui.interest_id,
-              interest_da: ui.interests!.interest_da,
-              icon: ui.interests!.icon,
-              category: ui.interests!.category,
-            })),
-        }))
-        .filter((b) => b.interests.some((i) => myIds.has(i.interest_id)));
+      const mapped = (data as unknown as RawBuddyRow[])
+        .map(mapBuddyRow)
+        .filter((b) => b.interests.some((i) => myInterestIds.has(i.interest_id)));
 
       setBuddies(mapped);
     }
