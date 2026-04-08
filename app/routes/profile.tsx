@@ -64,9 +64,7 @@ function Profile() {
             {/* Interests */}
             {interests.length > 0 && (
               <div>
-                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-                  Interesser
-                </h2>
+                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Interesser</h2>
                 <div className="flex flex-wrap gap-2">
                   {interests.map((interest) => (
                     <span
@@ -104,15 +102,9 @@ function Profile() {
 
             {/* Details */}
             <div className="border-t pt-6 space-y-3">
-              <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-                Detaljer
-              </h2>
+              <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Detaljer</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <DetailRow
-                  icon={<Mail className="w-4 h-4" />}
-                  label="Email"
-                  value={user?.email}
-                />
+                <DetailRow icon={<Mail className="w-4 h-4" />} label="Email" value={user?.email} />
                 <DetailRow
                   icon={<Calendar className="w-4 h-4" />}
                   label="Medlem siden"
@@ -134,15 +126,7 @@ function Profile() {
   );
 }
 
-function DetailRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value?: string | null;
-}) {
+function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value?: string | null }) {
   return (
     <div className="flex items-center gap-2 text-base">
       <span className="text-gray-400">{icon}</span>

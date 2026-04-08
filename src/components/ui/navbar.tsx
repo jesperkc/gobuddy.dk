@@ -286,7 +286,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
       <header
         ref={combinedRef}
         className={cn(
-          "sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6 [&_*]:no-underline",
+          "sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur px-4 md:px-6 [&_*]:no-underline",
           className
         )}
         {...props}
@@ -326,7 +326,7 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
             {/* Main nav */}
             <div className="flex items-center gap-6 w-full">
               <Link to="/" className="flex items-center">
-                <GobuddyLogo className="h-8 logo" colorLeft="#F33A3E" colorRight="#F33A3E" />
+                <GobuddyLogo className="h-8 logo" colorLeft="#27d489" colorRight="#2d7bc4" />
               </Link>
               {/* Navigation menu */}
               {!isMobile && (

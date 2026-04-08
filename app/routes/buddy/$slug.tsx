@@ -322,7 +322,7 @@ function BuddyProfile() {
             {profile.interests.length > 0 && (
               <div>
                 <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Interesser</h2>
-                <div className="flex flex-wrap gap-4">
+                <div className="grid grid-cols-2 gap-4">
                   {profile.interests.map((interest) => {
                     const isShared = myInterestIds.has(interest.interest_id);
                     return (
@@ -380,7 +380,7 @@ function BuddyProfile() {
                   <Ban className="w-4 h-4" />
                   Ikke-interesser
                 </h2>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {profile.nonInterests.map((interest) => (
                     <div
                       key={interest.interest_id}

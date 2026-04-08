@@ -16,7 +16,7 @@ export function DefaultLayout({ children, title }: AppShellProps) {
         Gå til indhold
       </a>
       <Navbar />
-      <div className="min-h-screen bg-white max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <main id="main-content" className="flex-1">
           {title && (
             <div className="bg-gray-50 border-b border-gray-200">
