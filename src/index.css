@@ -211,6 +211,22 @@
   }
 }
 
+/* Hero buddy card stack entrance */
+@keyframes heroCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.95) var(--_rotate, rotate(0deg));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1) var(--_rotate, rotate(0deg));
+  }
+}
+
+.hero-card {
+  animation: heroCardIn 0.45s ease-out both;
+}
+
 /* Staggered card entrance animation */
 @keyframes cardReveal {
   from {
