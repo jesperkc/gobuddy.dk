@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Ban, Check, ExternalLink, Link2, Link2Off, Loader2, Zap } from "lucide-react";
+import { ArrowLeft, Ban, Check, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/form/TextInput";
 import { required, useForm } from "@modular-forms/react";
@@ -14,11 +14,13 @@ import { NonInterestsPicker } from "@/components/NonInterestsPicker";
 import { fetchProfileWithInterests } from "../../src/lib/fetchProfileWithInterests";
 import { toast } from "sonner";
 import { ErrorBanner } from "@/components/ErrorBanner";
+import { useActivityPostsStore } from "@/store/activityPosts";
 import {
   buildStravaAuthUrl,
   mapActivitiesToInterests,
   fetchRecentActivities,
   fetchAthleteStats,
+  STRAVA_SPORT_MAP,
   type StravaConnection,
   type StravaActivity,
   type StravaStats,
@@ -80,6 +82,10 @@ export function ProfileEdit() {
     { interest_id: string; interest_da: string }[]
   >([]);
   const [importingInterests, setImportingInterests] = useState(false);
+  const [reimporting, setReimporting] = useState(false);
+
+  // Activity posts (for stats from all sources)
+  const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
 
   // Form states for editing
   const [selectedInterestsWithDescriptions, setSelectedInterestsWithDescriptions] = useState<Record<string, string>>({});
@@ -163,6 +169,13 @@ export function ProfileEdit() {
     }
   }, [search.strava_connected, search.strava_error]);
 
+  // Load activity posts for stats
+  useEffect(() => {
+    if (user?.id) {
+      fetchActivityPosts(user.id, 500);
+    }
+  }, [user?.id, fetchActivityPosts]);
+
   // Load Strava connection data
   useEffect(() => {
     if (!user?.id) return;
@@ -185,7 +198,7 @@ export function ProfileEdit() {
             const athleteId = athleteData?.id as number;
 
             const [activities, stats] = await Promise.all([
-              fetchRecentActivities(data.access_token, 30),
+              fetchRecentActivities(data.access_token, 200),
               fetchAthleteStats(data.access_token, athleteId),
             ]);
 
@@ -200,8 +213,16 @@ export function ProfileEdit() {
                 .select("interest_id, interest_da")
                 .in("interest_da", sportNames);
 
-              // Filter out already-selected interests
-              const existingIds = new Set(Object.keys(selectedInterestsWithDescriptions));
+              // Filter out interests the user already has (check DB, not local state)
+              const { data: existingUserInterests } = await supabase
+                .from("user_interests")
+                .select("interest_id")
+                .eq("profile_id", user.id)
+                .eq("is_non_interest", false);
+
+              const existingIds = new Set(
+                (existingUserInterests || []).map((ui) => ui.interest_id)
+              );
               const importable = (matchingInterests || []).filter(
                 (i) => !existingIds.has(i.interest_id)
               );
@@ -265,7 +286,7 @@ export function ProfileEdit() {
       const rows = stravaImportableSports.map((interest) => ({
         profile_id: user.id,
         interest_id: interest.interest_id,
-        description: "Importeret fra Strava",
+        description: "",
         is_non_interest: false,
       }));
 
@@ -277,7 +298,7 @@ export function ProfileEdit() {
       // Update local state
       const newInterests = { ...selectedInterestsWithDescriptions };
       for (const interest of stravaImportableSports) {
-        newInterests[interest.interest_id] = "Importeret fra Strava";
+        newInterests[interest.interest_id] = "";
       }
       setSelectedInterestsWithDescriptions(newInterests);
       setStravaImportableSports([]);
@@ -288,6 +309,75 @@ export function ProfileEdit() {
       toast.error("Kunne ikke importere interesser");
     } finally {
       setImportingInterests(false);
+    }
+  };
+
+  // Reimport Strava activities as activity posts
+  const reimportStravaActivities = async () => {
+    if (!user?.id || !stravaConnection) return;
+
+    setReimporting(true);
+    try {
+      const activities = await fetchRecentActivities(stravaConnection.access_token, 200);
+
+      // Resolve interest IDs for sport types
+      const { data: allInterests } = await supabase
+        .from("interests")
+        .select("interest_id, interest_da");
+
+      const interestMap = new Map<string, string>();
+      if (allInterests) {
+        for (const row of allInterests) {
+          interestMap.set(row.interest_da.toLowerCase(), row.interest_id);
+        }
+      }
+
+      let imported = 0;
+      for (const activity of activities) {
+        const danishName = STRAVA_SPORT_MAP[activity.sport_type];
+        const interestId = danishName ? interestMap.get(danishName.toLowerCase()) ?? null : null;
+
+        const descParts: string[] = [];
+        if (activity.distance > 0) {
+          descParts.push(activity.distance >= 1000 ? `${(activity.distance / 1000).toFixed(1)} km` : `${Math.round(activity.distance)} m`);
+        }
+        if (activity.moving_time > 0) {
+          const h = Math.floor(activity.moving_time / 3600);
+          const m = Math.floor((activity.moving_time % 3600) / 60);
+          descParts.push(h > 0 ? `${h}t ${m}m` : `${m} min`);
+        }
+        if (activity.total_elevation_gain > 0) {
+          descParts.push(`↑ ${Math.round(activity.total_elevation_gain)} m`);
+        }
+
+        const { error } = await supabase
+          .from("activity_posts")
+          .upsert(
+            {
+              profile_id: user.id,
+              interest_id: interestId,
+              title: activity.name,
+              description: descParts.join(" · "),
+              source: "strava",
+              source_id: String(activity.id),
+              source_url: `https://www.strava.com/activities/${activity.id}`,
+              source_data: activity as unknown as Record<string, unknown>,
+              activity_date: activity.start_date,
+            },
+            { onConflict: "source,source_id" }
+          );
+
+        if (!error) imported++;
+      }
+
+      toast.success(`${imported} aktivitet${imported !== 1 ? "er" : ""} importeret fra Strava!`);
+      // Refresh activity posts so stats update
+      fetchActivityPosts(user.id, 500);
+    } catch (err) {
+      console.error("Error reimporting Strava activities:", err);
+      toast.error("Kunne ikke importere aktiviteter");
+    } finally {
+      setReimporting(false);
     }
   };
 
@@ -699,34 +789,60 @@ export function ProfileEdit() {
                     </Button>
                   </div>
 
-                  {/* Stats summary */}
-                  {stravaStats && (
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-                        Statistik (hele perioden)
-                      </h4>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <StatCard
-                          label="Løb"
-                          value={stravaStats.all_run_totals.count}
-                          unit="aktiviteter"
-                          detail={`${(stravaStats.all_run_totals.distance / 1000).toFixed(0)} km`}
-                        />
-                        <StatCard
-                          label="Cykling"
-                          value={stravaStats.all_ride_totals.count}
-                          unit="aktiviteter"
-                          detail={`${(stravaStats.all_ride_totals.distance / 1000).toFixed(0)} km`}
-                        />
-                        <StatCard
-                          label="Svømning"
-                          value={stravaStats.all_swim_totals.count}
-                          unit="aktiviteter"
-                          detail={`${(stravaStats.all_swim_totals.distance / 1000).toFixed(1)} km`}
-                        />
+                  {/* Reimport activities button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={reimportStravaActivities}
+                    disabled={reimporting}
+                    className="w-full"
+                  >
+                    {reimporting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        Importerer aktiviteter...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                        Importér aktiviteter til feed
+                      </>
+                    )}
+                  </Button>
+
+                  {/* Stats summary — computed from all activity posts */}
+                  {activityPosts.length > 0 && (() => {
+                    const statsMap = new Map<string, { label: string; icon: string; count: number }>();
+                    for (const post of activityPosts) {
+                      if (!post.interest) continue;
+                      const key = post.interest.interest_id;
+                      const existing = statsMap.get(key) || {
+                        label: post.interest.interest_da,
+                        icon: post.interest.icon,
+                        count: 0,
+                      };
+                      existing.count++;
+                      statsMap.set(key, existing);
+                    }
+                    const stats = Array.from(statsMap.values()).sort((a, b) => b.count - a.count);
+                    return stats.length > 0 ? (
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                          Aktivitetsstatistik ({activityPosts.length} aktiviteter)
+                        </h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                          {stats.map((s) => (
+                            <StatCard
+                              key={s.label}
+                              label={s.label}
+                              value={s.count}
+                              unit="aktiviteter"
+                            />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ) : null;
+                  })()}
 
                   {/* Recent activities */}
                   {stravaActivities.length > 0 && (
@@ -841,7 +957,7 @@ function StatCard({
   label: string;
   value: number;
   unit: string;
-  detail: string;
+  detail?: string;
 }) {
   return (
     <div className="bg-gray-50 rounded-lg p-3">
@@ -849,7 +965,7 @@ function StatCard({
       <p className="text-xl font-bold mt-1">
         {value} <span className="text-sm font-normal text-gray-500">{unit}</span>
       </p>
-      <p className="text-sm text-gray-600">{detail}</p>
+      {detail && <p className="text-sm text-gray-600">{detail}</p>}
     </div>
   );
 }

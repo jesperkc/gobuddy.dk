@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_post_media: {
+        Row: {
+          created_at: string | null
+          id: string
+          media_type: string
+          post_id: string
+          sort_order: number | null
+          source: string
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          media_type?: string
+          post_id: string
+          sort_order?: number | null
+          source?: string
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          media_type?: string
+          post_id?: string
+          sort_order?: number | null
+          source?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_post_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "activity_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      activity_posts: {
+        Row: {
+          activity_date: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          interest_id: string | null
+          profile_id: string
+          source: string
+          source_data: Json | null
+          source_id: string | null
+          source_url: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          activity_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          interest_id?: string | null
+          profile_id: string
+          source?: string
+          source_data?: Json | null
+          source_id?: string | null
+          source_url?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          activity_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          interest_id?: string | null
+          profile_id?: string
+          source?: string
+          source_data?: Json | null
+          source_id?: string | null
+          source_url?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_posts_interest_id_fkey"
+            columns: ["interest_id"]
+            isOneToOne: false
+            referencedRelation: "interests"
+            referencedColumns: ["interest_id"]
+          },
+          {
+            foreignKeyName: "activity_posts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       event_interests: {
         Row: {
           event_id: string

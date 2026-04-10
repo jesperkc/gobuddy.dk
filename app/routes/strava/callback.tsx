@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { exchangeStravaCode } from "@/lib/strava";
 import { supabaseAdmin } from "@/lib/supabase";
+import { importStravaActivities } from "@/lib/strava-import";
 
 interface CallbackSearch {
   code?: string;
@@ -91,6 +92,21 @@ export const Route = createFileRoute("/strava/callback")({
           to: "/profile-edit",
           search: { tab: "connections", strava_error: "storage_failed" },
         });
+      }
+
+      // Auto-import recent activities (best effort — don't block the redirect)
+      try {
+        const result = await importStravaActivities(
+          profileId,
+          tokenData.access_token,
+          tokenData.athlete.id,
+          200
+        );
+        console.log(
+          `Strava auto-import: ${result.imported} imported, ${result.errors} errors`
+        );
+      } catch (importErr) {
+        console.error("Strava auto-import failed:", importErr);
       }
 
       throw redirect({

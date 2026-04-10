@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocationRouteImport } from './routes/location'
 import { Route as InterestsRouteImport } from './routes/interests'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as FeedRouteImport } from './routes/feed'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DetailsRouteImport } from './routes/details'
 import { Route as ConfirmemailRouteImport } from './routes/confirmemail'
@@ -80,6 +81,11 @@ const InterestsRoute = InterestsRouteImport.update({
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
   '/discover': typeof DiscoverRoute
+  '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
@@ -281,6 +288,7 @@ export interface FileRoutesByTo {
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
   '/discover': typeof DiscoverRoute
+  '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
   '/discover': typeof DiscoverRoute
+  '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
@@ -362,6 +371,7 @@ export interface FileRouteTypes {
     | '/confirmemail'
     | '/details'
     | '/discover'
+    | '/feed'
     | '/home'
     | '/interests'
     | '/location'
@@ -400,6 +410,7 @@ export interface FileRouteTypes {
     | '/confirmemail'
     | '/details'
     | '/discover'
+    | '/feed'
     | '/home'
     | '/interests'
     | '/location'
@@ -439,6 +450,7 @@ export interface FileRouteTypes {
     | '/confirmemail'
     | '/details'
     | '/discover'
+    | '/feed'
     | '/home'
     | '/interests'
     | '/location'
@@ -479,6 +491,7 @@ export interface RootRouteChildren {
   ConfirmemailRoute: typeof ConfirmemailRoute
   DetailsRoute: typeof DetailsRoute
   DiscoverRoute: typeof DiscoverRoute
+  FeedRoute: typeof FeedRoute
   HomeRoute: typeof HomeRoute
   InterestsRoute: typeof InterestsRoute
   LocationRoute: typeof LocationRoute
@@ -550,6 +563,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -803,6 +823,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfirmemailRoute: ConfirmemailRoute,
   DetailsRoute: DetailsRoute,
   DiscoverRoute: DiscoverRoute,
+  FeedRoute: FeedRoute,
   HomeRoute: HomeRoute,
   InterestsRoute: InterestsRoute,
   LocationRoute: LocationRoute,

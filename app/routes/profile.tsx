@@ -8,14 +8,16 @@ import { useUserProfileStore } from "../../src/store/userProfile";
 import { Button } from "../../src/components/ui/button";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { supabase } from "@/lib/supabase";
-import type { StravaConnection, StravaAthlete, StravaStats } from "@/lib/strava";
-import { fetchAthleteStats } from "@/lib/strava";
+import type { StravaConnection } from "@/lib/strava";
+import { useActivityPostsStore } from "@/store/activityPosts";
+import { ActivityPostCard } from "@/components/ActivityPostCard";
+import { toast } from "sonner";
 
 function Profile() {
   const { user } = useAuth();
   const { profile, loading, error, loadProfile } = useUserProfileStore();
   const [stravaConnection, setStravaConnection] = useState<StravaConnection | null>(null);
-  const [stravaStats, setStravaStats] = useState<StravaStats | null>(null);
+  const { posts: activityPosts, fetchPosts: fetchActivityPosts, deletePost } = useActivityPostsStore();
 
   useEffect(() => {
     if (user && !profile && !loading) {
@@ -37,14 +39,6 @@ function Profile() {
 
         if (data) {
           setStravaConnection(data as unknown as StravaConnection);
-
-          try {
-            const athleteData = data.athlete_data as Record<string, unknown>;
-            const stats = await fetchAthleteStats(data.access_token, athleteData?.id as number);
-            setStravaStats(stats);
-          } catch {
-            // Token might be expired — stats are optional
-          }
         }
       } catch {
         // No connection — that's fine
@@ -53,6 +47,13 @@ function Profile() {
 
     loadStrava();
   }, [user?.id]);
+
+  // Load activity posts
+  useEffect(() => {
+    if (user?.id) {
+      fetchActivityPosts(user.id, 500);
+    }
+  }, [user?.id, fetchActivityPosts]);
 
   const interests = (profile?.user_interests || []).filter((i) => !i.is_non_interest);
   const nonInterests = (profile?.user_interests || []).filter((i) => i.is_non_interest);
@@ -82,20 +83,6 @@ function Profile() {
                     {profile?.first_name || "Unavngivet"}
                     {profile?.age ? `, ${profile.age}` : ""}
                   </h1>
-                  {stravaConnection && (
-                    <a
-                      href={`https://www.strava.com/athletes/${stravaConnection.strava_athlete_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#FC4C02] text-white text-xs font-medium hover:bg-[#e04402] transition-colors"
-                      title={`Strava: ${(stravaConnection.athlete_data as unknown as StravaAthlete)?.firstname || ""}`}
-                    >
-                      <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
-                        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
-                      </svg>
-                      Strava
-                    </a>
-                  )}
                 </div>
                 {profile?.city && (
                   <p className="text-gray-500 mt-1 flex items-center gap-1">
@@ -152,42 +139,87 @@ function Profile() {
               </div>
             )}
 
-            {/* Strava Stats */}
-            {stravaConnection && stravaStats && (
-              <div>
-                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#FC4C02]">
-                    <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
-                  </svg>
-                  Strava-statistik
-                </h2>
-                <div className="grid grid-cols-3 gap-3">
-                  {stravaStats.all_run_totals.count > 0 && (
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                      <p className="text-xl font-bold">{(stravaStats.all_run_totals.distance / 1000).toFixed(0)} km</p>
-                      <p className="text-xs text-gray-500">Løb ({stravaStats.all_run_totals.count})</p>
-                    </div>
-                  )}
-                  {stravaStats.all_ride_totals.count > 0 && (
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                      <p className="text-xl font-bold">{(stravaStats.all_ride_totals.distance / 1000).toFixed(0)} km</p>
-                      <p className="text-xs text-gray-500">Cykling ({stravaStats.all_ride_totals.count})</p>
-                    </div>
-                  )}
-                  {stravaStats.all_swim_totals.count > 0 && (
-                    <div className="bg-gray-50 rounded-lg p-3 text-center">
-                      <p className="text-xl font-bold">{(stravaStats.all_swim_totals.distance / 1000).toFixed(1)} km</p>
-                      <p className="text-xs text-gray-500">Svømning ({stravaStats.all_swim_totals.count})</p>
-                    </div>
-                  )}
+            {/* Activity Stats — computed from all activity posts */}
+            {activityPosts.length > 0 && (() => {
+              const statsMap = new Map<string, { label: string; icon: string; count: number }>();
+              for (const post of activityPosts) {
+                if (!post.interest) continue;
+                const key = post.interest.interest_id;
+                const existing = statsMap.get(key) || {
+                  label: post.interest.interest_da,
+                  icon: post.interest.icon,
+                  count: 0,
+                };
+                existing.count++;
+                statsMap.set(key, existing);
+              }
+              const stats = Array.from(statsMap.values()).sort((a, b) => b.count - a.count);
+              return stats.length > 0 ? (
+                <div>
+                  <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                    Aktivitetsstatistik
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {stats.map((s) => (
+                      <div key={s.label} className="bg-gray-50 rounded-lg p-3 text-center">
+                        <p className="text-xl font-bold">{s.count}</p>
+                        <p className="text-xs text-gray-500">
+                          {s.label}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              ) : null;
+            })()}
+
+            {/* Activity Posts */}
+            {activityPosts.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+                    Seneste aktiviteter
+                  </h2>
+                  <Link
+                    to="/feed"
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    Se alle i feed →
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {activityPosts.slice(0, 5).map((post, i) => (
+                    <ActivityPostCard
+                      key={post.id}
+                      post={post}
+                      showAuthor={false}
+                      onDelete={async (id) => {
+                        if (!confirm("Slet dette indlæg?")) return;
+                        const ok = await deletePost(id);
+                        if (ok) toast.success("Indlæg slettet");
+                        else toast.error("Kunne ikke slette indlæg");
+                      }}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Connections */}
+            {stravaConnection && (
+              <div className="border-t pt-6">
+                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Tilslutninger</h2>
                 <a
                   href={`https://www.strava.com/athletes/${stravaConnection.strava_athlete_id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-2 text-sm text-[#FC4C02] hover:underline"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FC4C02]/10 text-[#FC4C02] hover:bg-[#FC4C02]/20 transition-colors text-sm font-medium"
                 >
-                  Se profil på Strava
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                    <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+                  </svg>
+                  Strava
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>

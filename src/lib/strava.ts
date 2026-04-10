@@ -203,7 +203,7 @@ export async function fetchAthleteStats(
  */
 export async function fetchRecentActivities(
   accessToken: string,
-  perPage = 10
+  perPage = 200
 ): Promise<StravaActivity[]> {
   const res = await fetch(
     `${STRAVA_API_BASE}/athlete/activities?per_page=${perPage}`,
@@ -286,4 +286,40 @@ export function mapActivitiesToInterests(
   }
 
   return Array.from(danishInterests);
+}
+
+export interface SportStats {
+  label: string;
+  count: number;
+  distance: number;
+  movingTime: number;
+  elevationGain: number;
+}
+
+/**
+ * Compute per-sport stats from a list of activities, grouped by Danish interest name.
+ * Sorted by count descending.
+ */
+export function computeSportStats(activities: StravaActivity[]): SportStats[] {
+  const statsMap = new Map<string, SportStats>();
+
+  for (const a of activities) {
+    const label = STRAVA_SPORT_MAP[a.sport_type] || a.sport_type;
+    const existing = statsMap.get(label) || {
+      label,
+      count: 0,
+      distance: 0,
+      movingTime: 0,
+      elevationGain: 0,
+    };
+
+    existing.count++;
+    existing.distance += a.distance || 0;
+    existing.movingTime += a.moving_time || 0;
+    existing.elevationGain += a.total_elevation_gain || 0;
+
+    statsMap.set(label, existing);
+  }
+
+  return Array.from(statsMap.values()).sort((a, b) => b.count - a.count);
 }

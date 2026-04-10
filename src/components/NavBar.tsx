@@ -66,6 +66,9 @@ export function Navbar() {
             <Link to="/aktiviteter" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Aktiviteter
             </Link>
+            <Link to="/feed" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
+              Feed
+            </Link>
             <Link to="/chat" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Beskeder
             </Link>
@@ -168,6 +171,13 @@ export function Navbar() {
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Aktiviteter
+          </Link>
+          <Link
+            to="/feed"
+            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Feed
           </Link>
           <Link
             to="/chat"

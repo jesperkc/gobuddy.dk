@@ -11,6 +11,8 @@ import { Button } from "../../../src/components/ui/button";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
+import { useActivityPostsStore } from "@/store/activityPosts";
+import { ActivityPostCard } from "@/components/ActivityPostCard";
 
 interface PublicProfile {
   profile_id: string;
@@ -49,6 +51,7 @@ function BuddyProfile() {
   const [waveSent, setWaveSent] = useState(false);
   const [sendingWave, setSendingWave] = useState(false);
   const [relatedPairs, setRelatedPairs] = useState<RelatedPair[]>([]);
+  const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
 
   useEffect(() => {
     if (user && !myProfile) {
@@ -137,6 +140,13 @@ function BuddyProfile() {
 
     fetchProfile();
   }, [slug]);
+
+  // Load activity posts for this buddy
+  useEffect(() => {
+    if (profile?.profile_id) {
+      fetchActivityPosts(profile.profile_id, 50);
+    }
+  }, [profile?.profile_id, fetchActivityPosts]);
 
   // Fetch related interests between my interests and the buddy's interests
   const myInterestIds = useMemo(() => {
@@ -303,19 +313,28 @@ function BuddyProfile() {
                   </p>
                 )}
               </div>
-              {!waveSent ? (
+              <div className="flex items-center gap-2">
                 <button
-                  onClick={sendWave}
-                  disabled={sendingWave}
-                  className="h-12 w-12 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors flex items-center justify-center disabled:opacity-50"
+                  onClick={goToChat}
+                  className="h-12 w-12 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors flex items-center justify-center"
+                  title={`Skriv til ${profile.first_name || "denne buddy"}`}
                 >
-                  <Hand className={`w-6 h-6 ${sendingWave ? "animate-bounce" : ""}`} />
+                  <MessageCircle className="w-6 h-6" />
                 </button>
-              ) : (
-                <div className="h-12 w-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                  <Hand className="w-6 h-6" />
-                </div>
-              )}
+                {!waveSent ? (
+                  <button
+                    onClick={sendWave}
+                    disabled={sendingWave}
+                    className="h-12 w-12 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors flex items-center justify-center disabled:opacity-50"
+                  >
+                    <Hand className={`w-6 h-6 ${sendingWave ? "animate-bounce" : ""}`} />
+                  </button>
+                ) : (
+                  <div className="h-12 w-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
+                    <Hand className="w-6 h-6" />
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Interests */}
@@ -394,6 +413,25 @@ function BuddyProfile() {
               </div>
             )}
 
+            {/* Activity Posts */}
+            {activityPosts.length > 0 && (
+              <div>
+                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                  Seneste aktiviteter
+                </h2>
+                <div className="space-y-3">
+                  {activityPosts.slice(0, 10).map((post, i) => (
+                    <ActivityPostCard
+                      key={post.id}
+                      post={post}
+                      showAuthor={false}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Member since */}
             {profile.created_at && (
               <div className="border-t pt-6">
@@ -410,19 +448,12 @@ function BuddyProfile() {
               </div>
             )}
 
-            {/* Actions */}
-            <div className="space-y-3">
-              {waveSent && (
-                <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center text-base text-green-700">
-                  👋 Highfive sendt! De kan se din besked i chatten.
-                </div>
-              )}
-
-              <Button onClick={goToChat} variant="glow" size="xl" className="w-full">
-                <MessageCircle className="w-5 h-5" />
-                Skriv til {profile.first_name || "denne buddy"}
-              </Button>
-            </div>
+            {/* Highfive confirmation */}
+            {waveSent && (
+              <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center text-base text-green-700">
+                👋 Highfive sendt! De kan se din besked i chatten.
+              </div>
+            )}
           </div>
         ) : null}
       </div>
