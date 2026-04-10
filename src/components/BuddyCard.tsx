@@ -1,6 +1,6 @@
 import { MapPin, Users, Sparkles, Hand } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistance } from "@/lib/geo";
 
 export interface BuddyProfile {
@@ -11,6 +11,7 @@ export interface BuddyProfile {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  avatar_url?: string | null;
   created_at?: string | null;
   interests: {
     interest_id: string;
@@ -28,6 +29,7 @@ export interface RawBuddyRow {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  avatar_url?: string | null;
   created_at?: string | null;
   user_interests: Array<{
     interest_id: string;
@@ -50,6 +52,7 @@ export function mapBuddyRow(row: RawBuddyRow): BuddyProfile {
     city: row.city,
     latitude: row.latitude,
     longitude: row.longitude,
+    avatar_url: row.avatar_url,
     created_at: row.created_at,
     interests: (row.user_interests || [])
       .filter((ui) => ui.interests && !ui.is_non_interest)
@@ -103,6 +106,9 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
       {/* Avatar */}
       <div className="relative mb-3">
         <Avatar className="h-16 w-16 text-xl">
+          {buddy.avatar_url && (
+            <AvatarImage src={buddy.avatar_url} alt={buddy.first_name || ""} />
+          )}
           <AvatarFallback className="bg-blue-100 text-blue-700">
             {initials}
           </AvatarFallback>

@@ -9,7 +9,7 @@ import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { Link } from "@tanstack/react-router";
-import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../../../src/components/ui/avatar";
 import { useActivityPostsStore } from "@/store/activityPosts";
 import { ActivityPostCard } from "@/components/ActivityPostCard";
 
@@ -19,6 +19,7 @@ interface PublicProfile {
   age: number | null;
   city: string | null;
   country: string | null;
+  avatar_url: string | null;
   created_at: string | null;
   interests: {
     interest_id: string;
@@ -85,6 +86,7 @@ function BuddyProfile() {
             age,
             city,
             country,
+            avatar_url,
             created_at,
             user_interests (
               interest_id,
@@ -112,6 +114,7 @@ function BuddyProfile() {
           age: row.age,
           city: row.city,
           country: row.country,
+          avatar_url: row.avatar_url,
           created_at: row.created_at,
           interests: allInterests
             .filter((ui: { is_non_interest: boolean }) => !ui.is_non_interest)
@@ -297,6 +300,9 @@ function BuddyProfile() {
             {/* Header */}
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16 text-2xl">
+                {profile.avatar_url && (
+                  <AvatarImage src={profile.avatar_url} alt={profile.first_name || ""} />
+                )}
                 <AvatarFallback className="bg-blue-100 text-blue-700">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex-1">

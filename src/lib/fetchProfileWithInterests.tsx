@@ -22,6 +22,7 @@ interface ProfileWithInterestsQueryResult {
   postcode: string | null;
   country: string | null;
   country_code: string | null;
+  avatar_url: string | null;
   created_at: string | null;
   user_interests: Array<{
     interest_id: string;
@@ -78,6 +79,7 @@ export async function fetchProfileWithInterests(profileId: string): Promise<{
       postcode: profileData.postcode || "",
       country: profileData.country || "",
       country_code: profileData.country_code || "",
+      avatar_url: profileData.avatar_url,
       created_at: profileData.created_at,
     };
 

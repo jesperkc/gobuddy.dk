@@ -75,6 +75,7 @@ function DiscoverPage() {
               city,
               latitude,
               longitude,
+              avatar_url,
               created_at,
               user_interests (
                 interest_id,

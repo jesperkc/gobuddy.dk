@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ExternalLink, Calendar, Trash2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { ActivityPost } from "@/store/activityPosts";
 
 interface ActivityPostCardProps {
@@ -47,13 +48,29 @@ export function ActivityPostCard({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           {showAuthor && post.profile && (
-            <Link
-              to="/buddy/$slug"
-              params={{ slug: post.profile.slug }}
-              className="text-sm font-medium text-gray-900 hover:text-blue-600 no-underline"
-            >
-              {post.profile.first_name || "Ukendt"}
-            </Link>
+            <>
+              <Link
+                to="/buddy/$slug"
+                params={{ slug: post.profile.slug }}
+                className="no-underline"
+              >
+                <Avatar className="h-7 w-7 text-xs">
+                  {post.profile.avatar_url && (
+                    <AvatarImage src={post.profile.avatar_url} alt={post.profile.first_name || ""} />
+                  )}
+                  <AvatarFallback className="bg-blue-100 text-blue-700">
+                    {post.profile.first_name?.slice(0, 2).toUpperCase() || "?"}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+              <Link
+                to="/buddy/$slug"
+                params={{ slug: post.profile.slug }}
+                className="text-sm font-medium text-gray-900 hover:text-blue-600 no-underline"
+              >
+                {post.profile.first_name || "Ukendt"}
+              </Link>
+            </>
           )}
 
           <span

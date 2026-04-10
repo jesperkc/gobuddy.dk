@@ -67,7 +67,7 @@ function HomePage() {
         .from("profiles")
         .select(
           `
-          profile_id, slug, first_name, age, city, latitude, longitude,
+          profile_id, slug, first_name, age, city, latitude, longitude, avatar_url,
           user_interests (
             interest_id, is_non_interest,
             interests (interest_da, interest_en, icon, category)

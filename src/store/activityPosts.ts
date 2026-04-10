@@ -19,6 +19,7 @@ export interface ActivityPost {
     profile_id: string;
     first_name: string | null;
     slug: string;
+    avatar_url: string | null;
   };
   media: {
     id: string;
@@ -30,7 +31,7 @@ export interface ActivityPost {
 const POST_SELECT = `
   id, profile_id, title, description, source, source_url, activity_date, created_at,
   interest:interests (interest_id, interest_da, icon),
-  profile:profiles!profile_id (profile_id, first_name, slug),
+  profile:profiles!profile_id (profile_id, first_name, slug, avatar_url),
   media:activity_post_media (id, url, media_type)
 `;
 

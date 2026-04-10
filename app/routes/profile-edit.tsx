@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { PageTitle } from "@/components/PageTitle";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Ban, Check, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Zap } from "lucide-react";
+import { ArrowLeft, Ban, Camera, Check, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Trash2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TextInput } from "@/components/form/TextInput";
 import { required, useForm } from "@modular-forms/react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -41,6 +42,7 @@ export interface UserProfile {
   postcode: string | null;
   country: string | null;
   country_code: string | null;
+  avatar_url?: string | null;
   created_at: string | null;
 }
 
@@ -85,6 +87,11 @@ export function ProfileEdit() {
   const [importingInterests, setImportingInterests] = useState(false);
   const [reimporting, setReimporting] = useState(false);
 
+  // Avatar state
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
   // Activity posts (for stats from all sources)
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
 
@@ -114,6 +121,7 @@ export function ProfileEdit() {
 
       try {
         setProfile(profileData.profile);
+        setAvatarUrl(profileData.profile.avatar_url || null);
 
         // Initialize selected interests with descriptions
         const interestsWithDescriptions: Record<string, string> = {};
@@ -382,6 +390,102 @@ export function ProfileEdit() {
     }
   };
 
+  // Avatar upload handler
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    // Validate file type and size
+    if (!file.type.startsWith("image/")) {
+      toast.error("Filen skal være et billede");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Billedet må max være 5 MB");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const filePath = `${user.id}/avatar.${ext}`;
+
+      // Delete old avatar files (in case extension changed)
+      const { data: existing } = await supabase.storage
+        .from("avatars")
+        .list(user.id);
+      if (existing && existing.length > 0) {
+        await supabase.storage
+          .from("avatars")
+          .remove(existing.map((f) => `${user.id}/${f.name}`));
+      }
+
+      // Upload new
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      // Save to profile
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("profile_id", user.id);
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+      if (profile) setProfile({ ...profile, avatar_url: publicUrl });
+      toast.success("Profilbillede opdateret!");
+    } catch (err) {
+      console.error("Avatar upload error:", err);
+      toast.error("Kunne ikke uploade billede");
+    } finally {
+      setUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  };
+
+  // Avatar delete handler
+  const handleAvatarDelete = async () => {
+    if (!user?.id) return;
+
+    setUploadingAvatar(true);
+    try {
+      // Remove all files in user's avatar folder
+      const { data: existing } = await supabase.storage
+        .from("avatars")
+        .list(user.id);
+      if (existing && existing.length > 0) {
+        await supabase.storage
+          .from("avatars")
+          .remove(existing.map((f) => `${user.id}/${f.name}`));
+      }
+
+      // Clear from profile
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: null })
+        .eq("profile_id", user.id);
+      if (error) throw error;
+
+      setAvatarUrl(null);
+      if (profile) setProfile({ ...profile, avatar_url: null });
+      toast.success("Profilbillede fjernet");
+    } catch (err) {
+      console.error("Avatar delete error:", err);
+      toast.error("Kunne ikke fjerne billede");
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   // Tab navigation
   const tabs = [
     { id: "details" as TabType, label: "Personlige oplysninger" },
@@ -618,9 +722,65 @@ export function ProfileEdit() {
       <div role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
         {/* Details Tab */}
         {activeTab === "details" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Personlige oplysninger</h2>
-            <Form onSubmit={saveDetails} className="space-y-6">
+          <div className="space-y-8">
+            {/* Avatar upload */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Profilbillede</h2>
+              <div className="flex items-center gap-6">
+                <div className="relative group">
+                  <Avatar className="h-24 w-24 text-3xl">
+                    {avatarUrl && (
+                      <AvatarImage src={avatarUrl} alt={profile?.first_name || ""} />
+                    )}
+                    <AvatarFallback className="bg-blue-100 text-blue-700">
+                      {profile?.first_name?.slice(0, 2).toUpperCase() || "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  {uploadingAvatar && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
+                      <Loader2 className="h-6 w-6 animate-spin text-white" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={uploadingAvatar}
+                    onClick={() => avatarInputRef.current?.click()}
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    {avatarUrl ? "Skift billede" : "Upload billede"}
+                  </Button>
+                  {avatarUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      disabled={uploadingAvatar}
+                      onClick={handleAvatarDelete}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Fjern billede
+                    </Button>
+                  )}
+                  <p className="text-xs text-gray-400">Max 5 MB · JPG, PNG, WebP</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Name + age form */}
+            <div>
+              <h2 className="text-2xl font-bold mb-6">Personlige oplysninger</h2>
+              <Form onSubmit={saveDetails} className="space-y-6">
               <Field name="first_name" validate={[required("Indtast venligst et navn")]}>
                 {(field, props) => (
                   <TextInput
@@ -661,6 +821,7 @@ export function ProfileEdit() {
                 </Button>
               </div>
             </Form>
+            </div>
           </div>
         )}
 
