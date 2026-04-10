@@ -6,12 +6,14 @@ import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { useEventsStore } from "../../src/store/events";
+import { useActivityPostsStore } from "../../src/store/activityPosts";
 import { Button } from "../../src/components/ui/button";
 import { safeDate } from "../../src/lib/ssr-utils";
 import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
 import { BuddyCard, type BuddyProfile, type RawBuddyRow, mapBuddyRow } from "../../src/components/BuddyCard";
 import { EventCard } from "../../src/components/EventCard";
+import { ActivityPostCard } from "../../src/components/ActivityPostCard";
 import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
 
 
@@ -19,6 +21,7 @@ function HomePage() {
   const { user } = useAuth();
   const { profile, loadProfile } = useUserProfileStore();
   const { events, fetchEvents } = useEventsStore();
+  const { posts: feedPosts, fetchPosts: fetchFeedPosts } = useActivityPostsStore();
   const [buddies, setBuddies] = useState<BuddyProfile[]>([]);
 
   useEffect(() => {
@@ -32,6 +35,10 @@ function HomePage() {
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
+
+  useEffect(() => {
+    fetchFeedPosts(undefined, 20);
+  }, [fetchFeedPosts]);
 
   const interestKey = useMemo(
     () => (profile?.user_interests ?? []).filter((i) => !i.is_non_interest).map((i) => i.interest_id).sort().join(","),
@@ -166,7 +173,7 @@ function HomePage() {
                 Buddies i nærheden
               </h2>
               <Link
-                to="/discover"
+                to="/buddies"
                 className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"
               >
                 Se alle
@@ -187,39 +194,70 @@ function HomePage() {
           </div>
         )}
 
-        {/* Nearest activities */}
-        {nearestEvents.length > 0 && (
-          <div>
+        {/* Activities (1/3) + Feed (2/3) */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Aktiviteter i nærheden — 1/3 */}
+          {nearestEvents.length > 0 && (
+            <div className="lg:col-span-1">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-medium flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Aktiviteter
+                </h2>
+                <Link
+                  to="/activities"
+                  className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"
+                >
+                  Alle
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+              <div className="space-y-4">
+                {nearestEvents.map((event, i) => (
+                  <EventCard
+                    key={event.event_id}
+                    event={event}
+                    distanceKm={getEventDistance(event.latitude, event.longitude)}
+                    index={i}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Feed — 2/3 */}
+          <div className={nearestEvents.length > 0 ? "lg:col-span-2" : "lg:col-span-3"}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Aktiviteter i nærheden
-              </h2>
+              <h2 className="text-lg font-medium">Feed</h2>
               <Link
-                to="/aktiviteter"
+                to="/feed"
                 className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"
               >
                 Se alle
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {nearestEvents.map((event, i) => (
-                <EventCard
-                  key={event.event_id}
-                  event={event}
-                  distanceKm={getEventDistance(event.latitude, event.longitude)}
-                  index={i}
-                />
-              ))}
-            </div>
+            {feedPosts.length > 0 ? (
+              <div className="space-y-3">
+                {feedPosts.slice(0, 10).map((post, i) => (
+                  <ActivityPostCard
+                    key={post.id}
+                    post={post}
+                    showAuthor={true}
+                    index={i}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400">Ingen aktiviteter i dit feed endnu.</p>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Quick links */}
         <div className="flex gap-3">
           <Button asChild variant="outline" className="flex-1">
-            <Link to="/discover">
+            <Link to="/buddies">
               <Compass className="w-4 h-4" />
               Find buddies
             </Link>

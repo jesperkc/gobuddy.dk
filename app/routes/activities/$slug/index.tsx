@@ -44,7 +44,7 @@ function EventDetailPage() {
       <DefaultLayout>
         <div className="max-w-2xl mx-auto py-16 px-4 text-center text-gray-400">
           <p className="text-lg font-medium">Aktivitet ikke fundet</p>
-          <Link to="/aktiviteter" className="text-blue-600 hover:underline mt-2 inline-block">
+          <Link to="/activities" className="text-blue-600 hover:underline mt-2 inline-block">
             ← Tilbage til aktiviteter
           </Link>
         </div>
@@ -106,7 +106,7 @@ function EventDetailPage() {
       <div className="py-8 px-4">
         {/* Back link */}
         <Link
-          to="/aktiviteter"
+          to="/activities"
           className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -190,7 +190,7 @@ function EventDetailPage() {
             {isCreator && (
               <>
                 <Button variant="outline" asChild>
-                  <Link to="/aktiviteter/$slug/rediger" params={{ slug }}>
+                  <Link to="/activities/$slug/rediger" params={{ slug }}>
                     <Pencil className="h-4 w-4 mr-1.5" />
                     Rediger
                   </Link>
@@ -258,6 +258,6 @@ function ProtectedEventDetailPage() {
   );
 }
 
-export const Route = createFileRoute("/aktiviteter/$slug/")({
+export const Route = createFileRoute("/activities/$slug/")({
   component: ProtectedEventDetailPage,
 });

@@ -7,7 +7,6 @@ import { useAuth } from "../../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../../src/store/userProfile";
 import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
-import { Button } from "../../../src/components/ui/button";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
@@ -271,7 +270,7 @@ function BuddyProfile() {
   return (
     <DefaultLayout>
       <div>
-        <Link to="/discover" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-6">
+        <Link to="/buddies" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-6">
           <ArrowLeft className="w-4 h-4" />
           Tilbage til buddies
         </Link>
@@ -416,17 +415,10 @@ function BuddyProfile() {
             {/* Activity Posts */}
             {activityPosts.length > 0 && (
               <div>
-                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-                  Seneste aktiviteter
-                </h2>
+                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Seneste aktiviteter</h2>
                 <div className="space-y-3">
                   {activityPosts.slice(0, 10).map((post, i) => (
-                    <ActivityPostCard
-                      key={post.id}
-                      post={post}
-                      showAuthor={false}
-                      index={i}
-                    />
+                    <ActivityPostCard key={post.id} post={post} showAuthor={false} index={i} />
                   ))}
                 </div>
               </div>

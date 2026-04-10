@@ -15,7 +15,7 @@ export function EventCard({ event, distanceKm, index = 0 }: EventCardProps) {
 
   return (
     <Link
-      to="/aktiviteter/$slug"
+      to="/activities/$slug"
       params={{ slug: event.slug }}
       className="card-reveal block rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 no-underline text-inherit"
       style={{ animationDelay: `${index * 60}ms` }}

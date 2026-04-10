@@ -118,7 +118,7 @@ function InboxPage() {
               Find en buddy og foreslå et meetup for at starte en samtale!
             </p>
             <Link
-              to="/discover"
+              to="/buddies"
               className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 mt-4 text-sm font-medium"
             >
               Find buddies

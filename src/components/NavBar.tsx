@@ -60,10 +60,10 @@ export function Navbar() {
             <Link to="/home" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Hjem
             </Link>
-            <Link to="/discover" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
+            <Link to="/buddies" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Find buddy
             </Link>
-            <Link to="/aktiviteter" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
+            <Link to="/activities" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
               Aktiviteter
             </Link>
             <Link to="/feed" className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md  font-medium">
@@ -159,14 +159,14 @@ export function Navbar() {
             Hjem
           </Link>
           <Link
-            to="/discover"
+            to="/buddies"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Find buddy
           </Link>
           <Link
-            to="/aktiviteter"
+            to="/activities"
             className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
             onClick={() => setIsMobileMenuOpen(false)}
           >

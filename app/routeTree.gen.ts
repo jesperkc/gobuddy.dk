@@ -17,17 +17,17 @@ import { Route as LocationRouteImport } from './routes/location'
 import { Route as InterestsRouteImport } from './routes/interests'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as FeedRouteImport } from './routes/feed'
-import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as DetailsRouteImport } from './routes/details'
 import { Route as ConfirmemailRouteImport } from './routes/confirmemail'
 import { Route as CompletedRouteImport } from './routes/completed'
 import { Route as CompleteRouteImport } from './routes/complete'
+import { Route as BuddiesRouteImport } from './routes/buddies'
 import { Route as GodaddyRouteRouteImport } from './routes/godaddy/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as InteresserIndexRouteImport } from './routes/interesser/index'
 import { Route as GodaddyIndexRouteImport } from './routes/godaddy/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
-import { Route as AktiviteterIndexRouteImport } from './routes/aktiviteter/index'
+import { Route as ActivitiesIndexRouteImport } from './routes/activities/index'
 import { Route as StravaCallbackRouteImport } from './routes/strava/callback'
 import { Route as InteresserSlugRouteImport } from './routes/interesser/$slug'
 import { Route as GodaddyAnalyticsRouteImport } from './routes/godaddy/analytics'
@@ -36,16 +36,16 @@ import { Route as BuddySlugRouteImport } from './routes/buddy/$slug'
 import { Route as ApiGenerateUsersRouteImport } from './routes/api/generate-users'
 import { Route as ApiGenerateRelationsRouteImport } from './routes/api/generate-relations'
 import { Route as ApiGenerateInterestsRouteImport } from './routes/api/generate-interests'
-import { Route as AktiviteterOpretRouteImport } from './routes/aktiviteter/opret'
+import { Route as ActivitiesOpretRouteImport } from './routes/activities/opret'
 import { Route as GodaddyUsersIndexRouteImport } from './routes/godaddy/users/index'
 import { Route as GodaddyInterestsIndexRouteImport } from './routes/godaddy/interests/index'
-import { Route as AktiviteterSlugIndexRouteImport } from './routes/aktiviteter/$slug/index'
+import { Route as ActivitiesSlugIndexRouteImport } from './routes/activities/$slug/index'
 import { Route as GodaddyUsersGenerateRouteImport } from './routes/godaddy/users/generate'
 import { Route as GodaddyUsersCreateRouteImport } from './routes/godaddy/users/create'
 import { Route as GodaddyInterestsRelationsRouteImport } from './routes/godaddy/interests/relations'
 import { Route as GodaddyInterestsGenerateRouteImport } from './routes/godaddy/interests/generate'
 import { Route as GodaddyInterestsCreateRouteImport } from './routes/godaddy/interests/create'
-import { Route as AktiviteterSlugRedigerRouteImport } from './routes/aktiviteter/$slug/rediger'
+import { Route as ActivitiesSlugRedigerRouteImport } from './routes/activities/$slug/rediger'
 import { Route as GodaddyUsersUserIdEditRouteImport } from './routes/godaddy/users/$userId/edit'
 
 const SignupRoute = SignupRouteImport.update({
@@ -88,11 +88,6 @@ const FeedRoute = FeedRouteImport.update({
   path: '/feed',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DiscoverRoute = DiscoverRouteImport.update({
-  id: '/discover',
-  path: '/discover',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DetailsRoute = DetailsRouteImport.update({
   id: '/details',
   path: '/details',
@@ -111,6 +106,11 @@ const CompletedRoute = CompletedRouteImport.update({
 const CompleteRoute = CompleteRouteImport.update({
   id: '/complete',
   path: '/complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuddiesRoute = BuddiesRouteImport.update({
+  id: '/buddies',
+  path: '/buddies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GodaddyRouteRoute = GodaddyRouteRouteImport.update({
@@ -138,9 +138,9 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   path: '/chat/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AktiviteterIndexRoute = AktiviteterIndexRouteImport.update({
-  id: '/aktiviteter/',
-  path: '/aktiviteter/',
+const ActivitiesIndexRoute = ActivitiesIndexRouteImport.update({
+  id: '/activities/',
+  path: '/activities/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StravaCallbackRoute = StravaCallbackRouteImport.update({
@@ -183,9 +183,9 @@ const ApiGenerateInterestsRoute = ApiGenerateInterestsRouteImport.update({
   path: '/api/generate-interests',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AktiviteterOpretRoute = AktiviteterOpretRouteImport.update({
-  id: '/aktiviteter/opret',
-  path: '/aktiviteter/opret',
+const ActivitiesOpretRoute = ActivitiesOpretRouteImport.update({
+  id: '/activities/opret',
+  path: '/activities/opret',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GodaddyUsersIndexRoute = GodaddyUsersIndexRouteImport.update({
@@ -198,9 +198,9 @@ const GodaddyInterestsIndexRoute = GodaddyInterestsIndexRouteImport.update({
   path: '/interests/',
   getParentRoute: () => GodaddyRouteRoute,
 } as any)
-const AktiviteterSlugIndexRoute = AktiviteterSlugIndexRouteImport.update({
-  id: '/aktiviteter/$slug/',
-  path: '/aktiviteter/$slug/',
+const ActivitiesSlugIndexRoute = ActivitiesSlugIndexRouteImport.update({
+  id: '/activities/$slug/',
+  path: '/activities/$slug/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GodaddyUsersGenerateRoute = GodaddyUsersGenerateRouteImport.update({
@@ -230,9 +230,9 @@ const GodaddyInterestsCreateRoute = GodaddyInterestsCreateRouteImport.update({
   path: '/interests/create',
   getParentRoute: () => GodaddyRouteRoute,
 } as any)
-const AktiviteterSlugRedigerRoute = AktiviteterSlugRedigerRouteImport.update({
-  id: '/aktiviteter/$slug/rediger',
-  path: '/aktiviteter/$slug/rediger',
+const ActivitiesSlugRedigerRoute = ActivitiesSlugRedigerRouteImport.update({
+  id: '/activities/$slug/rediger',
+  path: '/activities/$slug/rediger',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GodaddyUsersUserIdEditRoute = GodaddyUsersUserIdEditRouteImport.update({
@@ -244,11 +244,11 @@ const GodaddyUsersUserIdEditRoute = GodaddyUsersUserIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/godaddy': typeof GodaddyRouteRouteWithChildren
+  '/buddies': typeof BuddiesRoute
   '/complete': typeof CompleteRoute
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
-  '/discover': typeof DiscoverRoute
   '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
@@ -257,7 +257,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
-  '/aktiviteter/opret': typeof AktiviteterOpretRoute
+  '/activities/opret': typeof ActivitiesOpretRoute
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
   '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
@@ -266,28 +266,28 @@ export interface FileRoutesByFullPath {
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
   '/interesser/$slug': typeof InteresserSlugRoute
   '/strava/callback': typeof StravaCallbackRoute
-  '/aktiviteter': typeof AktiviteterIndexRoute
+  '/activities': typeof ActivitiesIndexRoute
   '/chat': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
   '/interesser': typeof InteresserIndexRoute
-  '/aktiviteter/$slug/rediger': typeof AktiviteterSlugRedigerRoute
+  '/activities/$slug/rediger': typeof ActivitiesSlugRedigerRoute
   '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
   '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
   '/godaddy/interests/relations': typeof GodaddyInterestsRelationsRoute
   '/godaddy/users/create': typeof GodaddyUsersCreateRoute
   '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
-  '/aktiviteter/$slug': typeof AktiviteterSlugIndexRoute
+  '/activities/$slug': typeof ActivitiesSlugIndexRoute
   '/godaddy/interests': typeof GodaddyInterestsIndexRoute
   '/godaddy/users': typeof GodaddyUsersIndexRoute
   '/godaddy/users/$userId/edit': typeof GodaddyUsersUserIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/buddies': typeof BuddiesRoute
   '/complete': typeof CompleteRoute
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
-  '/discover': typeof DiscoverRoute
   '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
@@ -296,7 +296,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
-  '/aktiviteter/opret': typeof AktiviteterOpretRoute
+  '/activities/opret': typeof ActivitiesOpretRoute
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
   '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
@@ -305,17 +305,17 @@ export interface FileRoutesByTo {
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
   '/interesser/$slug': typeof InteresserSlugRoute
   '/strava/callback': typeof StravaCallbackRoute
-  '/aktiviteter': typeof AktiviteterIndexRoute
+  '/activities': typeof ActivitiesIndexRoute
   '/chat': typeof ChatIndexRoute
   '/godaddy': typeof GodaddyIndexRoute
   '/interesser': typeof InteresserIndexRoute
-  '/aktiviteter/$slug/rediger': typeof AktiviteterSlugRedigerRoute
+  '/activities/$slug/rediger': typeof ActivitiesSlugRedigerRoute
   '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
   '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
   '/godaddy/interests/relations': typeof GodaddyInterestsRelationsRoute
   '/godaddy/users/create': typeof GodaddyUsersCreateRoute
   '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
-  '/aktiviteter/$slug': typeof AktiviteterSlugIndexRoute
+  '/activities/$slug': typeof ActivitiesSlugIndexRoute
   '/godaddy/interests': typeof GodaddyInterestsIndexRoute
   '/godaddy/users': typeof GodaddyUsersIndexRoute
   '/godaddy/users/$userId/edit': typeof GodaddyUsersUserIdEditRoute
@@ -324,11 +324,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/godaddy': typeof GodaddyRouteRouteWithChildren
+  '/buddies': typeof BuddiesRoute
   '/complete': typeof CompleteRoute
   '/completed': typeof CompletedRoute
   '/confirmemail': typeof ConfirmemailRoute
   '/details': typeof DetailsRoute
-  '/discover': typeof DiscoverRoute
   '/feed': typeof FeedRoute
   '/home': typeof HomeRoute
   '/interests': typeof InterestsRoute
@@ -337,7 +337,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
-  '/aktiviteter/opret': typeof AktiviteterOpretRoute
+  '/activities/opret': typeof ActivitiesOpretRoute
   '/api/generate-interests': typeof ApiGenerateInterestsRoute
   '/api/generate-relations': typeof ApiGenerateRelationsRoute
   '/api/generate-users': typeof ApiGenerateUsersRoute
@@ -346,17 +346,17 @@ export interface FileRoutesById {
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
   '/interesser/$slug': typeof InteresserSlugRoute
   '/strava/callback': typeof StravaCallbackRoute
-  '/aktiviteter/': typeof AktiviteterIndexRoute
+  '/activities/': typeof ActivitiesIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
   '/interesser/': typeof InteresserIndexRoute
-  '/aktiviteter/$slug/rediger': typeof AktiviteterSlugRedigerRoute
+  '/activities/$slug/rediger': typeof ActivitiesSlugRedigerRoute
   '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
   '/godaddy/interests/generate': typeof GodaddyInterestsGenerateRoute
   '/godaddy/interests/relations': typeof GodaddyInterestsRelationsRoute
   '/godaddy/users/create': typeof GodaddyUsersCreateRoute
   '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
-  '/aktiviteter/$slug/': typeof AktiviteterSlugIndexRoute
+  '/activities/$slug/': typeof ActivitiesSlugIndexRoute
   '/godaddy/interests/': typeof GodaddyInterestsIndexRoute
   '/godaddy/users/': typeof GodaddyUsersIndexRoute
   '/godaddy/users/$userId/edit': typeof GodaddyUsersUserIdEditRoute
@@ -366,11 +366,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/godaddy'
+    | '/buddies'
     | '/complete'
     | '/completed'
     | '/confirmemail'
     | '/details'
-    | '/discover'
     | '/feed'
     | '/home'
     | '/interests'
@@ -379,7 +379,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/profile-edit'
     | '/signup'
-    | '/aktiviteter/opret'
+    | '/activities/opret'
     | '/api/generate-interests'
     | '/api/generate-relations'
     | '/api/generate-users'
@@ -388,28 +388,28 @@ export interface FileRouteTypes {
     | '/godaddy/analytics'
     | '/interesser/$slug'
     | '/strava/callback'
-    | '/aktiviteter'
+    | '/activities'
     | '/chat'
     | '/godaddy/'
     | '/interesser'
-    | '/aktiviteter/$slug/rediger'
+    | '/activities/$slug/rediger'
     | '/godaddy/interests/create'
     | '/godaddy/interests/generate'
     | '/godaddy/interests/relations'
     | '/godaddy/users/create'
     | '/godaddy/users/generate'
-    | '/aktiviteter/$slug'
+    | '/activities/$slug'
     | '/godaddy/interests'
     | '/godaddy/users'
     | '/godaddy/users/$userId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/buddies'
     | '/complete'
     | '/completed'
     | '/confirmemail'
     | '/details'
-    | '/discover'
     | '/feed'
     | '/home'
     | '/interests'
@@ -418,7 +418,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/profile-edit'
     | '/signup'
-    | '/aktiviteter/opret'
+    | '/activities/opret'
     | '/api/generate-interests'
     | '/api/generate-relations'
     | '/api/generate-users'
@@ -427,17 +427,17 @@ export interface FileRouteTypes {
     | '/godaddy/analytics'
     | '/interesser/$slug'
     | '/strava/callback'
-    | '/aktiviteter'
+    | '/activities'
     | '/chat'
     | '/godaddy'
     | '/interesser'
-    | '/aktiviteter/$slug/rediger'
+    | '/activities/$slug/rediger'
     | '/godaddy/interests/create'
     | '/godaddy/interests/generate'
     | '/godaddy/interests/relations'
     | '/godaddy/users/create'
     | '/godaddy/users/generate'
-    | '/aktiviteter/$slug'
+    | '/activities/$slug'
     | '/godaddy/interests'
     | '/godaddy/users'
     | '/godaddy/users/$userId/edit'
@@ -445,11 +445,11 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/godaddy'
+    | '/buddies'
     | '/complete'
     | '/completed'
     | '/confirmemail'
     | '/details'
-    | '/discover'
     | '/feed'
     | '/home'
     | '/interests'
@@ -458,7 +458,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/profile-edit'
     | '/signup'
-    | '/aktiviteter/opret'
+    | '/activities/opret'
     | '/api/generate-interests'
     | '/api/generate-relations'
     | '/api/generate-users'
@@ -467,17 +467,17 @@ export interface FileRouteTypes {
     | '/godaddy/analytics'
     | '/interesser/$slug'
     | '/strava/callback'
-    | '/aktiviteter/'
+    | '/activities/'
     | '/chat/'
     | '/godaddy/'
     | '/interesser/'
-    | '/aktiviteter/$slug/rediger'
+    | '/activities/$slug/rediger'
     | '/godaddy/interests/create'
     | '/godaddy/interests/generate'
     | '/godaddy/interests/relations'
     | '/godaddy/users/create'
     | '/godaddy/users/generate'
-    | '/aktiviteter/$slug/'
+    | '/activities/$slug/'
     | '/godaddy/interests/'
     | '/godaddy/users/'
     | '/godaddy/users/$userId/edit'
@@ -486,11 +486,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GodaddyRouteRoute: typeof GodaddyRouteRouteWithChildren
+  BuddiesRoute: typeof BuddiesRoute
   CompleteRoute: typeof CompleteRoute
   CompletedRoute: typeof CompletedRoute
   ConfirmemailRoute: typeof ConfirmemailRoute
   DetailsRoute: typeof DetailsRoute
-  DiscoverRoute: typeof DiscoverRoute
   FeedRoute: typeof FeedRoute
   HomeRoute: typeof HomeRoute
   InterestsRoute: typeof InterestsRoute
@@ -499,7 +499,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ProfileEditRoute: typeof ProfileEditRoute
   SignupRoute: typeof SignupRoute
-  AktiviteterOpretRoute: typeof AktiviteterOpretRoute
+  ActivitiesOpretRoute: typeof ActivitiesOpretRoute
   ApiGenerateInterestsRoute: typeof ApiGenerateInterestsRoute
   ApiGenerateRelationsRoute: typeof ApiGenerateRelationsRoute
   ApiGenerateUsersRoute: typeof ApiGenerateUsersRoute
@@ -507,11 +507,11 @@ export interface RootRouteChildren {
   ChatBuddyIdRoute: typeof ChatBuddyIdRoute
   InteresserSlugRoute: typeof InteresserSlugRoute
   StravaCallbackRoute: typeof StravaCallbackRoute
-  AktiviteterIndexRoute: typeof AktiviteterIndexRoute
+  ActivitiesIndexRoute: typeof ActivitiesIndexRoute
   ChatIndexRoute: typeof ChatIndexRoute
   InteresserIndexRoute: typeof InteresserIndexRoute
-  AktiviteterSlugRedigerRoute: typeof AktiviteterSlugRedigerRoute
-  AktiviteterSlugIndexRoute: typeof AktiviteterSlugIndexRoute
+  ActivitiesSlugRedigerRoute: typeof ActivitiesSlugRedigerRoute
+  ActivitiesSlugIndexRoute: typeof ActivitiesSlugIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -572,13 +572,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/discover': {
-      id: '/discover'
-      path: '/discover'
-      fullPath: '/discover'
-      preLoaderRoute: typeof DiscoverRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/details': {
       id: '/details'
       path: '/details'
@@ -605,6 +598,13 @@ declare module '@tanstack/react-router' {
       path: '/complete'
       fullPath: '/complete'
       preLoaderRoute: typeof CompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buddies': {
+      id: '/buddies'
+      path: '/buddies'
+      fullPath: '/buddies'
+      preLoaderRoute: typeof BuddiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/godaddy': {
@@ -642,11 +642,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aktiviteter/': {
-      id: '/aktiviteter/'
-      path: '/aktiviteter'
-      fullPath: '/aktiviteter'
-      preLoaderRoute: typeof AktiviteterIndexRouteImport
+    '/activities/': {
+      id: '/activities/'
+      path: '/activities'
+      fullPath: '/activities'
+      preLoaderRoute: typeof ActivitiesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/strava/callback': {
@@ -705,11 +705,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGenerateInterestsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/aktiviteter/opret': {
-      id: '/aktiviteter/opret'
-      path: '/aktiviteter/opret'
-      fullPath: '/aktiviteter/opret'
-      preLoaderRoute: typeof AktiviteterOpretRouteImport
+    '/activities/opret': {
+      id: '/activities/opret'
+      path: '/activities/opret'
+      fullPath: '/activities/opret'
+      preLoaderRoute: typeof ActivitiesOpretRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/godaddy/users/': {
@@ -726,11 +726,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GodaddyInterestsIndexRouteImport
       parentRoute: typeof GodaddyRouteRoute
     }
-    '/aktiviteter/$slug/': {
-      id: '/aktiviteter/$slug/'
-      path: '/aktiviteter/$slug'
-      fullPath: '/aktiviteter/$slug'
-      preLoaderRoute: typeof AktiviteterSlugIndexRouteImport
+    '/activities/$slug/': {
+      id: '/activities/$slug/'
+      path: '/activities/$slug'
+      fullPath: '/activities/$slug'
+      preLoaderRoute: typeof ActivitiesSlugIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/godaddy/users/generate': {
@@ -768,11 +768,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GodaddyInterestsCreateRouteImport
       parentRoute: typeof GodaddyRouteRoute
     }
-    '/aktiviteter/$slug/rediger': {
-      id: '/aktiviteter/$slug/rediger'
-      path: '/aktiviteter/$slug/rediger'
-      fullPath: '/aktiviteter/$slug/rediger'
-      preLoaderRoute: typeof AktiviteterSlugRedigerRouteImport
+    '/activities/$slug/rediger': {
+      id: '/activities/$slug/rediger'
+      path: '/activities/$slug/rediger'
+      fullPath: '/activities/$slug/rediger'
+      preLoaderRoute: typeof ActivitiesSlugRedigerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/godaddy/users/$userId/edit': {
@@ -818,11 +818,11 @@ const GodaddyRouteRouteWithChildren = GodaddyRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GodaddyRouteRoute: GodaddyRouteRouteWithChildren,
+  BuddiesRoute: BuddiesRoute,
   CompleteRoute: CompleteRoute,
   CompletedRoute: CompletedRoute,
   ConfirmemailRoute: ConfirmemailRoute,
   DetailsRoute: DetailsRoute,
-  DiscoverRoute: DiscoverRoute,
   FeedRoute: FeedRoute,
   HomeRoute: HomeRoute,
   InterestsRoute: InterestsRoute,
@@ -831,7 +831,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ProfileEditRoute: ProfileEditRoute,
   SignupRoute: SignupRoute,
-  AktiviteterOpretRoute: AktiviteterOpretRoute,
+  ActivitiesOpretRoute: ActivitiesOpretRoute,
   ApiGenerateInterestsRoute: ApiGenerateInterestsRoute,
   ApiGenerateRelationsRoute: ApiGenerateRelationsRoute,
   ApiGenerateUsersRoute: ApiGenerateUsersRoute,
@@ -839,11 +839,11 @@ const rootRouteChildren: RootRouteChildren = {
   ChatBuddyIdRoute: ChatBuddyIdRoute,
   InteresserSlugRoute: InteresserSlugRoute,
   StravaCallbackRoute: StravaCallbackRoute,
-  AktiviteterIndexRoute: AktiviteterIndexRoute,
+  ActivitiesIndexRoute: ActivitiesIndexRoute,
   ChatIndexRoute: ChatIndexRoute,
   InteresserIndexRoute: InteresserIndexRoute,
-  AktiviteterSlugRedigerRoute: AktiviteterSlugRedigerRoute,
-  AktiviteterSlugIndexRoute: AktiviteterSlugIndexRoute,
+  ActivitiesSlugRedigerRoute: ActivitiesSlugRedigerRoute,
+  ActivitiesSlugIndexRoute: ActivitiesSlugIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

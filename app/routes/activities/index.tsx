@@ -46,7 +46,7 @@ function EventsPage() {
               Find og deltag i aktiviteter med andre buddies
             </p>
           </div>
-          <Link to="/aktiviteter/opret">
+          <Link to="/activities/opret">
             <Button>
               <Plus className="h-4 w-4 mr-1.5" />
               Opret
@@ -100,6 +100,6 @@ function ProtectedEventsPage() {
   );
 }
 
-export const Route = createFileRoute("/aktiviteter/")({
+export const Route = createFileRoute("/activities/")({
   component: ProtectedEventsPage,
 });

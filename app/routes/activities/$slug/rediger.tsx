@@ -158,7 +158,7 @@ function EditEventPage() {
       }
 
       toast.success("Aktivitet opdateret!");
-      navigate({ to: "/aktiviteter/$slug", params: { slug } });
+      navigate({ to: "/activities/$slug", params: { slug } });
     } catch (err: any) {
       toast.error("Kunne ikke opdatere aktivitet: " + err.message);
     } finally {
@@ -191,6 +191,6 @@ function ProtectedEditEventPage() {
   );
 }
 
-export const Route = createFileRoute("/aktiviteter/$slug/rediger")({
+export const Route = createFileRoute("/activities/$slug/rediger")({
   component: ProtectedEditEventPage,
 });

@@ -77,7 +77,7 @@ function CreateEventPage() {
         .insert({ event_id: event.event_id, profile_id: user.id });
 
       toast.success("Aktivitet oprettet!");
-      navigate({ to: "/aktiviteter/$slug", params: { slug: event.slug } });
+      navigate({ to: "/activities/$slug", params: { slug: event.slug } });
     } catch (err: any) {
       toast.error("Kunne ikke oprette aktivitet: " + err.message);
     } finally {
@@ -103,6 +103,6 @@ function ProtectedCreateEventPage() {
   );
 }
 
-export const Route = createFileRoute("/aktiviteter/opret")({
+export const Route = createFileRoute("/activities/opret")({
   component: ProtectedCreateEventPage,
 });

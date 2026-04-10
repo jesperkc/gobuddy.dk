@@ -373,6 +373,6 @@ function ProtectedDiscoverPage() {
   );
 }
 
-export const Route = createFileRoute("/discover")({
+export const Route = createFileRoute("/buddies")({
   component: ProtectedDiscoverPage,
 });
