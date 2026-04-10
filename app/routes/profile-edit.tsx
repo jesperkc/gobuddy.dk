@@ -4,6 +4,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Ban, Camera, Check, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Trash2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TextInput } from "@/components/form/TextInput";
 import { required, useForm } from "@modular-forms/react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -91,6 +92,11 @@ export function ProfileEdit() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Resize dialog state
+  const [resizeDialogOpen, setResizeDialogOpen] = useState(false);
+  const [pendingImage, setPendingImage] = useState<{ file: File; dataUrl: string; naturalWidth: number; naturalHeight: number } | null>(null);
+  const [resizeWidth, setResizeWidth] = useState(512);
 
   // Activity posts (for stats from all sources)
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
@@ -390,12 +396,11 @@ export function ProfileEdit() {
     }
   };
 
-  // Avatar upload handler
+  // Avatar file picker — opens resize dialog
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
 
-    // Validate file type and size
     if (!file.type.startsWith("image/")) {
       toast.error("Filen skal være et billede");
       return;
@@ -405,35 +410,74 @@ export function ProfileEdit() {
       return;
     }
 
-    setUploadingAvatar(true);
-    try {
-      const ext = file.name.split(".").pop() || "jpg";
-      const filePath = `${user.id}/avatar.${ext}`;
+    // Read file and get natural dimensions
+    const dataUrl = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
 
-      // Delete old avatar files (in case extension changed)
-      const { data: existing } = await supabase.storage
-        .from("avatars")
-        .list(user.id);
+    const img = new Image();
+    await new Promise<void>((resolve) => {
+      img.onload = () => resolve();
+      img.src = dataUrl;
+    });
+
+    const maxW = Math.min(img.naturalWidth, 512);
+    setPendingImage({ file, dataUrl, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
+    setResizeWidth(maxW);
+    setResizeDialogOpen(true);
+
+    if (avatarInputRef.current) avatarInputRef.current.value = "";
+  };
+
+  // Resize via canvas and upload
+  const confirmAvatarUpload = async () => {
+    if (!pendingImage || !user?.id) return;
+
+    setUploadingAvatar(true);
+    setResizeDialogOpen(false);
+
+    try {
+      const { dataUrl, naturalWidth, naturalHeight } = pendingImage;
+      const targetWidth = resizeWidth;
+      const scale = targetWidth / naturalWidth;
+      const targetHeight = Math.round(naturalHeight * scale);
+
+      // Draw resized image on canvas
+      const canvas = document.createElement("canvas");
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      const ctx = canvas.getContext("2d")!;
+      const img = new Image();
+      await new Promise<void>((resolve) => {
+        img.onload = () => resolve();
+        img.src = dataUrl;
+      });
+      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+      // Export as blob
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))), "image/webp", 0.85);
+      });
+
+      const filePath = `${user.id}/avatar.webp`;
+
+      // Delete old avatar files
+      const { data: existing } = await supabase.storage.from("avatars").list(user.id);
       if (existing && existing.length > 0) {
-        await supabase.storage
-          .from("avatars")
-          .remove(existing.map((f) => `${user.id}/${f.name}`));
+        await supabase.storage.from("avatars").remove(existing.map((f) => `${user.id}/${f.name}`));
       }
 
-      // Upload new
+      // Upload resized image
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, blob, { upsert: true, contentType: "image/webp" });
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
       const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
-      // Save to profile
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl })
@@ -448,7 +492,7 @@ export function ProfileEdit() {
       toast.error("Kunne ikke uploade billede");
     } finally {
       setUploadingAvatar(false);
-      if (avatarInputRef.current) avatarInputRef.current.value = "";
+      setPendingImage(null);
     }
   };
 
@@ -776,6 +820,66 @@ export function ProfileEdit() {
                 </div>
               </div>
             </div>
+
+            {/* Resize dialog */}
+            <Dialog open={resizeDialogOpen} onOpenChange={(open) => { if (!open) { setPendingImage(null); } setResizeDialogOpen(open); }}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Tilpas profilbillede</DialogTitle>
+                  <DialogDescription>
+                    Billedet skaleres til max 512px bredde. Træk skyderen for at justere.
+                  </DialogDescription>
+                </DialogHeader>
+
+                {pendingImage && (
+                  <div className="space-y-4">
+                    <div className="flex justify-center bg-gray-50 rounded-lg p-4">
+                      <img
+                        src={pendingImage.dataUrl}
+                        alt="Preview"
+                        className="max-h-64 rounded-lg object-contain"
+                        style={{ width: `${Math.min(resizeWidth, 320)}px` }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Bredde</span>
+                        <span className="font-medium">{resizeWidth} × {Math.round(pendingImage.naturalHeight * (resizeWidth / pendingImage.naturalWidth))} px</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={64}
+                        max={Math.min(pendingImage.naturalWidth, 512)}
+                        value={resizeWidth}
+                        onChange={(e) => setResizeWidth(Number(e.target.value))}
+                        className="w-full accent-blue-600"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400">
+                        <span>64 px</span>
+                        <span>{Math.min(pendingImage.naturalWidth, 512)} px</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => { setResizeDialogOpen(false); setPendingImage(null); }}>
+                    Annuller
+                  </Button>
+                  <Button onClick={confirmAvatarUpload} disabled={uploadingAvatar}>
+                    {uploadingAvatar ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Uploader...
+                      </>
+                    ) : (
+                      "Upload billede"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             {/* Name + age form */}
             <div>
