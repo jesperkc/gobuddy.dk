@@ -60,7 +60,7 @@ function Profile() {
 
   return (
     <DefaultLayout>
-      <div>
+      <div className="space-y-6">
         <ErrorBanner message={error} />
 
         {loading ? (

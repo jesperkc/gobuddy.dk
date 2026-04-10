@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState } from "react";
 import { MessageCircle, ArrowRight } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
@@ -87,10 +88,7 @@ function InboxPage() {
     <DefaultLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl flex items-center gap-2">
-            <MessageCircle className="w-8 h-8" />
-            Beskeder
-          </h1>
+          <PageTitle>Beskeder</PageTitle>
           <p className="text-gray-500 mt-1">Dine samtaler med buddies</p>
         </div>
 

@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
-import { MapPin, ArrowRight, Compass, UserPen, Calendar } from "lucide-react";
+import { MapPin, ArrowRight, Compass, UserPen, Calendar, User2, Users, Users2 } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
+import { PageTitle } from "@/components/PageTitle";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../src/store/userProfile";
@@ -15,7 +16,6 @@ import { BuddyCard, type BuddyProfile, type RawBuddyRow, mapBuddyRow } from "../
 import { EventCard } from "../../src/components/EventCard";
 import { ActivityPostCard } from "../../src/components/ActivityPostCard";
 import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
-
 
 function HomePage() {
   const { user } = useAuth();
@@ -41,7 +41,12 @@ function HomePage() {
   }, [fetchFeedPosts]);
 
   const interestKey = useMemo(
-    () => (profile?.user_interests ?? []).filter((i) => !i.is_non_interest).map((i) => i.interest_id).sort().join(","),
+    () =>
+      (profile?.user_interests ?? [])
+        .filter((i) => !i.is_non_interest)
+        .map((i) => i.interest_id)
+        .sort()
+        .join(","),
     [profile?.user_interests],
   );
 
@@ -60,13 +65,15 @@ function HomePage() {
     async function fetchBuddies() {
       const { data, error } = await supabase
         .from("profiles")
-        .select(`
+        .select(
+          `
           profile_id, slug, first_name, age, city, latitude, longitude,
           user_interests (
             interest_id, is_non_interest,
             interests (interest_da, interest_en, icon, category)
           )
-        `)
+        `,
+        )
         .neq("profile_id", user!.id);
 
       if (error || !data) return;
@@ -86,10 +93,8 @@ function HomePage() {
     if (myLat == null || myLng == null) return buddies.slice(0, 4);
     return [...buddies]
       .sort((a, b) => {
-        const distA = a.latitude != null && a.longitude != null
-          ? haversineDistance(myLat, myLng, a.latitude, a.longitude) : Infinity;
-        const distB = b.latitude != null && b.longitude != null
-          ? haversineDistance(myLat, myLng, b.latitude, b.longitude) : Infinity;
+        const distA = a.latitude != null && a.longitude != null ? haversineDistance(myLat, myLng, a.latitude, a.longitude) : Infinity;
+        const distB = b.latitude != null && b.longitude != null ? haversineDistance(myLat, myLng, b.latitude, b.longitude) : Infinity;
         return distA - distB;
       })
       .slice(0, 4);
@@ -129,9 +134,9 @@ function HomePage() {
       <div className="space-y-8">
         {/* Greeting */}
         <div>
-          <h1 className="text-3xl">
+          <PageTitle>
             {getGreeting()}, {profile?.first_name || "Ven"}
-          </h1>
+          </PageTitle>
           {hasLocation && (
             <p className="text-gray-500 mt-1 flex items-center gap-1">
               <MapPin className="w-4 h-4" />
@@ -144,22 +149,12 @@ function HomePage() {
         {!profileComplete && (
           <div className="rounded-xl bg-gray-50 p-5">
             <h3 className="font-medium mb-3">Gør din profil klar</h3>
-            <p className="text-sm text-gray-500 mb-4">
-              Jo mere du deler, jo bedre kan vi finde de rigtige buddies til dig.
-            </p>
+            <p className="text-sm text-gray-500 mb-4">Jo mere du deler, jo bedre kan vi finde de rigtige buddies til dig.</p>
             <div className="space-y-2">
-              {!profile?.first_name && (
-                <ProfileTask label="Tilføj dit navn" to="/profile-edit" />
-              )}
-              {!profile?.age && (
-                <ProfileTask label="Angiv din alder" to="/profile-edit" />
-              )}
-              {!hasInterests && (
-                <ProfileTask label="Vælg dine interesser" to="/profile-edit" />
-              )}
-              {!hasLocation && (
-                <ProfileTask label="Angiv din placering" to="/profile-edit" />
-              )}
+              {!profile?.first_name && <ProfileTask label="Tilføj dit navn" to="/profile-edit" />}
+              {!profile?.age && <ProfileTask label="Angiv din alder" to="/profile-edit" />}
+              {!hasInterests && <ProfileTask label="Vælg dine interesser" to="/profile-edit" />}
+              {!hasLocation && <ProfileTask label="Angiv din placering" to="/profile-edit" />}
             </div>
           </div>
         )}
@@ -169,13 +164,10 @@ function HomePage() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium flex items-center gap-2">
-                <Compass className="w-5 h-5" />
+                <Users className="w-5 h-5" />
                 Buddies i nærheden
               </h2>
-              <Link
-                to="/buddies"
-                className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"
-              >
+              <Link to="/buddies" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
                 Se alle
                 <ArrowRight className="w-3 h-3" />
               </Link>
@@ -204,22 +196,14 @@ function HomePage() {
                   <Calendar className="w-5 h-5" />
                   Aktiviteter
                 </h2>
-                <Link
-                  to="/activities"
-                  className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"
-                >
+                <Link to="/activities" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
                   Alle
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
               <div className="space-y-4">
                 {nearestEvents.map((event, i) => (
-                  <EventCard
-                    key={event.event_id}
-                    event={event}
-                    distanceKm={getEventDistance(event.latitude, event.longitude)}
-                    index={i}
-                  />
+                  <EventCard key={event.event_id} event={event} distanceKm={getEventDistance(event.latitude, event.longitude)} index={i} />
                 ))}
               </div>
             </div>
@@ -229,10 +213,7 @@ function HomePage() {
           <div className={nearestEvents.length > 0 ? "lg:col-span-2" : "lg:col-span-3"}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium">Feed</h2>
-              <Link
-                to="/feed"
-                className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"
-              >
+              <Link to="/feed" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
                 Se alle
                 <ArrowRight className="w-3 h-3" />
               </Link>
@@ -240,12 +221,7 @@ function HomePage() {
             {feedPosts.length > 0 ? (
               <div className="space-y-3">
                 {feedPosts.slice(0, 10).map((post, i) => (
-                  <ActivityPostCard
-                    key={post.id}
-                    post={post}
-                    showAuthor={true}
-                    index={i}
-                  />
+                  <ActivityPostCard key={post.id} post={post} showAuthor={true} index={i} />
                 ))}
               </div>
             ) : (
@@ -276,10 +252,7 @@ function HomePage() {
 
 function ProfileTask({ label, to }: { label: string; to: string }) {
   return (
-    <Link
-      to={to}
-      className="flex items-center justify-between p-3 bg-white rounded-lg border hover:border-gray-400 transition-colors"
-    >
+    <Link to={to} className="flex items-center justify-between p-3 bg-white rounded-lg border hover:border-gray-400 transition-colors">
       <span className="text-sm">{label}</span>
       <ArrowRight className="w-4 h-4 text-gray-400" />
     </Link>

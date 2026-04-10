@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DefaultLayout } from "../../../src/components/AppShell";
@@ -87,8 +88,8 @@ function CreateEventPage() {
 
   return (
     <DefaultLayout>
-      <div className="py-8 px-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Opret aktivitet</h1>
+      <div className="space-y-6">
+        <PageTitle>Opret aktivitet</PageTitle>
         <EventForm onSubmit={handleSubmit} submitting={submitting} myInterests={myInterests} />
       </div>
     </DefaultLayout>

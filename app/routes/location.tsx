@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Loader2, MapPin, Search } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
@@ -135,7 +136,7 @@ function Location() {
     <SplitScreen>
       <div>
         <OnboardingStepper step={3} />
-        <h1 className="text-2xl font-bold mb-6">Hvor i verden er du?</h1>
+        <PageTitle>Hvor i verden er du?</PageTitle>
         <div className="space-y-6">
           <div className="h-[300px] w-full rounded-lg overflow-hidden shadow-md mb-6">
             <ClientOnly

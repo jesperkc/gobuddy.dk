@@ -30,7 +30,7 @@ function EventDetailPage() {
   if (loading) {
     return (
       <DefaultLayout>
-        <div className="py-8 px-4 space-y-4">
+        <div className="space-y-4">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-4 w-48" />
           <Skeleton className="h-64 rounded-2xl" />
@@ -42,7 +42,7 @@ function EventDetailPage() {
   if (!event) {
     return (
       <DefaultLayout>
-        <div className="max-w-2xl mx-auto py-16 px-4 text-center text-gray-400">
+        <div className="text-center text-gray-400">
           <p className="text-lg font-medium">Aktivitet ikke fundet</p>
           <Link to="/activities" className="text-blue-600 hover:underline mt-2 inline-block">
             ← Tilbage til aktiviteter
@@ -103,7 +103,7 @@ function EventDetailPage() {
 
   return (
     <DefaultLayout>
-      <div className="py-8 px-4">
+      <div className="space-y-6">
         {/* Back link */}
         <Link
           to="/activities"

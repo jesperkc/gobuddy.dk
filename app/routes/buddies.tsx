@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState, useMemo } from "react";
-import { Search, MapPin, Frown, Compass } from "lucide-react";
+import { Search, MapPin, Frown } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
@@ -238,10 +239,7 @@ function DiscoverPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl flex items-center gap-2">
-            <Compass className="w-8 h-8" />
-            Find buddies
-          </h1>
+          <PageTitle>Find buddies</PageTitle>
           <p className="text-gray-500 mt-1">
             Folk i nærheden der deler dine interesser
           </p>

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Loader2, LogIn } from "lucide-react";
@@ -51,7 +52,7 @@ function Login() {
   return (
     <SplitScreen>
       <div>
-        <h1 className="text-2xl font-bold mb-6">Velkommen tilbage!</h1>
+        <PageTitle>Velkommen tilbage!</PageTitle>
         <ErrorBanner message={error} />
 
         <Form className="space-y-4" onSubmit={handleSubmit}>

@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DefaultLayout } from "../../../../src/components/AppShell";
@@ -84,7 +85,7 @@ function EditEventPage() {
   if (loading) {
     return (
       <DefaultLayout>
-        <div className="py-8 px-4 space-y-4">
+        <div className="space-y-4">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-4 w-48" />
           <Skeleton className="h-64 rounded-2xl" />
@@ -96,7 +97,7 @@ function EditEventPage() {
   if (!event) {
     return (
       <DefaultLayout>
-        <div className="max-w-2xl mx-auto py-16 px-4 text-center text-gray-400">
+        <div className="text-center text-gray-400">
           <p className="text-lg font-medium">Aktivitet ikke fundet</p>
         </div>
       </DefaultLayout>
@@ -106,7 +107,7 @@ function EditEventPage() {
   if (user?.id !== event.creator.profile_id) {
     return (
       <DefaultLayout>
-        <div className="max-w-2xl mx-auto py-16 px-4 text-center text-gray-400">
+        <div className="text-center text-gray-400">
           <p className="text-lg font-medium">Du kan kun redigere dine egne aktiviteter</p>
         </div>
       </DefaultLayout>
@@ -168,8 +169,8 @@ function EditEventPage() {
 
   return (
     <DefaultLayout>
-      <div className="py-8 px-4">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Rediger aktivitet</h1>
+      <div className="space-y-6">
+        <PageTitle>Rediger aktivitet</PageTitle>
         <EventForm
           onSubmit={handleSubmit}
           submitting={submitting}

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
@@ -44,7 +45,7 @@ function Interests() {
     <SplitScreen>
       <div>
         <OnboardingStepper step={2} />
-        <h1 className="text-2xl font-bold mb-6">Hvad er dine interesser?</h1>
+        <PageTitle>Hvad er dine interesser?</PageTitle>
         <p className="text-gray-600 mb-6">Vælg de ting du godt kan lide at lave</p>
         <div className="flex flex-wrap gap-2 mb-6">
           {availableInterests.map((interest) => (

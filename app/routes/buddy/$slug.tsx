@@ -269,7 +269,7 @@ function BuddyProfile() {
 
   return (
     <DefaultLayout>
-      <div>
+      <div className="space-y-6">
         <Link to="/buddies" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-6">
           <ArrowLeft className="w-4 h-4" />
           Tilbage til buddies

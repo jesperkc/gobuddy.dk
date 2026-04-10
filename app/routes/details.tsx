@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
@@ -36,7 +37,7 @@ function Details() {
     <SplitScreen>
       <div>
         <OnboardingStepper step={1} />
-        <h1 className="text-2xl font-bold mb-6">Fortæl os mere om dig</h1>
+        <PageTitle>Fortæl os mere om dig</PageTitle>
         <Form onSubmit={handleSubmit} className="space-y-6">
           <Field name="name" validate={[required("Indtast venligst et navn")]}>
             {(field, props) => (

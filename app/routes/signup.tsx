@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useNavigate } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
@@ -104,7 +105,7 @@ function Signup() {
     <SplitScreen>
       <div>
         <OnboardingStepper step={4} />
-        <h1 className="text-2xl font-bold mb-6">Opret din konto</h1>
+        <PageTitle>Opret din konto</PageTitle>
         <ErrorBanner message={error} />
         <form onSubmit={handleSignup} className="space-y-6">
           <div>

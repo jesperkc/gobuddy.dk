@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState } from "react";
-import { Newspaper, Plus, Frown } from "lucide-react";
+import { Plus, Frown } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
@@ -141,14 +142,11 @@ function FeedPage() {
 
   return (
     <DefaultLayout>
-      <div className="py-8 px-4 max-w-2xl mx-auto">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Newspaper className="h-6 w-6" />
-              Feed
-            </h1>
+            <PageTitle>Feed</PageTitle>
             <p className="text-gray-500 mt-1">Se hvad andre buddies har været i gang med</p>
           </div>
           {!showCreateForm && (

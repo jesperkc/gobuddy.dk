@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PageTitle } from "@/components/PageTitle";
 import { useEffect } from "react";
-import { Plus, Calendar, Frown } from "lucide-react";
+import { Plus, Frown } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
 import { useAuth } from "../../../src/contexts/AuthContext";
@@ -34,14 +35,11 @@ function EventsPage() {
 
   return (
     <DefaultLayout>
-      <div className="py-8 px-4">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Calendar className="h-6 w-6" />
-              Aktiviteter
-            </h1>
+            <PageTitle>Aktiviteter</PageTitle>
             <p className="text-gray-500 mt-1">
               Find og deltag i aktiviteter med andre buddies
             </p>

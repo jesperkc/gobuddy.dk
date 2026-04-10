@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { PageTitle } from "@/components/PageTitle";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Ban, Check, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -566,7 +567,7 @@ export function ProfileEdit() {
   if (loading) {
     return (
       <DefaultLayout>
-        <div className="flex justify-center items-center py-8">
+        <div className="flex justify-center items-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
       </DefaultLayout>
@@ -575,9 +576,10 @@ export function ProfileEdit() {
 
   return (
     <DefaultLayout>
+      <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Rediger profil</h1>
+      <div className="flex items-center justify-between">
+        <PageTitle>Rediger profil</PageTitle>
         <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/profile" })}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Tilbage
@@ -587,7 +589,7 @@ export function ProfileEdit() {
       <ErrorBanner message={error} />
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200">
         <div role="tablist" aria-label="Profil sektioner" className="-mb-px flex space-x-8 overflow-x-auto">
           {tabs.map((tab, index) => (
             <button
@@ -935,6 +937,7 @@ export function ProfileEdit() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </DefaultLayout>
   );
