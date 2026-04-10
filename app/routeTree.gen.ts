@@ -27,6 +27,7 @@ import { Route as InteresserIndexRouteImport } from './routes/interesser/index'
 import { Route as GodaddyIndexRouteImport } from './routes/godaddy/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as AktiviteterIndexRouteImport } from './routes/aktiviteter/index'
+import { Route as StravaCallbackRouteImport } from './routes/strava/callback'
 import { Route as InteresserSlugRouteImport } from './routes/interesser/$slug'
 import { Route as GodaddyAnalyticsRouteImport } from './routes/godaddy/analytics'
 import { Route as ChatBuddyIdRouteImport } from './routes/chat/$buddyId'
@@ -134,6 +135,11 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
 const AktiviteterIndexRoute = AktiviteterIndexRouteImport.update({
   id: '/aktiviteter/',
   path: '/aktiviteter/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StravaCallbackRoute = StravaCallbackRouteImport.update({
+  id: '/strava/callback',
+  path: '/strava/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InteresserSlugRoute = InteresserSlugRouteImport.update({
@@ -252,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
   '/interesser/$slug': typeof InteresserSlugRoute
+  '/strava/callback': typeof StravaCallbackRoute
   '/aktiviteter': typeof AktiviteterIndexRoute
   '/chat': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
@@ -289,6 +296,7 @@ export interface FileRoutesByTo {
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
   '/interesser/$slug': typeof InteresserSlugRoute
+  '/strava/callback': typeof StravaCallbackRoute
   '/aktiviteter': typeof AktiviteterIndexRoute
   '/chat': typeof ChatIndexRoute
   '/godaddy': typeof GodaddyIndexRoute
@@ -328,6 +336,7 @@ export interface FileRoutesById {
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
   '/interesser/$slug': typeof InteresserSlugRoute
+  '/strava/callback': typeof StravaCallbackRoute
   '/aktiviteter/': typeof AktiviteterIndexRoute
   '/chat/': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
@@ -368,6 +377,7 @@ export interface FileRouteTypes {
     | '/chat/$buddyId'
     | '/godaddy/analytics'
     | '/interesser/$slug'
+    | '/strava/callback'
     | '/aktiviteter'
     | '/chat'
     | '/godaddy/'
@@ -405,6 +415,7 @@ export interface FileRouteTypes {
     | '/chat/$buddyId'
     | '/godaddy/analytics'
     | '/interesser/$slug'
+    | '/strava/callback'
     | '/aktiviteter'
     | '/chat'
     | '/godaddy'
@@ -443,6 +454,7 @@ export interface FileRouteTypes {
     | '/chat/$buddyId'
     | '/godaddy/analytics'
     | '/interesser/$slug'
+    | '/strava/callback'
     | '/aktiviteter/'
     | '/chat/'
     | '/godaddy/'
@@ -481,6 +493,7 @@ export interface RootRouteChildren {
   BuddySlugRoute: typeof BuddySlugRoute
   ChatBuddyIdRoute: typeof ChatBuddyIdRoute
   InteresserSlugRoute: typeof InteresserSlugRoute
+  StravaCallbackRoute: typeof StravaCallbackRoute
   AktiviteterIndexRoute: typeof AktiviteterIndexRoute
   ChatIndexRoute: typeof ChatIndexRoute
   InteresserIndexRoute: typeof InteresserIndexRoute
@@ -614,6 +627,13 @@ declare module '@tanstack/react-router' {
       path: '/aktiviteter'
       fullPath: '/aktiviteter'
       preLoaderRoute: typeof AktiviteterIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/strava/callback': {
+      id: '/strava/callback'
+      path: '/strava/callback'
+      fullPath: '/strava/callback'
+      preLoaderRoute: typeof StravaCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/interesser/$slug': {
@@ -797,6 +817,7 @@ const rootRouteChildren: RootRouteChildren = {
   BuddySlugRoute: BuddySlugRoute,
   ChatBuddyIdRoute: ChatBuddyIdRoute,
   InteresserSlugRoute: InteresserSlugRoute,
+  StravaCallbackRoute: StravaCallbackRoute,
   AktiviteterIndexRoute: AktiviteterIndexRoute,
   ChatIndexRoute: ChatIndexRoute,
   InteresserIndexRoute: InteresserIndexRoute,

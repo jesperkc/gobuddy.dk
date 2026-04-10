@@ -40,6 +40,8 @@ npm run types        # Regenerate Supabase TypeScript types into database.types.
 
 **Backend:** Supabase for auth, database, and admin API. Client initialized in `src/lib/supabase.ts`. Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SUPABASE_SERVICE_ROLE_KEY`.
 
+**Strava integration:** OAuth 2.0 connection stored in `strava_connections` table. Environment variables: `VITE_STRAVA_CLIENT_ID` (public), `VITE_STRAVA_CLIENT_SECRET` (client secret), `VITE_APP_URL` (base URL for OAuth redirect). Create a Strava API app at https://www.strava.com/settings/api. Set the callback domain to your `VITE_APP_URL`.
+
 **Styling:** Tailwind CSS v4 with `@tailwindcss/postcss`. Config in `tailwind.config.js`, base styles in `src/index.css`. Uses shadcn/ui-style components with CSS variables for theming and Radix UI primitives. Custom font: `amifer` (used for headings).
 
 **SSR considerations:** The app uses TanStack Start for SSR. Browser-only code must use utilities from `src/lib/ssr-utils.ts` (`isBrowser`, `useClientEffect`, `ClientOnly`, `safeWindow`, etc.) to avoid hydration mismatches.

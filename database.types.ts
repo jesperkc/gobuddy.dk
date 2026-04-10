@@ -372,6 +372,50 @@ export type Database = {
         }
         Relationships: []
       }
+      strava_connections: {
+        Row: {
+          access_token: string
+          athlete_data: Json | null
+          created_at: string | null
+          id: string
+          profile_id: string
+          refresh_token: string
+          strava_athlete_id: number
+          token_expires_at: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_token: string
+          athlete_data?: Json | null
+          created_at?: string | null
+          id?: string
+          profile_id: string
+          refresh_token: string
+          strava_athlete_id: number
+          token_expires_at: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_token?: string
+          athlete_data?: Json | null
+          created_at?: string | null
+          id?: string
+          profile_id?: string
+          refresh_token?: string
+          strava_athlete_id?: number
+          token_expires_at?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strava_connections_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       user_interests: {
         Row: {
           created_at: string

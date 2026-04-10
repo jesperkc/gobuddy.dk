@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Ban } from "lucide-react";
+import { ArrowLeft, Ban, Check, ExternalLink, Link2, Link2Off, Loader2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TextInput } from "@/components/form/TextInput";
 import { required, useForm } from "@modular-forms/react";
@@ -14,6 +14,16 @@ import { NonInterestsPicker } from "@/components/NonInterestsPicker";
 import { fetchProfileWithInterests } from "../../src/lib/fetchProfileWithInterests";
 import { toast } from "sonner";
 import { ErrorBanner } from "@/components/ErrorBanner";
+import {
+  buildStravaAuthUrl,
+  mapActivitiesToInterests,
+  fetchRecentActivities,
+  fetchAthleteStats,
+  type StravaConnection,
+  type StravaActivity,
+  type StravaStats,
+  type StravaAthlete,
+} from "@/lib/strava";
 
 // Reuse interfaces from profile.tsx
 export interface UserProfile {
@@ -37,21 +47,39 @@ type DetailsForm = {
   age: number | undefined;
 };
 
-type TabType = "details" | "interests" | "location";
+type TabType = "details" | "interests" | "location" | "connections";
+
+// Search params for the profile-edit page
+interface ProfileEditSearch {
+  tab?: TabType;
+  strava_error?: string;
+  strava_connected?: string;
+}
 
 export function ProfileEdit() {
-  const { profileData } = Route.useLoaderData(); // Access preloaded data
+  const { profileData } = Route.useLoaderData();
   const { user, loading: loadingUser } = useAuth();
   const navigate = useNavigate();
+  const search = Route.useSearch();
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState<TabType>("details");
+  // Tab state — default to search param or "details"
+  const [activeTab, setActiveTab] = useState<TabType>(search.tab || "details");
 
   // Data state
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Strava state
+  const [stravaConnection, setStravaConnection] = useState<StravaConnection | null>(null);
+  const [stravaLoading, setStravaLoading] = useState(false);
+  const [stravaActivities, setStravaActivities] = useState<StravaActivity[]>([]);
+  const [stravaStats, setStravaStats] = useState<StravaStats | null>(null);
+  const [stravaImportableSports, setStravaImportableSports] = useState<
+    { interest_id: string; interest_da: string }[]
+  >([]);
+  const [importingInterests, setImportingInterests] = useState(false);
 
   // Form states for editing
   const [selectedInterestsWithDescriptions, setSelectedInterestsWithDescriptions] = useState<Record<string, string>>({});
@@ -118,11 +146,157 @@ export function ProfileEdit() {
     handleData();
   }, [profileData]);
 
+  // Show Strava toast messages from redirect
+  useEffect(() => {
+    if (search.strava_connected === "true") {
+      toast.success("Strava er nu tilsluttet!");
+    }
+    if (search.strava_error) {
+      const errorMessages: Record<string, string> = {
+        no_code: "Ingen autorisationskode modtaget fra Strava",
+        invalid_user: "Ugyldig bruger",
+        storage_failed: "Kunne ikke gemme Strava-forbindelsen",
+        exchange_failed: "Kunne ikke forbinde til Strava — prøv igen",
+        access_denied: "Adgang nægtet af Strava",
+      };
+      toast.error(errorMessages[search.strava_error] || `Strava-fejl: ${search.strava_error}`);
+    }
+  }, [search.strava_connected, search.strava_error]);
+
+  // Load Strava connection data
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadStravaConnection = async () => {
+      setStravaLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("strava_connections")
+          .select("*")
+          .eq("profile_id", user.id)
+          .single();
+
+        if (data && !error) {
+          setStravaConnection(data as unknown as StravaConnection);
+
+          // Load activities and stats from Strava API
+          try {
+            const athleteData = data.athlete_data as Record<string, unknown>;
+            const athleteId = athleteData?.id as number;
+
+            const [activities, stats] = await Promise.all([
+              fetchRecentActivities(data.access_token, 30),
+              fetchAthleteStats(data.access_token, athleteId),
+            ]);
+
+            setStravaActivities(activities);
+            setStravaStats(stats);
+
+            // Find importable sports
+            const sportNames = mapActivitiesToInterests(activities);
+            if (sportNames.length > 0) {
+              const { data: matchingInterests } = await supabase
+                .from("interests")
+                .select("interest_id, interest_da")
+                .in("interest_da", sportNames);
+
+              // Filter out already-selected interests
+              const existingIds = new Set(Object.keys(selectedInterestsWithDescriptions));
+              const importable = (matchingInterests || []).filter(
+                (i) => !existingIds.has(i.interest_id)
+              );
+              setStravaImportableSports(importable);
+            }
+          } catch (apiErr) {
+            console.warn("Could not load Strava activities:", apiErr);
+          }
+        }
+      } catch {
+        // No connection found — that's fine
+      } finally {
+        setStravaLoading(false);
+      }
+    };
+
+    loadStravaConnection();
+  }, [user?.id, search.strava_connected]);
+
+  // Strava connect handler
+  const connectStrava = () => {
+    if (!user?.id) return;
+    window.location.href = buildStravaAuthUrl(user.id);
+  };
+
+  // Strava disconnect handler
+  const disconnectStrava = async () => {
+    if (!user?.id || !stravaConnection) return;
+
+    try {
+      setSaving(true);
+
+      // Delete from database (RLS ensures user can only delete their own)
+      const { error } = await supabase
+        .from("strava_connections")
+        .delete()
+        .eq("profile_id", user.id);
+
+      if (error) throw error;
+
+      setStravaConnection(null);
+      setStravaActivities([]);
+      setStravaStats(null);
+      setStravaImportableSports([]);
+      toast.success("Strava er afbrudt");
+    } catch (err) {
+      console.error("Error disconnecting Strava:", err);
+      toast.error("Kunne ikke afbryde Strava");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Import Strava sports as interests
+  const importStravaInterests = async () => {
+    if (!user?.id || stravaImportableSports.length === 0) return;
+
+    try {
+      setImportingInterests(true);
+
+      const rows = stravaImportableSports.map((interest) => ({
+        profile_id: user.id,
+        interest_id: interest.interest_id,
+        description: "Importeret fra Strava",
+        is_non_interest: false,
+      }));
+
+      const { error } = await supabase
+        .from("user_interests")
+        .upsert(rows, { onConflict: "profile_id,interest_id" });
+      if (error) throw error;
+
+      // Update local state
+      const newInterests = { ...selectedInterestsWithDescriptions };
+      for (const interest of stravaImportableSports) {
+        newInterests[interest.interest_id] = "Importeret fra Strava";
+      }
+      setSelectedInterestsWithDescriptions(newInterests);
+      setStravaImportableSports([]);
+
+      toast.success(`${rows.length} interesse${rows.length > 1 ? "r" : ""} importeret fra Strava!`);
+    } catch (err) {
+      console.error("Error importing Strava interests:", err);
+      toast.error("Kunne ikke importere interesser");
+    } finally {
+      setImportingInterests(false);
+    }
+  };
+
   // Tab navigation
   const tabs = [
     { id: "details" as TabType, label: "Personlige oplysninger" },
     { id: "interests" as TabType, label: "Interesser" },
     { id: "location" as TabType, label: "Placering" },
+    { id: "connections" as TabType, label: "Tilslutninger" },
   ];
 
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -464,6 +638,187 @@ export function ProfileEdit() {
             </div>
           </div>
         )}
+
+        {/* Connections Tab */}
+        {activeTab === "connections" && (
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Tilslutninger</h2>
+              <p className="text-gray-600 mb-6">
+                Forbind dine konti for at vise mere om dig selv
+              </p>
+            </div>
+
+            {/* Strava Section */}
+            <div className="border rounded-lg p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-[#FC4C02] flex items-center justify-center">
+                  <svg viewBox="0 0 24 24" className="w-6 h-6 text-white fill-current">
+                    <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Strava</h3>
+                  <p className="text-sm text-gray-500">Forbind din Strava-konto for at vise aktiviteter og sportsinteresser</p>
+                </div>
+              </div>
+
+              {stravaLoading ? (
+                <div className="flex items-center gap-2 text-gray-500">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Indlæser...
+                </div>
+              ) : stravaConnection ? (
+                <div className="space-y-6">
+                  {/* Connected status */}
+                  <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                        <Check className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-green-800">
+                          Forbundet som{" "}
+                          {(stravaConnection.athlete_data as unknown as StravaAthlete)?.firstname || "ukendt"}{" "}
+                          {(stravaConnection.athlete_data as unknown as StravaAthlete)?.lastname || ""}
+                        </p>
+                        <p className="text-sm text-green-600">
+                          Tilsluttet {new Date(stravaConnection.created_at).toLocaleDateString("da-DK")}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={disconnectStrava}
+                      disabled={saving}
+                      className="text-red-600 border-red-200 hover:bg-red-50"
+                    >
+                      <Link2Off className="w-3.5 h-3.5 mr-1.5" />
+                      Afbryd
+                    </Button>
+                  </div>
+
+                  {/* Stats summary */}
+                  {stravaStats && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                        Statistik (hele perioden)
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <StatCard
+                          label="Løb"
+                          value={stravaStats.all_run_totals.count}
+                          unit="aktiviteter"
+                          detail={`${(stravaStats.all_run_totals.distance / 1000).toFixed(0)} km`}
+                        />
+                        <StatCard
+                          label="Cykling"
+                          value={stravaStats.all_ride_totals.count}
+                          unit="aktiviteter"
+                          detail={`${(stravaStats.all_ride_totals.distance / 1000).toFixed(0)} km`}
+                        />
+                        <StatCard
+                          label="Svømning"
+                          value={stravaStats.all_swim_totals.count}
+                          unit="aktiviteter"
+                          detail={`${(stravaStats.all_swim_totals.distance / 1000).toFixed(1)} km`}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recent activities */}
+                  {stravaActivities.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
+                        Seneste aktiviteter
+                      </h4>
+                      <div className="space-y-2">
+                        {stravaActivities.slice(0, 5).map((activity) => (
+                          <div
+                            key={activity.id}
+                            className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
+                          >
+                            <div>
+                              <p className="font-medium text-sm">{activity.name}</p>
+                              <p className="text-xs text-gray-500">
+                                {activity.sport_type} · {new Date(activity.start_date_local).toLocaleDateString("da-DK")}
+                              </p>
+                            </div>
+                            <div className="text-right text-sm">
+                              <p className="font-medium">{(activity.distance / 1000).toFixed(1)} km</p>
+                              <p className="text-xs text-gray-500">
+                                {Math.floor(activity.moving_time / 60)} min
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <a
+                        href={`https://www.strava.com/athletes/${stravaConnection.strava_athlete_id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 mt-3 text-sm text-[#FC4C02] hover:underline"
+                      >
+                        Se alle på Strava
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Import interests from Strava */}
+                  {stravaImportableSports.length > 0 && (
+                    <div className="border-t pt-6">
+                      <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                        <Zap className="w-4 h-4" />
+                        Importér interesser fra Strava
+                      </h4>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Vi fandt disse sportsgrene fra dine Strava-aktiviteter:
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {stravaImportableSports.map((sport) => (
+                          <span
+                            key={sport.interest_id}
+                            className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-orange-50 text-orange-700 border border-orange-200"
+                          >
+                            {sport.interest_da}
+                          </span>
+                        ))}
+                      </div>
+                      <Button
+                        onClick={importStravaInterests}
+                        disabled={importingInterests}
+                        size="sm"
+                      >
+                        {importingInterests ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                            Importerer...
+                          </>
+                        ) : (
+                          <>
+                            <Zap className="w-3.5 h-3.5 mr-1.5" />
+                            Importér {stravaImportableSports.length} interesse{stravaImportableSports.length > 1 ? "r" : ""}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Button
+                  onClick={connectStrava}
+                  className="bg-[#FC4C02] hover:bg-[#e04402] text-white"
+                >
+                  <Link2 className="w-4 h-4 mr-2" />
+                  Tilslut Strava
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </DefaultLayout>
   );
@@ -477,8 +832,35 @@ function ProtectedProfile() {
   );
 }
 
+function StatCard({
+  label,
+  value,
+  unit,
+  detail,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  detail: string;
+}) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-3">
+      <p className="text-xs text-gray-500 uppercase tracking-wide">{label}</p>
+      <p className="text-xl font-bold mt-1">
+        {value} <span className="text-sm font-normal text-gray-500">{unit}</span>
+      </p>
+      <p className="text-sm text-gray-600">{detail}</p>
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/profile-edit")({
   component: ProtectedProfile,
+  validateSearch: (search: Record<string, unknown>): ProfileEditSearch => ({
+    tab: (search.tab as TabType) || undefined,
+    strava_error: search.strava_error as string | undefined,
+    strava_connected: search.strava_connected as string | undefined,
+  }),
   loader: async () => {
     // Get user directly from Supabase
     const {
