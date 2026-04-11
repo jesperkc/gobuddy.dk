@@ -97,6 +97,14 @@ export function ProfileEdit() {
   const [resizeDialogOpen, setResizeDialogOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<{ file: File; dataUrl: string; naturalWidth: number; naturalHeight: number } | null>(null);
 
+  // Crop state: offset is how far the image is dragged (in display px), zoom is scale factor
+  const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 });
+  const [cropZoom, setCropZoom] = useState(1);
+  const cropContainerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef({ x: 0, y: 0, ox: 0, oy: 0 });
+  const CROP_SIZE = 256; // display size of the crop circle
+
   // Activity posts (for stats from all sources)
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
 
@@ -423,12 +431,39 @@ export function ProfileEdit() {
     });
 
     setPendingImage({ file, dataUrl, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
+    // Initial zoom: fit the smaller dimension to fill the crop circle
+    const fitZoom = CROP_SIZE / Math.min(img.naturalWidth, img.naturalHeight);
+    setCropZoom(fitZoom);
+    setCropOffset({ x: 0, y: 0 });
     setResizeDialogOpen(true);
 
     if (avatarInputRef.current) avatarInputRef.current.value = "";
   };
 
-  // Resize via canvas and upload
+  // Crop drag handlers
+  const handleCropPointerDown = (e: React.PointerEvent) => {
+    isDraggingRef.current = true;
+    dragStartRef.current = { x: e.clientX, y: e.clientY, ox: cropOffset.x, oy: cropOffset.y };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handleCropPointerMove = (e: React.PointerEvent) => {
+    if (!isDraggingRef.current) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    setCropOffset({ x: dragStartRef.current.ox + dx, y: dragStartRef.current.oy + dy });
+  };
+
+  const handleCropPointerUp = () => {
+    isDraggingRef.current = false;
+  };
+
+  const handleCropWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    setCropZoom((prev) => Math.max(0.1, Math.min(prev * (e.deltaY < 0 ? 1.1 : 0.9), 10)));
+  };
+
+  // Resize via canvas and upload — crops to the visible circle area
   const confirmAvatarUpload = async () => {
     if (!pendingImage || !user?.id) return;
 
@@ -437,36 +472,59 @@ export function ProfileEdit() {
 
     try {
       const { dataUrl, naturalWidth, naturalHeight } = pendingImage;
-      const targetWidth = Math.min(naturalWidth, 512);
-      const scale = targetWidth / naturalWidth;
-      const targetHeight = Math.round(naturalHeight * scale);
 
-      // Draw resized image on canvas
+      // Calculate what portion of the original image is visible in the crop circle
+      // The image is rendered at: displayW = naturalWidth * cropZoom, centered + offset
+      // Crop circle is CROP_SIZE × CROP_SIZE centered in the container
+      const displayW = naturalWidth * cropZoom;
+      const displayH = naturalHeight * cropZoom;
+
+      // Image top-left in container coords (container is CROP_SIZE × CROP_SIZE)
+      const imgLeft = (CROP_SIZE - displayW) / 2 + cropOffset.x;
+      const imgTop = (CROP_SIZE - displayH) / 2 + cropOffset.y;
+
+      // The crop circle occupies (0, 0) to (CROP_SIZE, CROP_SIZE) in container coords
+      // Convert to source image coordinates
+      const srcX = (0 - imgLeft) / cropZoom;
+      const srcY = (0 - imgTop) / cropZoom;
+      const srcSize = CROP_SIZE / cropZoom;
+
+      // Clamp to image bounds
+      const sx = Math.max(0, srcX);
+      const sy = Math.max(0, srcY);
+      const sw = Math.min(srcSize, naturalWidth - sx);
+      const sh = Math.min(srcSize, naturalHeight - sy);
+
+      const outSize = Math.min(512, Math.round(srcSize));
       const canvas = document.createElement("canvas");
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
+      canvas.width = outSize;
+      canvas.height = outSize;
       const ctx = canvas.getContext("2d")!;
+
+      // Draw circular clip
+      ctx.beginPath();
+      ctx.arc(outSize / 2, outSize / 2, outSize / 2, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+
       const img = new Image();
       await new Promise<void>((resolve) => {
         img.onload = () => resolve();
         img.src = dataUrl;
       });
-      ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outSize, outSize);
 
-      // Export as blob
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))), "image/webp", 0.85);
       });
 
       const filePath = `${user.id}/avatar.webp`;
 
-      // Delete old avatar files
       const { data: existing } = await supabase.storage.from("avatars").list(user.id);
       if (existing && existing.length > 0) {
         await supabase.storage.from("avatars").remove(existing.map((f) => `${user.id}/${f.name}`));
       }
 
-      // Upload resized image
       const { error: uploadError } = await supabase.storage
         .from("avatars")
         .upload(filePath, blob, { upsert: true, contentType: "image/webp" });
@@ -818,29 +876,52 @@ export function ProfileEdit() {
               </div>
             </div>
 
-            {/* Resize dialog */}
+            {/* Crop dialog */}
             <Dialog open={resizeDialogOpen} onOpenChange={(open) => { if (!open) { setPendingImage(null); } setResizeDialogOpen(open); }}>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Tilpas profilbillede</DialogTitle>
                   <DialogDescription>
-                    Billedet skaleres til max 512px bredde.
+                    Træk billedet for at placere dit ansigt i cirklen. Scroll for at zoome.
                   </DialogDescription>
                 </DialogHeader>
 
                 {pendingImage && (
-                  <div className="space-y-4">
-                    <div className="flex justify-center bg-gray-50 rounded-lg p-4">
+                  <div className="flex justify-center">
+                    <div
+                      ref={cropContainerRef}
+                      className="relative overflow-hidden cursor-grab active:cursor-grabbing select-none touch-none"
+                      style={{ width: CROP_SIZE, height: CROP_SIZE }}
+                      onPointerDown={handleCropPointerDown}
+                      onPointerMove={handleCropPointerMove}
+                      onPointerUp={handleCropPointerUp}
+                      onWheel={handleCropWheel}
+                    >
+                      {/* Draggable image */}
                       <img
                         src={pendingImage.dataUrl}
-                        alt="Preview"
-                        className="max-h-64 max-w-full rounded-lg object-contain"
+                        alt=""
+                        draggable={false}
+                        className="absolute pointer-events-none"
+                        style={{
+                          width: pendingImage.naturalWidth * cropZoom,
+                          height: pendingImage.naturalHeight * cropZoom,
+                          left: (CROP_SIZE - pendingImage.naturalWidth * cropZoom) / 2 + cropOffset.x,
+                          top: (CROP_SIZE - pendingImage.naturalHeight * cropZoom) / 2 + cropOffset.y,
+                        }}
                       />
+                      {/* Dark overlay with circular cutout */}
+                      <svg className="absolute inset-0 pointer-events-none" width={CROP_SIZE} height={CROP_SIZE}>
+                        <defs>
+                          <mask id="crop-mask">
+                            <rect width={CROP_SIZE} height={CROP_SIZE} fill="white" />
+                            <circle cx={CROP_SIZE / 2} cy={CROP_SIZE / 2} r={CROP_SIZE / 2 - 2} fill="black" />
+                          </mask>
+                        </defs>
+                        <rect width={CROP_SIZE} height={CROP_SIZE} fill="rgba(0,0,0,0.5)" mask="url(#crop-mask)" />
+                        <circle cx={CROP_SIZE / 2} cy={CROP_SIZE / 2} r={CROP_SIZE / 2 - 2} fill="none" stroke="white" strokeWidth="2" />
+                      </svg>
                     </div>
-
-                    <p className="text-center text-sm text-gray-500">
-                      {pendingImage.naturalWidth} × {pendingImage.naturalHeight} → {Math.min(pendingImage.naturalWidth, 512)} × {Math.round(pendingImage.naturalHeight * (Math.min(pendingImage.naturalWidth, 512) / pendingImage.naturalWidth))} px
-                    </p>
                   </div>
                 )}
 
