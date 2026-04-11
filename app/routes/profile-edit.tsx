@@ -459,12 +459,6 @@ export function ProfileEdit() {
       canvas.height = outSize;
       const ctx = canvas.getContext("2d")!;
 
-      // Circular clip
-      ctx.beginPath();
-      ctx.arc(outSize / 2, outSize / 2, outSize / 2, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.clip();
-
       ctx.drawImage(image, sx, sy, sw, sh, 0, 0, outSize, outSize);
 
       const blob = await new Promise<Blob>((resolve, reject) => {
@@ -843,7 +837,6 @@ export function ProfileEdit() {
                       onChange={(_, percentCrop) => setCrop(percentCrop)}
                       onComplete={(c) => setCompletedCrop(c)}
                       aspect={1}
-                      circularCrop
                     >
                       <img
                         ref={cropImgRef}
