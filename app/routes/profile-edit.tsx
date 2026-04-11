@@ -921,13 +921,12 @@ export function ProfileEdit() {
                           src={pendingImage.dataUrl}
                           alt=""
                           draggable={false}
-                          className="absolute pointer-events-none origin-center"
+                          className="absolute pointer-events-none"
                           style={{
-                            width: pendingImage.naturalWidth,
-                            height: pendingImage.naturalHeight,
-                            left: (CROP_SIZE - pendingImage.naturalWidth) / 2,
-                            top: (CROP_SIZE - pendingImage.naturalHeight) / 2,
-                            transform: `translate(${cropOffset.x}px, ${cropOffset.y}px) scale(${cropZoom})`,
+                            width: pendingImage.naturalWidth * cropZoom,
+                            height: "auto",
+                            left: (CROP_SIZE - pendingImage.naturalWidth * cropZoom) / 2 + cropOffset.x,
+                            top: (CROP_SIZE - pendingImage.naturalHeight * cropZoom) / 2 + cropOffset.y,
                           }}
                         />
                         {/* Dark overlay with circular cutout */}
