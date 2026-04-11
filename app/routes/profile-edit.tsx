@@ -449,10 +449,21 @@ export function ProfileEdit() {
   };
 
   const handleCropPointerMove = (e: React.PointerEvent) => {
-    if (!isDraggingRef.current) return;
+    if (!isDraggingRef.current || !pendingImage) return;
     const dx = e.clientX - dragStartRef.current.x;
     const dy = e.clientY - dragStartRef.current.y;
-    setCropOffset({ x: dragStartRef.current.ox + dx, y: dragStartRef.current.oy + dy });
+    const newX = dragStartRef.current.ox + dx;
+    const newY = dragStartRef.current.oy + dy;
+
+    // Clamp so image always covers the crop circle
+    const displayW = pendingImage.naturalWidth * cropZoom;
+    const displayH = pendingImage.naturalHeight * cropZoom;
+    const maxX = Math.max(0, (displayW - CROP_SIZE) / 2);
+    const maxY = Math.max(0, (displayH - CROP_SIZE) / 2);
+    setCropOffset({
+      x: Math.max(-maxX, Math.min(maxX, newX)),
+      y: Math.max(-maxY, Math.min(maxY, newY)),
+    });
   };
 
   const handleCropPointerUp = () => {
@@ -461,9 +472,20 @@ export function ProfileEdit() {
 
   const handleCropWheel = (e: React.WheelEvent) => {
     e.preventDefault();
+    if (!pendingImage) return;
     const min = minZoomRef.current;
     const max = min * 3;
-    setCropZoom((prev) => Math.max(min, Math.min(prev * (e.deltaY < 0 ? 1.1 : 0.9), max)));
+    const newZoom = Math.max(min, Math.min(cropZoom * (e.deltaY < 0 ? 1.1 : 0.9), max));
+    setCropZoom(newZoom);
+    // Re-clamp offset for new zoom
+    const displayW = pendingImage.naturalWidth * newZoom;
+    const displayH = pendingImage.naturalHeight * newZoom;
+    const maxX = Math.max(0, (displayW - CROP_SIZE) / 2);
+    const maxY = Math.max(0, (displayH - CROP_SIZE) / 2);
+    setCropOffset((prev) => ({
+      x: Math.max(-maxX, Math.min(maxX, prev.x)),
+      y: Math.max(-maxY, Math.min(maxY, prev.y)),
+    }));
   };
 
   // Resize via canvas and upload — crops to the visible circle area
@@ -486,17 +508,10 @@ export function ProfileEdit() {
       const imgLeft = (CROP_SIZE - displayW) / 2 + cropOffset.x;
       const imgTop = (CROP_SIZE - displayH) / 2 + cropOffset.y;
 
-      // The crop circle occupies (0, 0) to (CROP_SIZE, CROP_SIZE) in container coords
-      // Convert to source image coordinates
+      // Convert crop circle to source image coordinates
       const srcX = (0 - imgLeft) / cropZoom;
       const srcY = (0 - imgTop) / cropZoom;
       const srcSize = CROP_SIZE / cropZoom;
-
-      // Clamp to image bounds
-      const sx = Math.max(0, srcX);
-      const sy = Math.max(0, srcY);
-      const sw = Math.min(srcSize, naturalWidth - sx);
-      const sh = Math.min(srcSize, naturalHeight - sy);
 
       const outSize = Math.min(512, Math.round(srcSize));
       const canvas = document.createElement("canvas");
@@ -515,7 +530,7 @@ export function ProfileEdit() {
         img.onload = () => resolve();
         img.src = dataUrl;
       });
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outSize, outSize);
+      ctx.drawImage(img, srcX, srcY, srcSize, srcSize, 0, 0, outSize, outSize);
 
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))), "image/webp", 0.85);
@@ -936,7 +951,20 @@ export function ProfileEdit() {
                         min={minZoomRef.current * 100}
                         max={minZoomRef.current * 300}
                         value={cropZoom * 100}
-                        onChange={(e) => setCropZoom(Number(e.target.value) / 100)}
+                        onChange={(e) => {
+                          const newZoom = Number(e.target.value) / 100;
+                          setCropZoom(newZoom);
+                          if (pendingImage) {
+                            const dw = pendingImage.naturalWidth * newZoom;
+                            const dh = pendingImage.naturalHeight * newZoom;
+                            const mx = Math.max(0, (dw - CROP_SIZE) / 2);
+                            const my = Math.max(0, (dh - CROP_SIZE) / 2);
+                            setCropOffset((prev) => ({
+                              x: Math.max(-mx, Math.min(mx, prev.x)),
+                              y: Math.max(-my, Math.min(my, prev.y)),
+                            }));
+                          }
+                        }}
                         className="w-full accent-blue-600"
                         step={1}
                       />
