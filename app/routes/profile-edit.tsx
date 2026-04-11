@@ -917,18 +917,25 @@ export function ProfileEdit() {
                         onWheel={handleCropWheel}
                       >
                         {/* Draggable image */}
-                        <img
-                          src={pendingImage.dataUrl}
-                          alt=""
-                          draggable={false}
-                          className="absolute pointer-events-none"
-                          style={{
-                            width: pendingImage.naturalWidth * cropZoom,
-                            height: "auto",
-                            left: (CROP_SIZE - pendingImage.naturalWidth * cropZoom) / 2 + cropOffset.x,
-                            top: (CROP_SIZE - pendingImage.naturalHeight * cropZoom) / 2 + cropOffset.y,
-                          }}
-                        />
+                        {(() => {
+                          const scale = cropZoom;
+                          const dw = pendingImage.naturalWidth * scale;
+                          const dh = pendingImage.naturalHeight * scale;
+                          return (
+                            <img
+                              src={pendingImage.dataUrl}
+                              alt=""
+                              draggable={false}
+                              className="absolute pointer-events-none"
+                              style={{
+                                width: dw,
+                                height: dh,
+                                left: (CROP_SIZE - dw) / 2 + cropOffset.x,
+                                top: (CROP_SIZE - dh) / 2 + cropOffset.y,
+                              }}
+                            />
+                          );
+                        })()}
                         {/* Dark overlay with circular cutout */}
                         <svg className="absolute inset-0 pointer-events-none" width={CROP_SIZE} height={CROP_SIZE}>
                           <defs>
@@ -948,11 +955,11 @@ export function ProfileEdit() {
                       <Minus className="h-4 w-4 text-gray-400 shrink-0" />
                       <input
                         type="range"
-                        min={minZoomRef.current * 100}
-                        max={minZoomRef.current * 300}
-                        value={cropZoom * 100}
+                        min={minZoomRef.current * 1000}
+                        max={minZoomRef.current * 3000}
+                        value={cropZoom * 1000}
                         onChange={(e) => {
-                          const newZoom = Number(e.target.value) / 100;
+                          const newZoom = Number(e.target.value) / 1000;
                           setCropZoom(newZoom);
                           if (pendingImage) {
                             const dw = pendingImage.naturalWidth * newZoom;
