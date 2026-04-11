@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { PageTitle } from "@/components/PageTitle";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Ban, Camera, Check, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Trash2, Zap } from "lucide-react";
+import { ArrowLeft, Ban, Camera, Check, ExternalLink, Link2, Link2Off, Loader2, Minus, Plus, RefreshCw, Trash2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -103,7 +103,8 @@ export function ProfileEdit() {
   const cropContainerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef({ x: 0, y: 0, ox: 0, oy: 0 });
-  const CROP_SIZE = 256; // display size of the crop circle
+  const minZoomRef = useRef(1);
+  const CROP_SIZE = 256;
 
   // Activity posts (for stats from all sources)
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
@@ -431,8 +432,8 @@ export function ProfileEdit() {
     });
 
     setPendingImage({ file, dataUrl, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
-    // Initial zoom: fit the smaller dimension to fill the crop circle
     const fitZoom = CROP_SIZE / Math.min(img.naturalWidth, img.naturalHeight);
+    minZoomRef.current = fitZoom;
     setCropZoom(fitZoom);
     setCropOffset({ x: 0, y: 0 });
     setResizeDialogOpen(true);
@@ -460,7 +461,9 @@ export function ProfileEdit() {
 
   const handleCropWheel = (e: React.WheelEvent) => {
     e.preventDefault();
-    setCropZoom((prev) => Math.max(0.1, Math.min(prev * (e.deltaY < 0 ? 1.1 : 0.9), 10)));
+    const min = minZoomRef.current;
+    const max = min * 3;
+    setCropZoom((prev) => Math.max(min, Math.min(prev * (e.deltaY < 0 ? 1.1 : 0.9), max)));
   };
 
   // Resize via canvas and upload — crops to the visible circle area
@@ -887,40 +890,57 @@ export function ProfileEdit() {
                 </DialogHeader>
 
                 {pendingImage && (
-                  <div className="flex justify-center">
-                    <div
-                      ref={cropContainerRef}
-                      className="relative overflow-hidden cursor-grab active:cursor-grabbing select-none touch-none"
-                      style={{ width: CROP_SIZE, height: CROP_SIZE }}
-                      onPointerDown={handleCropPointerDown}
-                      onPointerMove={handleCropPointerMove}
-                      onPointerUp={handleCropPointerUp}
-                      onWheel={handleCropWheel}
-                    >
-                      {/* Draggable image */}
-                      <img
-                        src={pendingImage.dataUrl}
-                        alt=""
-                        draggable={false}
-                        className="absolute pointer-events-none"
-                        style={{
-                          width: pendingImage.naturalWidth * cropZoom,
-                          height: pendingImage.naturalHeight * cropZoom,
-                          left: (CROP_SIZE - pendingImage.naturalWidth * cropZoom) / 2 + cropOffset.x,
-                          top: (CROP_SIZE - pendingImage.naturalHeight * cropZoom) / 2 + cropOffset.y,
-                        }}
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      <div
+                        ref={cropContainerRef}
+                        className="relative overflow-hidden cursor-grab active:cursor-grabbing select-none touch-none"
+                        style={{ width: CROP_SIZE, height: CROP_SIZE }}
+                        onPointerDown={handleCropPointerDown}
+                        onPointerMove={handleCropPointerMove}
+                        onPointerUp={handleCropPointerUp}
+                        onWheel={handleCropWheel}
+                      >
+                        {/* Draggable image */}
+                        <img
+                          src={pendingImage.dataUrl}
+                          alt=""
+                          draggable={false}
+                          className="absolute pointer-events-none"
+                          style={{
+                            width: pendingImage.naturalWidth * cropZoom,
+                            height: pendingImage.naturalHeight * cropZoom,
+                            left: (CROP_SIZE - pendingImage.naturalWidth * cropZoom) / 2 + cropOffset.x,
+                            top: (CROP_SIZE - pendingImage.naturalHeight * cropZoom) / 2 + cropOffset.y,
+                          }}
+                        />
+                        {/* Dark overlay with circular cutout */}
+                        <svg className="absolute inset-0 pointer-events-none" width={CROP_SIZE} height={CROP_SIZE}>
+                          <defs>
+                            <mask id="crop-mask">
+                              <rect width={CROP_SIZE} height={CROP_SIZE} fill="white" />
+                              <circle cx={CROP_SIZE / 2} cy={CROP_SIZE / 2} r={CROP_SIZE / 2 - 2} fill="black" />
+                            </mask>
+                          </defs>
+                          <rect width={CROP_SIZE} height={CROP_SIZE} fill="rgba(0,0,0,0.5)" mask="url(#crop-mask)" />
+                          <circle cx={CROP_SIZE / 2} cy={CROP_SIZE / 2} r={CROP_SIZE / 2 - 2} fill="none" stroke="white" strokeWidth="2" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Zoom slider */}
+                    <div className="flex items-center gap-3 px-4">
+                      <Minus className="h-4 w-4 text-gray-400 shrink-0" />
+                      <input
+                        type="range"
+                        min={minZoomRef.current * 100}
+                        max={minZoomRef.current * 300}
+                        value={cropZoom * 100}
+                        onChange={(e) => setCropZoom(Number(e.target.value) / 100)}
+                        className="w-full accent-blue-600"
+                        step={1}
                       />
-                      {/* Dark overlay with circular cutout */}
-                      <svg className="absolute inset-0 pointer-events-none" width={CROP_SIZE} height={CROP_SIZE}>
-                        <defs>
-                          <mask id="crop-mask">
-                            <rect width={CROP_SIZE} height={CROP_SIZE} fill="white" />
-                            <circle cx={CROP_SIZE / 2} cy={CROP_SIZE / 2} r={CROP_SIZE / 2 - 2} fill="black" />
-                          </mask>
-                        </defs>
-                        <rect width={CROP_SIZE} height={CROP_SIZE} fill="rgba(0,0,0,0.5)" mask="url(#crop-mask)" />
-                        <circle cx={CROP_SIZE / 2} cy={CROP_SIZE / 2} r={CROP_SIZE / 2 - 2} fill="none" stroke="white" strokeWidth="2" />
-                      </svg>
+                      <Plus className="h-4 w-4 text-gray-400 shrink-0" />
                     </div>
                   </div>
                 )}
