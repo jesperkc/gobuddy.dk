@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, type SyntheticEvent } from "react";
 import { PageTitle } from "@/components/PageTitle";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Ban, Camera, Check, ExternalLink, Link2, Link2Off, Loader2, Minus, Plus, RefreshCw, Trash2, Zap } from "lucide-react";
+import { ArrowLeft, Ban, Camera, Check, Crop, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Trash2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import ReactCrop, { centerCrop, makeAspectCrop, type Crop as CropType, type PixelCrop } from "react-image-crop";
+import "react-image-crop/dist/ReactCrop.css";
 import { TextInput } from "@/components/form/TextInput";
 import { required, useForm } from "@modular-forms/react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -93,18 +95,12 @@ export function ProfileEdit() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  // Resize dialog state
+  // Crop dialog state
   const [resizeDialogOpen, setResizeDialogOpen] = useState(false);
-  const [pendingImage, setPendingImage] = useState<{ file: File; dataUrl: string; naturalWidth: number; naturalHeight: number } | null>(null);
-
-  // Crop state: offset is how far the image is dragged (in display px), zoom is scale factor
-  const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 });
-  const [cropZoom, setCropZoom] = useState(1);
-  const cropContainerRef = useRef<HTMLDivElement>(null);
-  const isDraggingRef = useRef(false);
-  const dragStartRef = useRef({ x: 0, y: 0, ox: 0, oy: 0 });
-  const minZoomRef = useRef(1);
-  const CROP_SIZE = 256;
+  const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
+  const [crop, setCrop] = useState<CropType>();
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
+  const cropImgRef = useRef<HTMLImageElement>(null);
 
   // Activity posts (for stats from all sources)
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
@@ -404,8 +400,8 @@ export function ProfileEdit() {
     }
   };
 
-  // Avatar file picker — opens resize dialog
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Avatar file picker — opens crop dialog
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user?.id) return;
 
@@ -418,119 +414,58 @@ export function ProfileEdit() {
       return;
     }
 
-    // Read file and get natural dimensions
-    const dataUrl = await new Promise<string>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.readAsDataURL(file);
-    });
-
-    const img = new Image();
-    await new Promise<void>((resolve) => {
-      img.onload = () => resolve();
-      img.src = dataUrl;
-    });
-
-    setPendingImage({ file, dataUrl, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
-    const fitZoom = CROP_SIZE / Math.min(img.naturalWidth, img.naturalHeight);
-    minZoomRef.current = fitZoom;
-    setCropZoom(fitZoom);
-    setCropOffset({ x: 0, y: 0 });
-    setResizeDialogOpen(true);
-
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPendingImageUrl(reader.result as string);
+      setCrop(undefined);
+      setCompletedCrop(undefined);
+      setResizeDialogOpen(true);
+    };
+    reader.readAsDataURL(file);
     if (avatarInputRef.current) avatarInputRef.current.value = "";
   };
 
-  // Crop drag handlers
-  const handleCropPointerDown = (e: React.PointerEvent) => {
-    isDraggingRef.current = true;
-    dragStartRef.current = { x: e.clientX, y: e.clientY, ox: cropOffset.x, oy: cropOffset.y };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  // Set initial centered crop when image loads in the dialog
+  const onCropImageLoad = (e: SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    const initialCrop = centerCrop(
+      makeAspectCrop({ unit: "%", width: 80 }, 1, width, height),
+      width,
+      height,
+    );
+    setCrop(initialCrop);
   };
 
-  const handleCropPointerMove = (e: React.PointerEvent) => {
-    if (!isDraggingRef.current || !pendingImage) return;
-    const dx = e.clientX - dragStartRef.current.x;
-    const dy = e.clientY - dragStartRef.current.y;
-    const newX = dragStartRef.current.ox + dx;
-    const newY = dragStartRef.current.oy + dy;
-
-    // Clamp so image always covers the crop circle
-    const displayW = pendingImage.naturalWidth * cropZoom;
-    const displayH = pendingImage.naturalHeight * cropZoom;
-    const maxX = Math.max(0, (displayW - CROP_SIZE) / 2);
-    const maxY = Math.max(0, (displayH - CROP_SIZE) / 2);
-    setCropOffset({
-      x: Math.max(-maxX, Math.min(maxX, newX)),
-      y: Math.max(-maxY, Math.min(maxY, newY)),
-    });
-  };
-
-  const handleCropPointerUp = () => {
-    isDraggingRef.current = false;
-  };
-
-  const handleCropWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    if (!pendingImage) return;
-    const min = minZoomRef.current;
-    const max = min * 3;
-    const newZoom = Math.max(min, Math.min(cropZoom * (e.deltaY < 0 ? 1.1 : 0.9), max));
-    setCropZoom(newZoom);
-    // Re-clamp offset for new zoom
-    const displayW = pendingImage.naturalWidth * newZoom;
-    const displayH = pendingImage.naturalHeight * newZoom;
-    const maxX = Math.max(0, (displayW - CROP_SIZE) / 2);
-    const maxY = Math.max(0, (displayH - CROP_SIZE) / 2);
-    setCropOffset((prev) => ({
-      x: Math.max(-maxX, Math.min(maxX, prev.x)),
-      y: Math.max(-maxY, Math.min(maxY, prev.y)),
-    }));
-  };
-
-  // Resize via canvas and upload — crops to the visible circle area
+  // Crop and upload
   const confirmAvatarUpload = async () => {
-    if (!pendingImage || !user?.id) return;
+    if (!cropImgRef.current || !completedCrop || !user?.id) return;
 
     setUploadingAvatar(true);
     setResizeDialogOpen(false);
 
     try {
-      const { dataUrl, naturalWidth, naturalHeight } = pendingImage;
+      const image = cropImgRef.current;
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
 
-      // Calculate what portion of the original image is visible in the crop circle
-      // The image is rendered at: displayW = naturalWidth * cropZoom, centered + offset
-      // Crop circle is CROP_SIZE × CROP_SIZE centered in the container
-      const displayW = naturalWidth * cropZoom;
-      const displayH = naturalHeight * cropZoom;
+      const sx = completedCrop.x * scaleX;
+      const sy = completedCrop.y * scaleY;
+      const sw = completedCrop.width * scaleX;
+      const sh = completedCrop.height * scaleY;
 
-      // Image top-left in container coords (container is CROP_SIZE × CROP_SIZE)
-      const imgLeft = (CROP_SIZE - displayW) / 2 + cropOffset.x;
-      const imgTop = (CROP_SIZE - displayH) / 2 + cropOffset.y;
-
-      // Convert crop circle to source image coordinates
-      const srcX = (0 - imgLeft) / cropZoom;
-      const srcY = (0 - imgTop) / cropZoom;
-      const srcSize = CROP_SIZE / cropZoom;
-
-      const outSize = Math.min(512, Math.round(srcSize));
+      const outSize = Math.min(512, Math.round(sw));
       const canvas = document.createElement("canvas");
       canvas.width = outSize;
       canvas.height = outSize;
       const ctx = canvas.getContext("2d")!;
 
-      // Draw circular clip
+      // Circular clip
       ctx.beginPath();
       ctx.arc(outSize / 2, outSize / 2, outSize / 2, 0, Math.PI * 2);
       ctx.closePath();
       ctx.clip();
 
-      const img = new Image();
-      await new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-        img.src = dataUrl;
-      });
-      ctx.drawImage(img, srcX, srcY, srcSize, srcSize, 0, 0, outSize, outSize);
+      ctx.drawImage(image, sx, sy, sw, sh, 0, 0, outSize, outSize);
 
       const blob = await new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))), "image/webp", 0.85);
@@ -565,7 +500,7 @@ export function ProfileEdit() {
       toast.error("Kunne ikke uploade billede");
     } finally {
       setUploadingAvatar(false);
-      setPendingImage(null);
+      setPendingImageUrl(null);
     }
   };
 
@@ -895,103 +830,47 @@ export function ProfileEdit() {
             </div>
 
             {/* Crop dialog */}
-            <Dialog open={resizeDialogOpen} onOpenChange={(open) => { if (!open) { setPendingImage(null); } setResizeDialogOpen(open); }}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Tilpas profilbillede</DialogTitle>
-                  <DialogDescription>
-                    Træk billedet for at placere dit ansigt i cirklen. Scroll for at zoome.
-                  </DialogDescription>
+            <Dialog open={resizeDialogOpen} onOpenChange={(open) => { if (!open) { setPendingImageUrl(null); } setResizeDialogOpen(open); }}>
+              <DialogContent className="p-0 gap-0">
+                <DialogHeader className="p-6 pb-0">
+                  <DialogTitle>Beskær profilbillede</DialogTitle>
                 </DialogHeader>
 
-                {pendingImage && (
-                  <div className="space-y-4">
-                    <div className="flex justify-center">
-                      <div
-                        ref={cropContainerRef}
-                        className="relative overflow-hidden cursor-grab active:cursor-grabbing select-none touch-none"
-                        style={{ width: CROP_SIZE, height: CROP_SIZE }}
-                        onPointerDown={handleCropPointerDown}
-                        onPointerMove={handleCropPointerMove}
-                        onPointerUp={handleCropPointerUp}
-                        onWheel={handleCropWheel}
-                      >
-                        {/* Draggable image */}
-                        {(() => {
-                          const scale = cropZoom;
-                          const dw = pendingImage.naturalWidth * scale;
-                          const dh = pendingImage.naturalHeight * scale;
-                          return (
-                            <img
-                              src={pendingImage.dataUrl}
-                              alt=""
-                              draggable={false}
-                              className="absolute pointer-events-none"
-                              style={{
-                                width: dw,
-                                height: dh,
-                                left: (CROP_SIZE - dw) / 2 + cropOffset.x,
-                                top: (CROP_SIZE - dh) / 2 + cropOffset.y,
-                              }}
-                            />
-                          );
-                        })()}
-                        {/* Dark overlay with circular cutout */}
-                        <svg className="absolute inset-0 pointer-events-none" width={CROP_SIZE} height={CROP_SIZE}>
-                          <defs>
-                            <mask id="crop-mask">
-                              <rect width={CROP_SIZE} height={CROP_SIZE} fill="white" />
-                              <circle cx={CROP_SIZE / 2} cy={CROP_SIZE / 2} r={CROP_SIZE / 2 - 2} fill="black" />
-                            </mask>
-                          </defs>
-                          <rect width={CROP_SIZE} height={CROP_SIZE} fill="rgba(0,0,0,0.5)" mask="url(#crop-mask)" />
-                          <circle cx={CROP_SIZE / 2} cy={CROP_SIZE / 2} r={CROP_SIZE / 2 - 2} fill="none" stroke="white" strokeWidth="2" />
-                        </svg>
-                      </div>
-                    </div>
-
-                    {/* Zoom slider */}
-                    <div className="flex items-center gap-3 px-4">
-                      <Minus className="h-4 w-4 text-gray-400 shrink-0" />
-                      <input
-                        type="range"
-                        min={minZoomRef.current * 1000}
-                        max={minZoomRef.current * 3000}
-                        value={cropZoom * 1000}
-                        onChange={(e) => {
-                          const newZoom = Number(e.target.value) / 1000;
-                          setCropZoom(newZoom);
-                          if (pendingImage) {
-                            const dw = pendingImage.naturalWidth * newZoom;
-                            const dh = pendingImage.naturalHeight * newZoom;
-                            const mx = Math.max(0, (dw - CROP_SIZE) / 2);
-                            const my = Math.max(0, (dh - CROP_SIZE) / 2);
-                            setCropOffset((prev) => ({
-                              x: Math.max(-mx, Math.min(mx, prev.x)),
-                              y: Math.max(-my, Math.min(my, prev.y)),
-                            }));
-                          }
-                        }}
-                        className="w-full accent-blue-600"
-                        step={1}
+                {pendingImageUrl && (
+                  <div className="p-6">
+                    <ReactCrop
+                      crop={crop}
+                      onChange={(_, percentCrop) => setCrop(percentCrop)}
+                      onComplete={(c) => setCompletedCrop(c)}
+                      aspect={1}
+                      circularCrop
+                    >
+                      <img
+                        ref={cropImgRef}
+                        src={pendingImageUrl}
+                        alt="Beskær"
+                        onLoad={onCropImageLoad}
+                        style={{ maxHeight: "60vh" }}
                       />
-                      <Plus className="h-4 w-4 text-gray-400 shrink-0" />
-                    </div>
+                    </ReactCrop>
                   </div>
                 )}
 
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => { setResizeDialogOpen(false); setPendingImage(null); }}>
+                <DialogFooter className="p-6 pt-0">
+                  <Button variant="outline" onClick={() => { setResizeDialogOpen(false); setPendingImageUrl(null); }}>
                     Annuller
                   </Button>
-                  <Button onClick={confirmAvatarUpload} disabled={uploadingAvatar}>
+                  <Button onClick={confirmAvatarUpload} disabled={uploadingAvatar || !completedCrop}>
                     {uploadingAvatar ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                         Uploader...
                       </>
                     ) : (
-                      "Upload billede"
+                      <>
+                        <Crop className="h-4 w-4 mr-2" />
+                        Beskær & upload
+                      </>
                     )}
                   </Button>
                 </DialogFooter>
