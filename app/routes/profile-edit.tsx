@@ -96,7 +96,6 @@ export function ProfileEdit() {
   // Resize dialog state
   const [resizeDialogOpen, setResizeDialogOpen] = useState(false);
   const [pendingImage, setPendingImage] = useState<{ file: File; dataUrl: string; naturalWidth: number; naturalHeight: number } | null>(null);
-  const [resizeWidth, setResizeWidth] = useState(512);
 
   // Activity posts (for stats from all sources)
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
@@ -423,9 +422,7 @@ export function ProfileEdit() {
       img.src = dataUrl;
     });
 
-    const maxW = Math.min(img.naturalWidth, 512);
     setPendingImage({ file, dataUrl, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
-    setResizeWidth(maxW);
     setResizeDialogOpen(true);
 
     if (avatarInputRef.current) avatarInputRef.current.value = "";
@@ -440,7 +437,7 @@ export function ProfileEdit() {
 
     try {
       const { dataUrl, naturalWidth, naturalHeight } = pendingImage;
-      const targetWidth = resizeWidth;
+      const targetWidth = Math.min(naturalWidth, 512);
       const scale = targetWidth / naturalWidth;
       const targetHeight = Math.round(naturalHeight * scale);
 
@@ -827,7 +824,7 @@ export function ProfileEdit() {
                 <DialogHeader>
                   <DialogTitle>Tilpas profilbillede</DialogTitle>
                   <DialogDescription>
-                    Billedet skaleres til max 512px bredde. Træk skyderen for at justere.
+                    Billedet skaleres til max 512px bredde.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -837,29 +834,13 @@ export function ProfileEdit() {
                       <img
                         src={pendingImage.dataUrl}
                         alt="Preview"
-                        className="max-h-64 rounded-lg object-contain"
-                        style={{ width: `${Math.min(resizeWidth, 320)}px` }}
+                        className="max-h-64 max-w-full rounded-lg object-contain"
                       />
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Bredde</span>
-                        <span className="font-medium">{resizeWidth} × {Math.round(pendingImage.naturalHeight * (resizeWidth / pendingImage.naturalWidth))} px</span>
-                      </div>
-                      <input
-                        type="range"
-                        min={64}
-                        max={Math.min(pendingImage.naturalWidth, 512)}
-                        value={resizeWidth}
-                        onChange={(e) => setResizeWidth(Number(e.target.value))}
-                        className="w-full accent-blue-600"
-                      />
-                      <div className="flex justify-between text-xs text-gray-400">
-                        <span>64 px</span>
-                        <span>{Math.min(pendingImage.naturalWidth, 512)} px</span>
-                      </div>
-                    </div>
+                    <p className="text-center text-sm text-gray-500">
+                      {pendingImage.naturalWidth} × {pendingImage.naturalHeight} → {Math.min(pendingImage.naturalWidth, 512)} × {Math.round(pendingImage.naturalHeight * (Math.min(pendingImage.naturalWidth, 512) / pendingImage.naturalWidth))} px
+                    </p>
                   </div>
                 )}
 
