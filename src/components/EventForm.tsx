@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import { ActivityLocationPicker } from "./ActivityLocationPicker";
 import { ActivityInterestsPicker } from "./ActivityInterestsPicker";
 import type { DateType, TimeOfDay } from "@/store/events";
@@ -190,12 +192,11 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
         {/* Specific date picker */}
         {dateType === "specific" && (
           <div className="mt-3">
-            <input
+            <Input
               type="date"
               value={eventDate}
               onChange={(e) => setEventDate(e.target.value)}
               min={new Date().toISOString().split("T")[0]}
-              className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -254,11 +255,11 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
         </div>
 
         {timeMode === "specific" && (
-          <input
+          <Input
             type="time"
             value={eventTime}
             onChange={(e) => setEventTime(e.target.value)}
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-auto"
           />
         )}
 
@@ -285,20 +286,20 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
       {/* Max participants */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Maks antal deltagere</label>
-        <input
+        <Input
           type="number"
           value={maxParticipants}
           onChange={(e) => setMaxParticipants(e.target.value)}
           placeholder="Ingen grænse"
           min={2}
-          className="w-40 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-40"
         />
       </div>
 
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
-        <input
+        <Input
           type="text"
           value={displayTitle}
           onChange={(e) => {
@@ -306,7 +307,6 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
             setTitleTouched(true);
           }}
           placeholder="F.eks. Løbetur i Fælledparken"
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
           maxLength={200}
         />
@@ -315,11 +315,11 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
       {/* Description */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Beskrivelse</label>
-        <textarea
+        <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Fortæl mere om aktiviteten..."
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[80px]"
+          className="min-h-[80px]"
           rows={3}
         />
       </div>

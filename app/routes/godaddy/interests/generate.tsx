@@ -5,6 +5,8 @@ import { supabase } from "../../../../src/lib/supabase";
 import { useState } from "react";
 import { Button } from "../../../../src/components/ui/button";
 import { Label } from "../../../../src/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { generateInterestsServerSide } from "../../api/generate-interests";
 import { ErrorCard } from "@/components/form/ErrorCard";
 import { SuccessCard } from "@/components/form/SuccessCard";
@@ -176,44 +178,44 @@ const GenerateInterests = () => {
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div>
                   <Label htmlFor="category">Kategori</Label>
-                  <select
-                    id="category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {categories.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.label}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="mt-1 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.value} value={cat.value}>
+                          {cat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <Label htmlFor="audience">Målgruppe</Label>
-                  <select
-                    id="audience"
-                    value={targetAudience}
-                    onChange={(e) => setTargetAudience(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="voksne">Voksne</option>
-                    <option value="unge">Unge/Teenagere</option>
-                    <option value="ældre">Ældre</option>
-                  </select>
+                  <Select value={targetAudience} onValueChange={setTargetAudience}>
+                    <SelectTrigger className="mt-1 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="voksne">Voksne</SelectItem>
+                      <SelectItem value="unge">Unge/Teenagere</SelectItem>
+                      <SelectItem value="ældre">Ældre</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <Label htmlFor="interestCount">Antal interesser</Label>
-                  <input
+                  <Input
                     type="number"
                     id="interestCount"
-                    min="1"
-                    max="30"
+                    min={1}
+                    max={30}
                     value={interestCount}
                     onChange={(e) => setInterestCount(parseInt(e.target.value) || 10)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-1"
                   />
                 </div>
               </div>

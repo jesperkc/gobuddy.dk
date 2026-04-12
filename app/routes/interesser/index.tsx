@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Search, Users, ArrowRight } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { supabase } from "../../../src/lib/supabase";
+import { Input } from "@/components/ui/input";
 
 interface InterestWithCount {
   interest_id: string;
@@ -95,12 +96,12 @@ function InteresserPage() {
         {/* Search */}
         <div className="relative max-w-md mx-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input
+          <Input
             type="text"
             placeholder="Søg i interesser..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="pl-10 rounded-full"
           />
         </div>
 

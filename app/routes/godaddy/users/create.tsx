@@ -5,6 +5,9 @@ import { supabase } from "../../../../src/lib/supabase";
 import { useState } from "react";
 import { Button } from "../../../../src/components/ui/button";
 import { Label } from "../../../../src/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { TextInput } from "../../../../src/components/form/TextInput";
 import { useForm, required, minLength, email } from "@modular-forms/react";
 import { InterestsPicker } from "../../../../src/components/InterestsPicker";
@@ -262,11 +265,11 @@ const CreateUser = () => {
 
               <div>
                 <Label htmlFor="bio">Bio (valgfrit)</Label>
-                <textarea
+                <Textarea
                   id="bio"
                   value={bio}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBio(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="mt-1"
                   rows={3}
                   maxLength={500}
                 />
@@ -295,53 +298,33 @@ const CreateUser = () => {
             <div className="space-y-6">
               <h3 className="text-lg font-medium text-gray-900">Rolle (valgfrit)</h3>
               <div className="space-y-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value=""
-                    checked={!role}
-                    onChange={() => setRole(undefined)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="ml-2  text-gray-700">Almindelig bruger</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="moderator"
-                    checked={role === "moderator"}
-                    onChange={() => setRole("moderator")}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="ml-2  text-gray-700">Moderator</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="admin"
-                    checked={role === "admin"}
-                    onChange={() => setRole("admin")}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="ml-2  text-gray-700">Administrator</span>
-                </label>
+                <RadioGroup value={role ?? ""} onValueChange={(value) => setRole(value === "" ? undefined : value as "moderator" | "admin")}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="" id="role-user" />
+                    <Label htmlFor="role-user" className="text-gray-700">Almindelig bruger</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="moderator" id="role-moderator" />
+                    <Label htmlFor="role-moderator" className="text-gray-700">Moderator</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="admin" id="role-admin" />
+                    <Label htmlFor="role-admin" className="text-gray-700">Administrator</Label>
+                  </div>
+                </RadioGroup>
               </div>
             </div>
 
             {/* Newsletter Subscription */}
             <div className="space-y-6">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="newsletter"
                   checked={newsletter}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewsletter(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  onCheckedChange={(checked) => setNewsletter(checked === true)}
                 />
-                <span className="ml-2  text-gray-700">Tilmeld nyhedsbrev</span>
-              </label>
+                <Label htmlFor="newsletter" className="text-gray-700">Tilmeld nyhedsbrev</Label>
+              </div>
             </div>
 
             {/* Form Actions */}

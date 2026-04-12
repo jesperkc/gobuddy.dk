@@ -9,6 +9,9 @@ import { useActivityPostsStore, type ActivityPost } from "../../src/store/activi
 import { ActivityPostCard } from "../../src/components/ActivityPostCard";
 import { Button } from "../../src/components/ui/button";
 import { Skeleton } from "../../src/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "../../src/lib/supabase";
 import { toast } from "sonner";
 
@@ -71,42 +74,42 @@ function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPos
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
-        <input
+        <Input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Hvad lavede du?"
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           required
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Beskrivelse</label>
-        <textarea
+        <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Fortæl mere om din aktivitet..."
           rows={3}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+          className="resize-none"
         />
       </div>
 
       {interests.length > 0 && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Interesse</label>
-          <select
-            value={interestId}
-            onChange={(e) => setInterestId(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Vælg interesse (valgfrit)</option>
-            {interests.map((i) => (
-              <option key={i.interest_id} value={i.interest_id}>
-                {i.icon} {i.interest_da}
-              </option>
-            ))}
-          </select>
+          <Select value={interestId} onValueChange={(value) => setInterestId(value === "__none__" ? "" : value)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Vælg interesse (valgfrit)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">Vælg interesse (valgfrit)</SelectItem>
+              {interests.map((i) => (
+                <SelectItem key={i.interest_id} value={i.interest_id}>
+                  {i.icon} {i.interest_da}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
 

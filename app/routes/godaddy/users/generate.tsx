@@ -5,6 +5,8 @@ import { supabase, adminAuthClient } from "../../../../src/lib/supabase";
 import { useState } from "react";
 import { Button } from "../../../../src/components/ui/button";
 import { Label } from "../../../../src/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { generateUsersServerSide } from "../../api/generate-users";
 import { ErrorCard } from "@/components/form/ErrorCard";
 import { SuccessCard } from "@/components/form/SuccessCard";
@@ -201,39 +203,39 @@ const GenerateUsers = () => {
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                 <div>
                   <Label htmlFor="gender">Køn</Label>
-                  <select
-                    id="gender"
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value as "mand" | "kvinde")}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="mand">Mand</option>
-                    <option value="kvinde">Kvinde</option>
-                  </select>
+                  <Select value={gender} onValueChange={(value) => setGender(value as "mand" | "kvinde")}>
+                    <SelectTrigger className="mt-1 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mand">Mand</SelectItem>
+                      <SelectItem value="kvinde">Kvinde</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
                   <Label htmlFor="city">By</Label>
-                  <input
+                  <Input
                     type="text"
                     id="city"
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-1"
                     placeholder="F.eks. København"
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="userCount">Antal brugere</Label>
-                  <input
+                  <Input
                     type="number"
                     id="userCount"
-                    min="1"
-                    max="10"
+                    min={1}
+                    max={10}
                     value={userCount}
                     onChange={(e) => setUserCount(parseInt(e.target.value) || 1)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-1"
                   />
                 </div>
               </div>

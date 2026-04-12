@@ -7,6 +7,9 @@ import { useState } from "react";
 import type { Database } from "../../../../database.types";
 import { PencilLine, Plus, Search, ShieldUser, Trash2, Users } from "lucide-react";
 import { AIIcon } from "@/components/icons";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type UserRole = Database["public"]["Enums"]["app_role"];
@@ -207,10 +210,10 @@ const UserManagement = () => {
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Search className="h-5 w-5 text-gray-400" />
                     </div>
-                    <input
+                    <Input
                       id="search"
                       name="search"
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="pl-10"
                       placeholder="Søg efter navn, email eller by..."
                       type="search"
                       value={searchTerm}
@@ -223,17 +226,16 @@ const UserManagement = () => {
                   <label htmlFor="role-filter" className="sr-only">
                     Filtrer efter rolle
                   </label>
-                  <select
-                    id="role-filter"
-                    name="role-filter"
-                    className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value as UserRole | "all")}
-                  >
-                    <option value="all">Alle roller</option>
-                    <option value="admin">Administratorer</option>
-                    <option value="moderator">Moderatorer</option>
-                  </select>
+                  <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as UserRole | "all")}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle roller</SelectItem>
+                      <SelectItem value="admin">Administratorer</SelectItem>
+                      <SelectItem value="moderator">Moderatorer</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
@@ -347,11 +349,9 @@ const UserManagement = () => {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-4 py-3 text-left">
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={filteredUsers.length > 0 && selectedIds.size === filteredUsers.length}
-                            onChange={toggleSelectAll}
-                            className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                            onCheckedChange={toggleSelectAll}
                             aria-label="Vælg alle brugere"
                           />
                         </th>
@@ -368,11 +368,9 @@ const UserManagement = () => {
                         return (
                           <tr key={user.profile_id} className={`hover:bg-gray-50 ${selectedIds.has(user.profile_id!) ? "bg-blue-50" : ""}`}>
                             <td className="px-4 py-4">
-                              <input
-                                type="checkbox"
+                              <Checkbox
                                 checked={selectedIds.has(user.profile_id!)}
-                                onChange={() => toggleSelect(user.profile_id!)}
-                                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                onCheckedChange={() => toggleSelect(user.profile_id!)}
                                 aria-label={`Vælg ${user.first_name || "bruger"}`}
                               />
                             </td>

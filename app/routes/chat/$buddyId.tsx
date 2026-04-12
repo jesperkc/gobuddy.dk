@@ -7,6 +7,7 @@ import { useAuth } from "../../../src/contexts/AuthContext";
 import { supabase } from "../../../src/lib/supabase";
 import { Button } from "../../../src/components/ui/button";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import type { Message } from "../../../src/lib/chat-types";
 
 function ChatPage() {
@@ -226,13 +227,13 @@ function ChatPage() {
 
         {/* Input */}
         <form onSubmit={handleSend} className="flex items-center gap-2 pt-3 border-t">
-          <input
+          <Input
             ref={inputRef}
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Skriv en besked..."
-            className="flex-1 px-4 py-2.5 border rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            className="flex-1 rounded-full"
             autoFocus
           />
           <Button type="submit" disabled={!newMessage.trim() || sending} size="icon" className="rounded-full h-10 w-10 shrink-0">

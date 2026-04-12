@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { RoleProtectedRoute } from "@/components/RoleProtectedRoute";
 import { AdminShell } from "@/components/AdminShell";
 import { supabase, supabaseAdmin, adminAuthClient } from "@/lib/supabase";
@@ -474,30 +476,26 @@ export function EditUser() {
 
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     id="admin-role"
                     checked={roles.includes("admin")}
-                    onChange={() => toggleRole("admin")}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    onCheckedChange={() => toggleRole("admin")}
                   />
-                  <label htmlFor="admin-role" className=" font-medium text-gray-700">
+                  <Label htmlFor="admin-role" className="font-medium text-gray-700">
                     Administrator
-                  </label>
+                  </Label>
                   <span className="text-xs text-gray-500">- Fuld adgang til alle funktioner</span>
                 </div>
 
                 <div className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     id="moderator-role"
                     checked={roles.includes("moderator")}
-                    onChange={() => toggleRole("moderator")}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    onCheckedChange={() => toggleRole("moderator")}
                   />
-                  <label htmlFor="moderator-role" className=" font-medium text-gray-700">
+                  <Label htmlFor="moderator-role" className="font-medium text-gray-700">
                     Moderator
-                  </label>
+                  </Label>
                   <span className="text-xs text-gray-500">- Kan moderere indhold og brugere</span>
                 </div>
 

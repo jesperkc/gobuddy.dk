@@ -6,6 +6,7 @@ import { supabase } from "../lib/supabase";
 import { useChatPopupStore } from "../store/chatPopup";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 import type { Message } from "../lib/chat-types";
 import { toast } from "sonner";
 
@@ -359,13 +360,13 @@ export function ChatPopup() {
         onSubmit={handleSend}
         className="flex items-center gap-2 px-3 py-2.5 border-t bg-gray-50 rounded-b-none"
       >
-        <input
+        <Input
           ref={inputRef}
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Skriv en besked..."
-          className="flex-1 px-3 py-2 border rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base bg-white"
+          className="flex-1 rounded-full bg-white"
         />
         <Button
           type="submit"

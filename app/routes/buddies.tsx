@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState, useMemo } from "react";
 import { Search, MapPin, Frown } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
@@ -10,7 +11,6 @@ import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
 import { BuddyCard, type BuddyProfile, type RawBuddyRow, type RelatedInterestInfo, mapBuddyRow } from "../../src/components/BuddyCard";
 import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
-
 
 function DiscoverPage() {
   const { user } = useAuth();
@@ -31,16 +31,12 @@ function DiscoverPage() {
 
   const myInterestIds = useMemo(() => {
     if (!profile?.user_interests) return new Set<string>();
-    return new Set(
-      profile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id),
-    );
+    return new Set(profile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id));
   }, [profile]);
 
   const myNonInterestIds = useMemo(() => {
     if (!profile?.user_interests) return new Set<string>();
-    return new Set(
-      profile.user_interests.filter((i) => i.is_non_interest).map((i) => i.interest_id),
-    );
+    return new Set(profile.user_interests.filter((i) => i.is_non_interest).map((i) => i.interest_id));
   }, [profile]);
 
   const myLat = profile?.latitude;
@@ -87,23 +83,12 @@ function DiscoverPage() {
                   category
                 )
               )
-            `
+            `,
             )
             .neq("profile_id", user!.id),
-          supabase
-            .from("interest_relations")
-            .select("interest_id_a, interest_id_b, score")
-            .in("interest_id_a", myIds)
-            .gte("score", 0.5),
-          supabase
-            .from("interest_relations")
-            .select("interest_id_a, interest_id_b, score")
-            .in("interest_id_b", myIds)
-            .gte("score", 0.5),
-          supabase
-            .from("hi5s")
-            .select("receiver_id")
-            .eq("sender_id", user!.id),
+          supabase.from("interest_relations").select("interest_id_a, interest_id_b, score").in("interest_id_a", myIds).gte("score", 0.5),
+          supabase.from("interest_relations").select("interest_id_a, interest_id_b, score").in("interest_id_b", myIds).gte("score", 0.5),
+          supabase.from("hi5s").select("receiver_id").eq("sender_id", user!.id),
         ]);
 
         if (profilesResult.error) throw profilesResult.error;
@@ -114,10 +99,7 @@ function DiscoverPage() {
 
         // Build map: my interest_id → Set of related interest_ids
         const myToRelated = new Map<string, Set<string>>();
-        const allRelations = [
-          ...(relationsAResult.data || []),
-          ...(relationsBResult.data || []),
-        ];
+        const allRelations = [...(relationsAResult.data || []), ...(relationsBResult.data || [])];
 
         for (const rel of allRelations) {
           const myId = myInterestIds.has(rel.interest_id_a) ? rel.interest_id_a : rel.interest_id_b;
@@ -138,11 +120,7 @@ function DiscoverPage() {
 
         const mapped = rows
           .map(mapBuddyRow)
-          .filter((b) =>
-            b.interests.some(
-              (i) => myInterestIds.has(i.interest_id) || allRelatedIds.has(i.interest_id)
-            )
-          );
+          .filter((b) => b.interests.some((i) => myInterestIds.has(i.interest_id) || allRelatedIds.has(i.interest_id)));
 
         // Build per-buddy related interests map
         const buddyRelatedMap = new Map<string, Map<string, RelatedInterestInfo[]>>();
@@ -195,14 +173,8 @@ function DiscoverPage() {
 
       // Default: closest first, then by shared interest score as tiebreaker
       if (myLat != null && myLng != null) {
-        const distA =
-          a.latitude != null && a.longitude != null
-            ? haversineDistance(myLat, myLng, a.latitude, a.longitude)
-            : Infinity;
-        const distB =
-          b.latitude != null && b.longitude != null
-            ? haversineDistance(myLat, myLng, b.latitude, b.longitude)
-            : Infinity;
+        const distA = a.latitude != null && a.longitude != null ? haversineDistance(myLat, myLng, a.latitude, a.longitude) : Infinity;
+        const distB = b.latitude != null && b.longitude != null ? haversineDistance(myLat, myLng, b.latitude, b.longitude) : Infinity;
         if (distA !== distB) return distA - distB;
       }
 
@@ -217,16 +189,10 @@ function DiscoverPage() {
     });
   }, [buddies, sortMode, myInterestIds, myLat, myLng, relatedMap]);
 
-  const visibleBuddies = useMemo(
-    () => sortedBuddies.slice(0, visibleCount),
-    [sortedBuddies, visibleCount]
-  );
+  const visibleBuddies = useMemo(() => sortedBuddies.slice(0, visibleCount), [sortedBuddies, visibleCount]);
 
   function getDistance(buddy: BuddyProfile): number | null {
-    if (
-      myLat == null || myLng == null ||
-      buddy.latitude == null || buddy.longitude == null
-    ) {
+    if (myLat == null || myLng == null || buddy.latitude == null || buddy.longitude == null) {
       return null;
     }
     return haversineDistance(myLat, myLng, buddy.latitude, buddy.longitude);
@@ -241,9 +207,7 @@ function DiscoverPage() {
         {/* Header */}
         <div>
           <PageTitle>Find buddies</PageTitle>
-          <p className="text-gray-500 mt-1">
-            Folk i nærheden der deler dine interesser
-          </p>
+          <p className="text-gray-500 mt-1">Folk i nærheden der deler dine interesser</p>
         </div>
 
         {/* Missing profile data warnings */}
@@ -251,9 +215,7 @@ function DiscoverPage() {
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-center">
             <Search className="w-8 h-8 text-amber-500 mx-auto mb-2" />
             <p className="font-medium">Tilføj interesser først</p>
-            <p className="text-sm text-gray-600 mt-1">
-              Vi kan kun finde buddies, hvis du har valgt mindst én interesse.
-            </p>
+            <p className="text-sm text-gray-600 mt-1">Vi kan kun finde buddies, hvis du har valgt mindst én interesse.</p>
           </div>
         )}
 
@@ -265,20 +227,13 @@ function DiscoverPage() {
         )}
 
         {/* Error */}
-        {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
 
         {/* Loading */}
         {loading && (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="rounded-xl border p-5 animate-pulse"
-              >
+              <div key={i} className="rounded-xl border p-5 animate-pulse">
                 <div className="flex items-start gap-4">
                   <div className="h-12 w-12 rounded-full bg-gray-200" />
                   <div className="flex-1 space-y-2">
@@ -302,22 +257,29 @@ function DiscoverPage() {
               <p className="text-sm text-gray-500">
                 {sortedBuddies.length} {sortedBuddies.length === 1 ? "buddy" : "buddies"} fundet
                 {hasLocation && myCity && (
-                  <span> · Afstand fra <span className="font-medium text-gray-700">{myCity}</span></span>
+                  <span>
+                    {" "}
+                    · Afstand fra <span className="font-medium text-gray-700">{myCity}</span>
+                  </span>
                 )}
               </p>
 
               {/* Sort dropdown */}
-              <select
+              <Select
                 value={sortMode}
-                onChange={(e) => {
-                  setSortMode(e.target.value as "interests" | "newest");
+                onValueChange={(value: "interests" | "newest") => {
+                  setSortMode(value);
                   setVisibleCount(12);
                 }}
-                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="interests">Flest fælles interesser</option>
-                <option value="newest">Nyeste</option>
-              </select>
+                <SelectTrigger className="w-auto text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="interests">Flest fælles interesser</SelectItem>
+                  <SelectItem value="newest">Nyeste</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -354,8 +316,7 @@ function DiscoverPage() {
             <Frown className="w-10 h-10 text-gray-400 mx-auto mb-3" />
             <h2 className="text-lg font-medium mb-1">Ingen buddies fundet endnu</h2>
             <p className="text-gray-500 text-sm max-w-sm mx-auto">
-              Der er ingen andre brugere med fælles interesser lige nu.
-              Tjek tilbage senere — der kommer hele tiden nye buddies til!
+              Der er ingen andre brugere med fælles interesser lige nu. Tjek tilbage senere — der kommer hele tiden nye buddies til!
             </p>
           </div>
         )}

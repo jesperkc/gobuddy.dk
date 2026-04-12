@@ -8,6 +8,9 @@ import { useMemo, useState } from "react";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { supabase } from "../../src/lib/supabase";
 import { Button } from "../../src/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { isBrowser, safeWindow } from "../../src/lib/ssr-utils";
 import { OnboardingStepper } from "@/components/OnboardingStepper";
 
@@ -109,28 +112,26 @@ function Signup() {
         <ErrorBanner message={error} />
         <form onSubmit={handleSignup} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block  font-medium text-gray-700 mb-2">
+            <Label htmlFor="email" className="block font-medium text-gray-700 mb-2">
               Email
-            </label>
-            <input
+            </Label>
+            <Input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
           </div>
           <div>
-            <label htmlFor="password" className="block font-medium text-gray-700 mb-2">
+            <Label htmlFor="password" className="block font-medium text-gray-700 mb-2">
               Adgangskode
-            </label>
-            <input
+            </Label>
+            <Input
               type="password"
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
               minLength={6}
             />
@@ -165,30 +166,29 @@ function Signup() {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block font-medium text-gray-700 mb-2">
+            <Label htmlFor="confirmPassword" className="block font-medium text-gray-700 mb-2">
               Bekræft adgangskode
-            </label>
-            <input
+            </Label>
+            <Input
               type="password"
               id="confirmPassword"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
               minLength={6}
             />
           </div>
 
-          <label htmlFor="newsletter" className="flex items-center gap-3 cursor-pointer select-none">
-            <input
+          <div className="flex items-center gap-3">
+            <Checkbox
               id="newsletter"
-              type="checkbox"
               checked={newsletter}
-              onChange={(e) => setNewsletter(e.target.checked)}
-              className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 accent-blue-600 cursor-pointer"
+              onCheckedChange={(checked) => setNewsletter(checked === true)}
             />
-            <span className="text-gray-600">Modtag vores nyhedsbrev</span>
-          </label>
+            <Label htmlFor="newsletter" className="text-gray-600 cursor-pointer select-none">
+              Modtag vores nyhedsbrev
+            </Label>
+          </div>
           <Button type="submit" disabled={isLoading} variant={"glow"} size={"xl"} className="w-full">
             {isLoading ? (
               <>
