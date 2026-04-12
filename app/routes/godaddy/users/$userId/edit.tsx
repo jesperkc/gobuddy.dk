@@ -1,38 +1,27 @@
 import { useState, useEffect } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Trash2 } from "lucide-react";
-import { Button } from "../../../../../src/components/ui/button";
-import { TextInput } from "../../../../../src/components/form/TextInput";
-import { required, useForm } from "@modular-forms/react";
-import { RoleProtectedRoute } from "../../../../../src/components/RoleProtectedRoute";
-import { AdminShell } from "../../../../../src/components/AdminShell";
-import { supabase, supabaseAdmin, adminAuthClient } from "../../../../../src/lib/supabase";
-import { IAddress, LocationPicker } from "../../../../../src/components/LocationPicker";
-import { InterestsPicker } from "../../../../../src/components/InterestsPicker";
-import { fetchProfileWithInterests } from "../../../../../src/lib/fetchProfileWithInterests";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { RoleProtectedRoute } from "@/components/RoleProtectedRoute";
+import { AdminShell } from "@/components/AdminShell";
+import { supabase, supabaseAdmin, adminAuthClient } from "@/lib/supabase";
+import { IAddress } from "@/components/LocationPicker";
+import { fetchProfileWithInterests } from "@/lib/fetchProfileWithInterests";
 import type { Database } from "../../../../../database.types";
+import { toast } from "sonner";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+  ProfileTabBar,
+  AvatarEditor,
+  DetailsTabPanel,
+  InterestsTabPanel,
+  LocationTabPanel,
+  SaveButton,
+  type DetailsFormValues,
+} from "@/components/profile-edit";
 
 type UserRole = Database["public"]["Enums"]["app_role"];
 
-// Use database types for accurate typing
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-
-// Form interfaces
-type DetailsForm = {
-  first_name: string;
-  last_name: string;
-  age: number | undefined;
-  email: string;
-};
 
 type TabType = "details" | "interests" | "location" | "roles";
 
@@ -51,8 +40,12 @@ export function EditUser() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Avatar state
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
   // Form states for editing
   const [selectedInterestsWithDescriptions, setSelectedInterestsWithDescriptions] = useState<Record<string, string>>({});
+  const [selectedNonInterests, setSelectedNonInterests] = useState<Set<string>>(new Set());
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | undefined>();
   const [address, setAddress] = useState<IAddress>({
     postcode: "",
@@ -61,30 +54,26 @@ export function EditUser() {
     country_code: "",
   });
 
-  // Form setup for details
-  const [, { Form, Field }] = useForm<DetailsForm>({
-    initialValues: {
-      first_name: profileData?.profile?.first_name || "",
-      last_name: profileData?.profile?.last_name || "",
-      age: profileData?.profile?.age || undefined,
-      email: profileData?.profile?.email || "",
-    },
-  });
-
   useEffect(() => {
     const handleData = async () => {
       if (!profileData) return;
 
       try {
-        // Cast to Profile type since fetchProfileWithInterests returns UserProfile
         setProfile(profileData.profile as Profile);
+        setAvatarUrl(profileData.profile.avatar_url || null);
 
-        // Initialize selected interests with descriptions
+        // Initialize selected interests and non-interests
         const interestsWithDescriptions: Record<string, string> = {};
+        const nonInterestIds = new Set<string>();
         profileData.interests.forEach((interest) => {
-          interestsWithDescriptions[interest.interest_id] = interest.description || "";
+          if (interest.is_non_interest) {
+            nonInterestIds.add(interest.interest_id);
+          } else {
+            interestsWithDescriptions[interest.interest_id] = interest.description || "";
+          }
         });
         setSelectedInterestsWithDescriptions(interestsWithDescriptions);
+        setSelectedNonInterests(nonInterestIds);
 
         // Set initial location data
         if (profileData.profile.city) {
@@ -119,7 +108,7 @@ export function EditUser() {
   ];
 
   // Save functions
-  const saveDetails = async (values: DetailsForm) => {
+  const saveDetails = async (values: DetailsFormValues) => {
     if (!profile) return;
 
     try {
@@ -130,20 +119,18 @@ export function EditUser() {
           first_name: values.first_name,
           last_name: values.last_name,
           age: values.age,
-          // email: values.email,
         })
         .eq("profile_id", profile.profile_id);
 
       if (error) throw error;
 
-      // Update local state
       setProfile({
         ...profile,
         first_name: values.first_name,
         last_name: values.last_name,
         age: values.age === undefined ? null : values.age,
-        // email: values.email,
       });
+      toast.success("Detaljer gemt!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fejl ved gemning af detaljer");
     } finally {
@@ -160,19 +147,32 @@ export function EditUser() {
       // Delete existing interests
       await supabase.from("user_interests").delete().eq("profile_id", profile.profile_id);
 
-      // Insert new interests with descriptions
-      const selectedInterestIds = Object.keys(selectedInterestsWithDescriptions);
-      if (selectedInterestIds.length > 0) {
-        const interestData = selectedInterestIds.map((interestId) => ({
+      // Build rows for both interests and non-interests
+      const rows: { profile_id: string; interest_id: string; description: string; is_non_interest: boolean }[] = [];
+
+      for (const [interestId, description] of Object.entries(selectedInterestsWithDescriptions)) {
+        rows.push({
           profile_id: profile.profile_id,
           interest_id: interestId,
-          description: selectedInterestsWithDescriptions[interestId] || "",
-        }));
+          description: description || "",
+          is_non_interest: false,
+        });
+      }
 
-        const { error } = await supabase.from("user_interests").insert(interestData);
+      for (const interestId of selectedNonInterests) {
+        rows.push({
+          profile_id: profile.profile_id,
+          interest_id: interestId,
+          description: "",
+          is_non_interest: true,
+        });
+      }
 
+      if (rows.length > 0) {
+        const { error } = await supabase.from("user_interests").insert(rows);
         if (error) throw error;
       }
+      toast.success("Interesser gemt!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fejl ved gemning af interesser");
     } finally {
@@ -198,7 +198,6 @@ export function EditUser() {
 
       if (error) throw error;
 
-      // Update local state
       setProfile({
         ...profile,
         city: address.city,
@@ -208,6 +207,7 @@ export function EditUser() {
         latitude: coordinates?.lat || null,
         longitude: coordinates?.lng || null,
       });
+      toast.success("Placering gemt!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fejl ved gemning af placering");
     } finally {
@@ -221,10 +221,8 @@ export function EditUser() {
     try {
       setSaving(true);
 
-      // Delete existing roles
       await supabase.from("user_roles").delete().eq("user_id", profile.profile_id);
 
-      // Insert new roles
       if (roles.length > 0) {
         const roleData = roles.map((role) => ({
           user_id: profile.profile_id,
@@ -234,6 +232,7 @@ export function EditUser() {
         const { error } = await supabase.from("user_roles").insert(roleData);
         if (error) throw error;
       }
+      toast.success("Roller gemt!");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Fejl ved gemning af roller");
     } finally {
@@ -243,6 +242,12 @@ export function EditUser() {
 
   // Interest management functions
   const toggleInterest = (interestId: string) => {
+    if (selectedNonInterests.has(interestId)) {
+      const next = new Set(selectedNonInterests);
+      next.delete(interestId);
+      setSelectedNonInterests(next);
+    }
+
     const newSelection = { ...selectedInterestsWithDescriptions };
     if (interestId in newSelection) {
       delete newSelection[interestId];
@@ -250,6 +255,22 @@ export function EditUser() {
       newSelection[interestId] = "";
     }
     setSelectedInterestsWithDescriptions(newSelection);
+  };
+
+  const toggleNonInterest = (interestId: string) => {
+    if (interestId in selectedInterestsWithDescriptions) {
+      const newSelection = { ...selectedInterestsWithDescriptions };
+      delete newSelection[interestId];
+      setSelectedInterestsWithDescriptions(newSelection);
+    }
+
+    const next = new Set(selectedNonInterests);
+    if (next.has(interestId)) {
+      next.delete(interestId);
+    } else {
+      next.add(interestId);
+    }
+    setSelectedNonInterests(next);
   };
 
   const updateInterestDescription = (interestId: string, description: string) => {
@@ -385,153 +406,67 @@ export function EditUser() {
         {error && <div role="alert" className="bg-red-50 text-red-600 p-4 rounded-lg mb-6">{error}</div>}
 
         {/* Tabs */}
-        <div className="border-b border-gray-200 mb-6">
-          <nav className="-mb-px flex space-x-8 overflow-x-auto">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium  ${
-                  activeTab === tab.id
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </nav>
+        <div className="mb-6">
+          <ProfileTabBar
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(id) => setActiveTab(id as TabType)}
+            ariaLabel="Bruger sektioner"
+          />
         </div>
 
         {/* Tab Content */}
-        <div className="bg-white shadow rounded-lg p-6">
-          {/* Details Tab */}
+        <div role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`} className="bg-white shadow rounded-lg p-6">
           {activeTab === "details" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Personlige oplysninger</h2>
-              <Form onSubmit={saveDetails} className="space-y-6">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  <Field name="first_name" validate={[required("Indtast venligst et fornavn")]}>
-                    {(field, props) => (
-                      <TextInput
-                        {...props}
-                        value={field.value}
-                        error={field.error}
-                        type="text"
-                        label="Fornavn"
-                        placeholder="Indtast fornavn"
-                        required
-                      />
-                    )}
-                  </Field>
-                  <Field name="last_name" validate={[required("Indtast venligst et efternavn")]}>
-                    {(field, props) => (
-                      <TextInput
-                        {...props}
-                        value={field.value}
-                        error={field.error}
-                        type="text"
-                        label="Efternavn"
-                        placeholder="Indtast efternavn"
-                        required
-                      />
-                    )}
-                  </Field>
-                </div>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  {/* <Field name="email" validate={[required("Indtast venligst en email")]}>
-                    {(field, props) => (
-                      <TextInput
-                        {...props}
-                        value={field.value}
-                        error={field.error}
-                        type="email"
-                        label="Email"
-                        placeholder="Indtast email"
-                        required
-                      />
-                    )}
-                  </Field> */}
-                  <Field name="age" type="number">
-                    {(field, props) => (
-                      <TextInput
-                        {...props}
-                        value={field.value}
-                        error={field.error}
-                        type="number"
-                        label="Alder"
-                        placeholder="Indtast alder"
-                      />
-                    )}
-                  </Field>
-                </div>
-                <div className="flex justify-end">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Gemmer...
-                      </>
-                    ) : (
-                      <>Gem ændringer</>
-                    )}
-                  </Button>
-                </div>
-              </Form>
-            </div>
+            <DetailsTabPanel
+              initialValues={{
+                first_name: profileData?.profile?.first_name || "",
+                age: profileData?.profile?.age || undefined,
+              }}
+              onSave={saveDetails}
+              saving={saving}
+            >
+              {profile && (
+                <AvatarEditor
+                  profileId={profile.profile_id}
+                  avatarUrl={avatarUrl}
+                  onAvatarChange={(url) => {
+                    setAvatarUrl(url);
+                    if (profile) setProfile({ ...profile, avatar_url: url });
+                  }}
+                  profileName={profile.first_name || undefined}
+                  client={supabaseAdmin}
+                />
+              )}
+            </DetailsTabPanel>
           )}
 
-          {/* Interests Tab */}
           {activeTab === "interests" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Interesser</h2>
-              <p className="text-gray-600 mb-6">Administrer brugerens interesser</p>
-
-              <InterestsPicker
-                selectedInterestsWithDescriptions={selectedInterestsWithDescriptions}
-                toggleInterest={toggleInterest}
-                removeInterest={removeInterest}
-                updateInterestDescription={updateInterestDescription}
-              />
-              <div className="flex justify-end">
-                <Button onClick={saveInterests} disabled={saving}>
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Gemmer...
-                    </>
-                  ) : (
-                    <>Gem ændringer</>
-                  )}
-                </Button>
-              </div>
-            </div>
+            <InterestsTabPanel
+              selectedInterestsWithDescriptions={selectedInterestsWithDescriptions}
+              toggleInterest={toggleInterest}
+              removeInterest={removeInterest}
+              updateInterestDescription={updateInterestDescription}
+              onSave={saveInterests}
+              saving={saving}
+              showNonInterests
+              selectedNonInterests={selectedNonInterests}
+              toggleNonInterest={toggleNonInterest}
+            />
           )}
 
-          {/* Location Tab */}
           {activeTab === "location" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Placering</h2>
-              <p className="text-gray-600 mb-6">Administrer brugerens placering</p>
-
-              <LocationPicker coordinates={coordinates} setAddress={setAddress} setCoordinates={setCoordinates} />
-
-              <div className="flex justify-end">
-                <Button onClick={saveLocation} disabled={saving || !address.city}>
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Gemmer...
-                    </>
-                  ) : (
-                    <>Gem ændringer</>
-                  )}
-                </Button>
-              </div>
-            </div>
+            <LocationTabPanel
+              coordinates={coordinates}
+              address={address}
+              setAddress={setAddress}
+              setCoordinates={setCoordinates}
+              onSave={saveLocation}
+              saving={saving}
+            />
           )}
 
-          {/* Roles Tab */}
+          {/* Roles Tab — admin-only */}
           {activeTab === "roles" && (
             <div>
               <h2 className="text-2xl font-bold mb-6">Brugerroller</h2>
@@ -571,17 +506,8 @@ export function EditUser() {
                 )}
               </div>
 
-              <div className="flex justify-end mt-6">
-                <Button onClick={saveRoles} disabled={saving}>
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Gemmer...
-                    </>
-                  ) : (
-                    <>Gem ændringer</>
-                  )}
-                </Button>
+              <div className="mt-6">
+                <SaveButton onClick={saveRoles} saving={saving} />
               </div>
             </div>
           )}

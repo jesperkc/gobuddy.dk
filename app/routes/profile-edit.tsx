@@ -1,21 +1,13 @@
-import { useState, useEffect, useRef, useCallback, type SyntheticEvent } from "react";
+import { useState, useEffect } from "react";
 import { PageTitle } from "@/components/PageTitle";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Ban, Camera, Check, Crop, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Trash2, Zap } from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import ReactCrop, { centerCrop, makeAspectCrop, type Crop as CropType, type PixelCrop } from "react-image-crop";
-import "react-image-crop/dist/ReactCrop.css";
-import { TextInput } from "@/components/form/TextInput";
-import { required, useForm } from "@modular-forms/react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
-import { IAddress, LocationPicker } from "@/components/LocationPicker";
+import { IAddress } from "@/components/LocationPicker";
 import { DefaultLayout } from "@/components/AppShell";
-import { InterestsPicker } from "@/components/InterestsPicker";
-import { NonInterestsPicker } from "@/components/NonInterestsPicker";
 import { fetchProfileWithInterests } from "../../src/lib/fetchProfileWithInterests";
 import { toast } from "sonner";
 import { ErrorBanner } from "@/components/ErrorBanner";
@@ -31,29 +23,15 @@ import {
   type StravaStats,
   type StravaAthlete,
 } from "@/lib/strava";
-
-// Reuse interfaces from profile.tsx
-export interface UserProfile {
-  profile_id: string;
-  first_name: string | null;
-  last_name?: string | null;
-  age: number | null;
-  email: string | null;
-  city: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  postcode: string | null;
-  country: string | null;
-  country_code: string | null;
-  avatar_url?: string | null;
-  created_at: string | null;
-}
-
-// Form interfaces
-type DetailsForm = {
-  first_name: string;
-  age: number | undefined;
-};
+import {
+  ProfileTabBar,
+  AvatarEditor,
+  DetailsTabPanel,
+  InterestsTabPanel,
+  LocationTabPanel,
+  type UserProfile,
+  type DetailsFormValues,
+} from "@/components/profile-edit";
 
 type TabType = "details" | "interests" | "location" | "connections";
 
@@ -92,15 +70,6 @@ export function ProfileEdit() {
 
   // Avatar state
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const avatarInputRef = useRef<HTMLInputElement>(null);
-
-  // Crop dialog state
-  const [resizeDialogOpen, setResizeDialogOpen] = useState(false);
-  const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null);
-  const [crop, setCrop] = useState<CropType>();
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const cropImgRef = useRef<HTMLImageElement>(null);
 
   // Activity posts (for stats from all sources)
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
@@ -114,14 +83,6 @@ export function ProfileEdit() {
     city: "",
     country: "",
     country_code: "",
-  });
-
-  // Form setup for details
-  const [, { Form, Field }] = useForm<DetailsForm>({
-    initialValues: {
-      first_name: profileData?.profile?.first_name || "",
-      age: profileData?.profile.age || undefined,
-    },
   });
 
   useEffect(() => {
@@ -400,138 +361,6 @@ export function ProfileEdit() {
     }
   };
 
-  // Avatar file picker — opens crop dialog
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user?.id) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Filen skal være et billede");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Billedet må max være 5 MB");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPendingImageUrl(reader.result as string);
-      setCrop(undefined);
-      setCompletedCrop(undefined);
-      setResizeDialogOpen(true);
-    };
-    reader.readAsDataURL(file);
-    if (avatarInputRef.current) avatarInputRef.current.value = "";
-  };
-
-  // Set initial centered crop when image loads in the dialog
-  const onCropImageLoad = (e: SyntheticEvent<HTMLImageElement>) => {
-    const { width, height } = e.currentTarget;
-    const initialCrop = centerCrop(
-      makeAspectCrop({ unit: "%", width: 80 }, 1, width, height),
-      width,
-      height,
-    );
-    setCrop(initialCrop);
-  };
-
-  // Crop and upload
-  const confirmAvatarUpload = async () => {
-    if (!cropImgRef.current || !completedCrop || !user?.id) return;
-
-    setUploadingAvatar(true);
-    setResizeDialogOpen(false);
-
-    try {
-      const image = cropImgRef.current;
-      const scaleX = image.naturalWidth / image.width;
-      const scaleY = image.naturalHeight / image.height;
-
-      const sx = completedCrop.x * scaleX;
-      const sy = completedCrop.y * scaleY;
-      const sw = completedCrop.width * scaleX;
-      const sh = completedCrop.height * scaleY;
-
-      const outSize = Math.min(512, Math.round(sw));
-      const canvas = document.createElement("canvas");
-      canvas.width = outSize;
-      canvas.height = outSize;
-      const ctx = canvas.getContext("2d")!;
-
-      ctx.drawImage(image, sx, sy, sw, sh, 0, 0, outSize, outSize);
-
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))), "image/webp", 0.85);
-      });
-
-      const filePath = `${user.id}/avatar.webp`;
-
-      const { data: existing } = await supabase.storage.from("avatars").list(user.id);
-      if (existing && existing.length > 0) {
-        await supabase.storage.from("avatars").remove(existing.map((f) => `${user.id}/${f.name}`));
-      }
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(filePath, blob, { upsert: true, contentType: "image/webp" });
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
-      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ avatar_url: publicUrl })
-        .eq("profile_id", user.id);
-      if (updateError) throw updateError;
-
-      setAvatarUrl(publicUrl);
-      if (profile) setProfile({ ...profile, avatar_url: publicUrl });
-      toast.success("Profilbillede opdateret!");
-    } catch (err) {
-      console.error("Avatar upload error:", err);
-      toast.error("Kunne ikke uploade billede");
-    } finally {
-      setUploadingAvatar(false);
-      setPendingImageUrl(null);
-    }
-  };
-
-  // Avatar delete handler
-  const handleAvatarDelete = async () => {
-    if (!user?.id) return;
-
-    setUploadingAvatar(true);
-    try {
-      // Remove all files in user's avatar folder
-      const { data: existing } = await supabase.storage
-        .from("avatars")
-        .list(user.id);
-      if (existing && existing.length > 0) {
-        await supabase.storage
-          .from("avatars")
-          .remove(existing.map((f) => `${user.id}/${f.name}`));
-      }
-
-      // Clear from profile
-      const { error } = await supabase
-        .from("profiles")
-        .update({ avatar_url: null })
-        .eq("profile_id", user.id);
-      if (error) throw error;
-
-      setAvatarUrl(null);
-      if (profile) setProfile({ ...profile, avatar_url: null });
-      toast.success("Profilbillede fjernet");
-    } catch (err) {
-      console.error("Avatar delete error:", err);
-      toast.error("Kunne ikke fjerne billede");
-    } finally {
-      setUploadingAvatar(false);
-    }
-  };
-
   // Tab navigation
   const tabs = [
     { id: "details" as TabType, label: "Personlige oplysninger" },
@@ -540,30 +369,8 @@ export function ProfileEdit() {
     { id: "connections" as TabType, label: "Tilslutninger" },
   ];
 
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  const handleTabKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      const currentIndex = tabs.findIndex((t) => t.id === activeTab);
-      let nextIndex: number | null = null;
-
-      if (e.key === "ArrowRight") {
-        nextIndex = (currentIndex + 1) % tabs.length;
-      } else if (e.key === "ArrowLeft") {
-        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
-      }
-
-      if (nextIndex !== null) {
-        e.preventDefault();
-        setActiveTab(tabs[nextIndex].id);
-        tabRefs.current[nextIndex]?.focus();
-      }
-    },
-    [activeTab, tabs],
-  );
-
   // Save functions
-  const saveDetails = async (values: DetailsForm) => {
+  const saveDetails = async (values: DetailsFormValues) => {
     if (!user || !profile) return;
 
     try {
@@ -738,251 +545,60 @@ export function ProfileEdit() {
 
       <ErrorBanner message={error} />
 
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <div role="tablist" aria-label="Profil sektioner" className="-mb-px flex space-x-8 overflow-x-auto">
-          {tabs.map((tab, index) => (
-            <button
-              key={tab.id}
-              ref={(el) => { tabRefs.current[index] = el; }}
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`tabpanel-${tab.id}`}
-              id={`tab-${tab.id}`}
-              tabIndex={activeTab === tab.id ? 0 : -1}
-              onClick={() => setActiveTab(tab.id)}
-              onKeyDown={handleTabKeyDown}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium  ${
-                activeTab === tab.id
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ProfileTabBar
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(id) => setActiveTab(id as TabType)}
+      />
 
       {/* Tab Content */}
       <div role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
-        {/* Details Tab */}
         {activeTab === "details" && (
-          <div className="space-y-8">
-            {/* Avatar upload */}
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Profilbillede</h2>
-              <div className="flex items-center gap-6">
-                <div className="relative group">
-                  <Avatar className="h-24 w-24 text-3xl">
-                    {avatarUrl && (
-                      <AvatarImage src={avatarUrl} alt={profile?.first_name || ""} />
-                    )}
-                    <AvatarFallback className="bg-blue-100 text-blue-700">
-                      {profile?.first_name?.slice(0, 2).toUpperCase() || "?"}
-                    </AvatarFallback>
-                  </Avatar>
-                  {uploadingAvatar && (
-                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
-                      <Loader2 className="h-6 w-6 animate-spin text-white" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <input
-                    ref={avatarInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleAvatarUpload}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={uploadingAvatar}
-                    onClick={() => avatarInputRef.current?.click()}
-                  >
-                    <Camera className="h-4 w-4 mr-2" />
-                    {avatarUrl ? "Skift billede" : "Upload billede"}
-                  </Button>
-                  {avatarUrl && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      disabled={uploadingAvatar}
-                      onClick={handleAvatarDelete}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Fjern billede
-                    </Button>
-                  )}
-                  <p className="text-xs text-gray-400">Max 5 MB · JPG, PNG, WebP</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Crop dialog */}
-            <Dialog open={resizeDialogOpen} onOpenChange={(open) => { if (!open) { setPendingImageUrl(null); } setResizeDialogOpen(open); }}>
-              <DialogContent className="p-0 gap-0">
-                <DialogHeader className="p-6 pb-0">
-                  <DialogTitle>Beskær profilbillede</DialogTitle>
-                </DialogHeader>
-
-                {pendingImageUrl && (
-                  <div className="p-6">
-                    <ReactCrop
-                      crop={crop}
-                      onChange={(_, percentCrop) => setCrop(percentCrop)}
-                      onComplete={(c) => setCompletedCrop(c)}
-                      aspect={1}
-                    >
-                      <img
-                        ref={cropImgRef}
-                        src={pendingImageUrl}
-                        alt="Beskær"
-                        onLoad={onCropImageLoad}
-                        style={{ maxHeight: "60vh" }}
-                      />
-                    </ReactCrop>
-                  </div>
-                )}
-
-                <DialogFooter className="p-6 pt-0">
-                  <Button variant="outline" onClick={() => { setResizeDialogOpen(false); setPendingImageUrl(null); }}>
-                    Annuller
-                  </Button>
-                  <Button onClick={confirmAvatarUpload} disabled={uploadingAvatar || !completedCrop}>
-                    {uploadingAvatar ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Uploader...
-                      </>
-                    ) : (
-                      <>
-                        <Crop className="h-4 w-4 mr-2" />
-                        Beskær & upload
-                      </>
-                    )}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-            {/* Name + age form */}
-            <div>
-              <h2 className="text-2xl font-bold mb-6">Personlige oplysninger</h2>
-              <Form onSubmit={saveDetails} className="space-y-6">
-              <Field name="first_name" validate={[required("Indtast venligst et navn")]}>
-                {(field, props) => (
-                  <TextInput
-                    {...props}
-                    value={field.value}
-                    error={field.error}
-                    type="text"
-                    // id="edit-name"
-                    label="Hvad er dit navn?"
-                    placeholder="Indtast et navn"
-                    required
-                  />
-                )}
-              </Field>
-              <Field name="age" type="number" validate={[required("Indtast venligst din alder")]}>
-                {(field, props) => (
-                  <TextInput
-                    {...props}
-                    value={field.value}
-                    error={field.error}
-                    type="number"
-                    label="Hvad er din alder?"
-                    placeholder="Indtast din alder"
-                    required
-                  />
-                )}
-              </Field>
-              <div className="flex justify-end">
-                <Button type="submit" disabled={saving}>
-                  {saving ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Gemmer...
-                    </>
-                  ) : (
-                    <>Gem ændringer</>
-                  )}
-                </Button>
-              </div>
-            </Form>
-            </div>
-          </div>
-        )}
-
-        {/* Interests Tab */}
-        {activeTab === "interests" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Interesser</h2>
-            <p className="text-gray-600 mb-6">Vælg dine interesser</p>
-
-            <InterestsPicker
-              selectedInterestsWithDescriptions={selectedInterestsWithDescriptions}
-              toggleInterest={toggleInterest}
-              removeInterest={removeInterest}
-              updateInterestDescription={updateInterestDescription}
-              disabledInterestIds={selectedNonInterests}
-            />
-
-            <div className="border-t border-gray-200 mt-8 pt-8">
-              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Ban className="w-6 h-6 text-red-500" />
-                Ikke-interesser
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Vælg de ting du <strong>ikke</strong> er interesseret i — det hjælper med at finde bedre matches
-              </p>
-
-              <NonInterestsPicker
-                selectedNonInterests={selectedNonInterests}
-                toggleNonInterest={toggleNonInterest}
-                disabledInterestIds={new Set(Object.keys(selectedInterestsWithDescriptions))}
+          <DetailsTabPanel
+            initialValues={{
+              first_name: profileData?.profile?.first_name || "",
+              age: profileData?.profile?.age || undefined,
+            }}
+            onSave={saveDetails}
+            saving={saving}
+          >
+            {user && (
+              <AvatarEditor
+                profileId={user.id}
+                avatarUrl={avatarUrl}
+                onAvatarChange={(url) => {
+                  setAvatarUrl(url);
+                  if (profile) setProfile({ ...profile, avatar_url: url });
+                }}
+                profileName={profile?.first_name || undefined}
               />
-            </div>
-
-            <div className="flex justify-end mt-8">
-              <Button onClick={saveInterests} disabled={saving}>
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Gemmer...
-                  </>
-                ) : (
-                  <>Gem ændringer</>
-                )}
-              </Button>
-            </div>
-          </div>
+            )}
+          </DetailsTabPanel>
         )}
 
-        {/* Location Tab */}
+        {activeTab === "interests" && (
+          <InterestsTabPanel
+            selectedInterestsWithDescriptions={selectedInterestsWithDescriptions}
+            toggleInterest={toggleInterest}
+            removeInterest={removeInterest}
+            updateInterestDescription={updateInterestDescription}
+            onSave={saveInterests}
+            saving={saving}
+            showNonInterests
+            selectedNonInterests={selectedNonInterests}
+            toggleNonInterest={toggleNonInterest}
+          />
+        )}
+
         {activeTab === "location" && (
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Placering</h2>
-
-            <LocationPicker coordinates={coordinates} setAddress={setAddress} setCoordinates={setCoordinates} />
-
-            <div className="flex justify-end">
-              <Button onClick={saveLocation} disabled={saving || !address.city}>
-                {saving ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Gemmer...
-                  </>
-                ) : (
-                  <>Gem ændringer</>
-                )}
-              </Button>
-            </div>
-          </div>
+          <LocationTabPanel
+            coordinates={coordinates}
+            address={address}
+            setAddress={setAddress}
+            setCoordinates={setCoordinates}
+            onSave={saveLocation}
+            saving={saving}
+          />
         )}
 
         {/* Connections Tab */}
