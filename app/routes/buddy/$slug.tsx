@@ -9,7 +9,7 @@ import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { Link } from "@tanstack/react-router";
-import { Avatar, AvatarFallback, AvatarImage } from "../../../src/components/ui/avatar";
+import { ProfilePhotoDialog } from "../../../src/components/ProfilePhotoDialog";
 import { useActivityPostsStore } from "@/store/activityPosts";
 import { ActivityPostCard } from "@/components/ActivityPostCard";
 
@@ -299,12 +299,11 @@ function BuddyProfile() {
           <div className="space-y-8">
             {/* Header */}
             <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16 text-2xl">
-                {profile.avatar_url && (
-                  <AvatarImage src={profile.avatar_url} alt={profile.first_name || ""} />
-                )}
-                <AvatarFallback className="bg-blue-100 text-blue-700">{initials}</AvatarFallback>
-              </Avatar>
+              <ProfilePhotoDialog
+                avatarUrl={profile.avatar_url}
+                name={profile.first_name}
+                initials={initials}
+              />
               <div className="flex-1">
                 <h1 className="text-3xl">
                   {profile.first_name || "Anonym"}

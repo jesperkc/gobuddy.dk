@@ -6,7 +6,7 @@ import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { Button } from "../../src/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProfilePhotoDialog } from "@/components/ProfilePhotoDialog";
 import { ErrorBanner } from "@/components/ErrorBanner";
 import { supabase } from "@/lib/supabase";
 import type { StravaConnection } from "@/lib/strava";
@@ -79,14 +79,11 @@ function Profile() {
             {/* Header — avatar + name + location + edit */}
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16 text-2xl">
-                  {profile?.avatar_url && (
-                    <AvatarImage src={profile.avatar_url} alt={profile?.first_name || ""} />
-                  )}
-                  <AvatarFallback className="bg-blue-100 text-blue-700">
-                    {profile?.first_name?.slice(0, 2).toUpperCase() || "?"}
-                  </AvatarFallback>
-                </Avatar>
+                <ProfilePhotoDialog
+                  avatarUrl={profile?.avatar_url}
+                  name={profile?.first_name}
+                  initials={profile?.first_name?.slice(0, 2).toUpperCase() || "?"}
+                />
                 <div>
                   <h1 className="text-3xl">
                     {profile?.first_name || "Unavngivet"}
