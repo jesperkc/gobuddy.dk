@@ -44,7 +44,7 @@ function EventDetailPage() {
       <DefaultLayout>
         <div className="text-center text-gray-400">
           <p className="text-lg font-medium">Aktivitet ikke fundet</p>
-          <Link to="/activities" className="text-blue-600 hover:underline mt-2 inline-block">
+          <Link to="/activities" className="text-blue-700 hover:underline mt-2 inline-block">
             ← Tilbage til aktiviteter
           </Link>
         </div>
@@ -209,7 +209,7 @@ function EventDetailPage() {
           <Link
             to="/buddy/$slug"
             params={{ slug: event.creator.slug }}
-            className="inline-flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600"
+            className="inline-flex items-center gap-2 text-sm text-gray-700 hover:text-blue-900"
           >
             <Avatar className="h-7 w-7">
               <AvatarFallback className="text-xs">

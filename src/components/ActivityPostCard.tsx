@@ -66,7 +66,7 @@ export function ActivityPostCard({
               <Link
                 to="/buddy/$slug"
                 params={{ slug: post.profile.slug }}
-                className="text-sm font-medium text-gray-900 hover:text-blue-600 no-underline"
+                className="text-sm font-medium text-gray-900 hover:text-blue-900 no-underline"
               >
                 {post.profile.first_name || "Ukendt"}
               </Link>

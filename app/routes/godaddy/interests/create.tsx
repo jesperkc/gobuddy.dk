@@ -188,7 +188,7 @@ const CreateInterest = () => {
 
             {/* Examples section */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className=" font-medium text-blue-800 mb-2">💡 Eksempler på populære interesser:</h4>
+              <h4 className=" font-medium text-blue-700 mb-2">💡 Eksempler på populære interesser:</h4>
               <div className="grid grid-cols-2 gap-2 text-xs text-blue-700">
                 <div>
                   <p>

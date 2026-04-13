@@ -94,9 +94,7 @@ export function ChatPopup() {
       const { data, error } = await supabase
         .from("messages")
         .select("*")
-        .or(
-          `and(sender_id.eq.${user!.id},receiver_id.eq.${buddyId}),and(sender_id.eq.${buddyId},receiver_id.eq.${user!.id})`,
-        )
+        .or(`and(sender_id.eq.${user!.id},receiver_id.eq.${buddyId}),and(sender_id.eq.${buddyId},receiver_id.eq.${user!.id})`)
         .order("created_at", { ascending: true });
 
       if (!error && data) {
@@ -124,8 +122,7 @@ export function ChatPopup() {
         (payload) => {
           const msg = payload.new as Message;
           const isThisChat =
-            (msg.sender_id === user!.id && msg.receiver_id === buddyId) ||
-            (msg.sender_id === buddyId && msg.receiver_id === user!.id);
+            (msg.sender_id === user!.id && msg.receiver_id === buddyId) || (msg.sender_id === buddyId && msg.receiver_id === user!.id);
           if (!isThisChat) return;
 
           setMessages((prev) => {
@@ -195,16 +192,12 @@ export function ChatPopup() {
       <div className="fixed bottom-0 right-4 z-50 w-80 sm:w-96 animate-in slide-in-from-bottom-2 duration-200">
         <button
           onClick={() => setMinimized(false)}
-          className="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-t-xl shadow-lg hover:bg-blue-700 transition-colors cursor-pointer"
+          className="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-t-xl shadow-lg hover:bg-blue-800 transition-colors cursor-pointer"
         >
           <Avatar className="h-7 w-7">
-            <AvatarFallback className="bg-blue-400 text-white text-xs">
-              {buddyInitials}
-            </AvatarFallback>
+            <AvatarFallback className="bg-blue-400 text-white text-xs">{buddyInitials}</AvatarFallback>
           </Avatar>
-          <span className="font-medium text-sm flex-1 text-left truncate">
-            {buddyName || "Anonym"}
-          </span>
+          <span className="font-medium text-sm flex-1 text-left truncate">{buddyName || "Anonym"}</span>
           <X
             className="w-4 h-4 opacity-70 hover:opacity-100"
             onClick={(e) => {
@@ -230,24 +223,16 @@ export function ChatPopup() {
             onClick={closeChat}
           >
             <Avatar className="h-7 w-7">
-              <AvatarFallback className="bg-blue-400 text-white text-xs">
-                {buddyInitials}
-              </AvatarFallback>
+              <AvatarFallback className="bg-blue-400 text-white text-xs">{buddyInitials}</AvatarFallback>
             </Avatar>
-            <span className="font-medium text-sm text-white truncate">
-              {buddyName || "Anonym"}
-            </span>
+            <span className="font-medium text-sm text-white truncate">{buddyName || "Anonym"}</span>
           </Link>
         ) : (
           <div className="flex items-center gap-2 flex-1 min-w-0">
             <Avatar className="h-7 w-7">
-              <AvatarFallback className="bg-blue-400 text-white text-xs">
-                {buddyInitials}
-              </AvatarFallback>
+              <AvatarFallback className="bg-blue-400 text-white text-xs">{buddyInitials}</AvatarFallback>
             </Avatar>
-            <span className="font-medium text-sm text-white truncate">
-              {buddyName || "Anonym"}
-            </span>
+            <span className="font-medium text-sm text-white truncate">{buddyName || "Anonym"}</span>
           </div>
         )}
         <div className="flex items-center gap-0.5 shrink-0">
@@ -286,19 +271,13 @@ export function ChatPopup() {
           <div className="space-y-3 animate-pulse">
             {[1, 2, 3].map((i) => (
               <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : ""}`}>
-                <div
-                  className={`h-8 rounded-2xl ${i % 2 === 0 ? "bg-blue-100 w-32" : "bg-gray-100 w-40"}`}
-                />
+                <div className={`h-8 rounded-2xl ${i % 2 === 0 ? "bg-blue-100 w-32" : "bg-gray-100 w-40"}`} />
               </div>
             ))}
           </div>
         )}
 
-        {!loading && messages.length === 0 && (
-          <div className="text-center text-gray-400 text-xs py-8">
-            Skriv den første besked! 👋
-          </div>
-        )}
+        {!loading && messages.length === 0 && <div className="text-center text-gray-400 text-xs py-8">Skriv den første besked! 👋</div>}
 
         {messages.map((msg, index) => {
           const isMe = msg.sender_id === user?.id;
@@ -307,45 +286,26 @@ export function ChatPopup() {
           return (
             <div key={msg.id}>
               {shouldShowDateSeparator(index) && (
-                <div className="text-center text-xs text-gray-400 py-2">
-                  {formatDateSeparator(msg.created_at)}
-                </div>
+                <div className="text-center text-xs text-gray-400 py-2">{formatDateSeparator(msg.created_at)}</div>
               )}
               <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-1`}>
                 {isHighfive ? (
                   <div
                     className={`message-fade-in flex flex-col items-center justify-center w-14 h-14 rounded-2xl ${
-                      isMe
-                        ? "bg-blue-600 rounded-br-md"
-                        : "bg-gray-100 rounded-bl-md"
+                      isMe ? "bg-blue-600 rounded-br-md" : "bg-gray-100 rounded-bl-md"
                     }`}
                   >
-                    <Hand
-                      className={`w-7 h-7 -rotate-15 ${isMe ? "text-white" : "text-gray-700"}`}
-                      strokeWidth={1.5}
-                    />
-                    <p
-                      className={`text-[10px] mt-0.5 ${isMe ? "text-blue-200" : "text-gray-400"}`}
-                    >
-                      {formatTime(msg.created_at)}
-                    </p>
+                    <Hand className={`w-7 h-7 -rotate-15 ${isMe ? "text-white" : "text-gray-700"}`} strokeWidth={1.5} />
+                    <p className={`text-[10px] mt-0.5 ${isMe ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.created_at)}</p>
                   </div>
                 ) : (
                   <div
                     className={`message-fade-in max-w-[80%] px-3 py-1.5 rounded-2xl ${
-                      isMe
-                        ? "bg-blue-600 text-white rounded-br-md"
-                        : "bg-gray-100 text-gray-900 rounded-bl-md"
+                      isMe ? "bg-blue-600 text-white rounded-br-md" : "bg-gray-100 text-gray-900 rounded-bl-md"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap break-words text-base">
-                      {msg.content}
-                    </p>
-                    <p
-                      className={`text-[10px] mt-0.5 ${isMe ? "text-blue-200" : "text-gray-400"}`}
-                    >
-                      {formatTime(msg.created_at)}
-                    </p>
+                    <p className="whitespace-pre-wrap break-words text-base">{msg.content}</p>
+                    <p className={`text-[10px] mt-0.5 ${isMe ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.created_at)}</p>
                   </div>
                 )}
               </div>
@@ -356,10 +316,7 @@ export function ChatPopup() {
       </div>
 
       {/* Input */}
-      <form
-        onSubmit={handleSend}
-        className="flex items-center gap-2 px-3 py-2.5 border-t bg-gray-50 rounded-b-none"
-      >
+      <form onSubmit={handleSend} className="flex items-center gap-2 px-3 py-2.5 border-t bg-gray-50 rounded-b-none">
         <Input
           ref={inputRef}
           type="text"
@@ -368,12 +325,7 @@ export function ChatPopup() {
           placeholder="Skriv en besked..."
           className="flex-1 rounded-full bg-white"
         />
-        <Button
-          type="submit"
-          disabled={!newMessage.trim() || sending}
-          size="icon"
-          className="rounded-full h-9 w-9 shrink-0"
-        >
+        <Button type="submit" disabled={!newMessage.trim() || sending} size="icon" className="rounded-full h-9 w-9 shrink-0">
           <Send className="w-4 h-4" />
         </Button>
       </form>

@@ -77,7 +77,7 @@ export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
             <p className=" text-gray-500 mb-6">Du har ikke tilladelse til at se denne side. Der kræves {requiredRole} rettigheder.</p>
             <button
               onClick={() => window.history.back()}
-              className="inline-flex items-center px-4 py-2 border border-transparent  font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-3"
+              className="inline-flex items-center px-4 py-2 border border-transparent  font-medium rounded-md text-white bg-blue-600 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-3"
             >
               Gå tilbage
             </button>

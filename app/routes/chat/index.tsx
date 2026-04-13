@@ -45,10 +45,7 @@ function InboxPage() {
 
         // Fetch buddy names
         const buddyIds = Array.from(threadMap.keys());
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("profile_id, first_name")
-          .in("profile_id", buddyIds);
+        const { data: profiles } = await supabase.from("profiles").select("profile_id, first_name").in("profile_id", buddyIds);
 
         const nameMap = new Map<string, string | null>();
         for (const p of profiles || []) {
@@ -112,13 +109,8 @@ function InboxPage() {
           <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center">
             <MessageCircle className="w-10 h-10 text-gray-400 mx-auto mb-3" />
             <h2 className="text-lg font-medium mb-1">Ingen beskeder endnu</h2>
-            <p className="text-gray-500 text-sm max-w-sm mx-auto">
-              Find en buddy og foreslå et meetup for at starte en samtale!
-            </p>
-            <Link
-              to="/buddies"
-              className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 mt-4 text-sm font-medium"
-            >
+            <p className="text-gray-500 text-sm max-w-sm mx-auto">Find en buddy og foreslå et meetup for at starte en samtale!</p>
+            <Link to="/buddies" className="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 mt-4 text-sm font-medium">
               Find buddies
               <ArrowRight className="w-4 h-4" />
             </Link>
@@ -128,9 +120,7 @@ function InboxPage() {
         {!loading && threads.length > 0 && (
           <div className="space-y-2">
             {threads.map((thread) => {
-              const initials = thread.buddy_name
-                ? thread.buddy_name.slice(0, 2).toUpperCase()
-                : "?";
+              const initials = thread.buddy_name ? thread.buddy_name.slice(0, 2).toUpperCase() : "?";
 
               return (
                 <Link
@@ -140,18 +130,12 @@ function InboxPage() {
                   className="flex items-center gap-3 rounded-xl border p-4 hover:bg-gray-50 transition-colors no-underline text-inherit"
                 >
                   <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
-                      {initials}
-                    </AvatarFallback>
+                    <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="font-medium">
-                        {thread.buddy_name || "Anonym"}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {formatTime(thread.last_message.created_at)}
-                      </span>
+                      <span className="font-medium">{thread.buddy_name || "Anonym"}</span>
+                      <span className="text-xs text-gray-400">{formatTime(thread.last_message.created_at)}</span>
                     </div>
                     <p className="text-sm text-gray-500 truncate mt-0.5">
                       {thread.last_message.sender_id === user?.id ? "Dig: " : ""}

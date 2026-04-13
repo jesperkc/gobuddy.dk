@@ -4,6 +4,8 @@ interface InterestOption {
   icon: string;
 }
 
+import { Toggle } from "./ui/toggle";
+
 interface ActivityInterestsPickerProps {
   interests: InterestOption[];
   selectedIds: Record<string, boolean>;
@@ -18,17 +20,16 @@ export function ActivityInterestsPicker({ interests, selectedIds, toggle }: Acti
   return (
     <div className="flex flex-wrap gap-2">
       {interests.map((interest) => (
-        <button
+        <Toggle
           key={interest.interest_id}
-          type="button"
-          onClick={() => toggle(interest.interest_id)}
-          className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-            selectedIds[interest.interest_id] ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          }`}
+          variant="blue"
+          pressed={!!selectedIds[interest.interest_id]}
+          onPressedChange={() => toggle(interest.interest_id)}
+          className="rounded-full px-3 py-1.5 h-auto"
         >
           <span>{interest.icon}</span>
           {interest.interest_da}
-        </button>
+        </Toggle>
       ))}
     </div>
   );

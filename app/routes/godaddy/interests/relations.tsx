@@ -42,7 +42,7 @@ const InterestRelations = () => {
           created_at,
           interest_a:interests!interest_relations_interest_id_a_fkey(interest_da),
           interest_b:interests!interest_relations_interest_id_b_fkey(interest_da)
-        `
+        `,
         )
         .order("score", { ascending: false });
 
@@ -57,10 +57,8 @@ const InterestRelations = () => {
         interest_id_b: row.interest_id_b as string,
         score: row.score as number,
         created_at: row.created_at as string,
-        interest_a_name:
-          (row.interest_a as { interest_da: string } | null)?.interest_da ?? "Ukendt",
-        interest_b_name:
-          (row.interest_b as { interest_da: string } | null)?.interest_da ?? "Ukendt",
+        interest_a_name: (row.interest_a as { interest_da: string } | null)?.interest_da ?? "Ukendt",
+        interest_b_name: (row.interest_b as { interest_da: string } | null)?.interest_da ?? "Ukendt",
       }));
 
       setRelations(mapped);
@@ -104,20 +102,14 @@ const InterestRelations = () => {
     if (!confirmed) return;
 
     try {
-      const { error: deleteError } = await supabase
-        .from("interest_relations")
-        .delete()
-        .eq("interest_id_a", idA)
-        .eq("interest_id_b", idB);
+      const { error: deleteError } = await supabase.from("interest_relations").delete().eq("interest_id_a", idA).eq("interest_id_b", idB);
 
       if (deleteError) {
         setError(`Kunne ikke slette relation: ${deleteError.message}`);
         return;
       }
 
-      setRelations((prev) =>
-        prev.filter((r) => !(r.interest_id_a === idA && r.interest_id_b === idB))
-      );
+      setRelations((prev) => prev.filter((r) => !(r.interest_id_a === idA && r.interest_id_b === idB)));
     } catch (err) {
       console.error("Error deleting relation:", err);
     }
@@ -127,7 +119,7 @@ const InterestRelations = () => {
 
   const getScoreBadgeColor = (score: number) => {
     if (score >= 0.7) return "bg-green-100 text-green-800";
-    if (score >= 0.5) return "bg-blue-100 text-blue-800";
+    if (score >= 0.5) return "bg-blue-100 text-blue-700";
     return "bg-yellow-100 text-yellow-800";
   };
 
@@ -148,9 +140,7 @@ const InterestRelations = () => {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="font-medium text-gray-500 truncate">Totale relationer</dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {loading ? "..." : relations.length}
-                    </dd>
+                    <dd className="text-lg font-medium text-gray-900">{loading ? "..." : relations.length}</dd>
                   </dl>
                 </div>
               </div>
@@ -184,9 +174,7 @@ const InterestRelations = () => {
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="font-medium text-gray-500 truncate">Svage (30-49%)</dt>
-                    <dd className="text-lg font-medium text-gray-900">
-                      {loading ? "..." : relations.filter((r) => r.score < 0.5).length}
-                    </dd>
+                    <dd className="text-lg font-medium text-gray-900">{loading ? "..." : relations.filter((r) => r.score < 0.5).length}</dd>
                   </dl>
                 </div>
               </div>
@@ -198,9 +186,7 @@ const InterestRelations = () => {
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
-                Relationsliste ({relations.length})
-              </h3>
+              <h3 className="text-lg leading-6 font-medium text-gray-900">Relationsliste ({relations.length})</h3>
               <Button onClick={handleGenerate} disabled={generating}>
                 {generating ? (
                   <>
@@ -226,26 +212,15 @@ const InterestRelations = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Interesse A
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Interesse B
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Score
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Handlinger
-                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interesse A</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interesse B</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Handlinger</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {relations.map((rel) => (
-                      <tr
-                        key={`${rel.interest_id_a}-${rel.interest_id_b}`}
-                        className="hover:bg-gray-50"
-                      >
+                      <tr key={`${rel.interest_id_a}-${rel.interest_id_b}`} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="font-medium text-gray-900">{rel.interest_a_name}</div>
                         </td>
@@ -276,9 +251,7 @@ const InterestRelations = () => {
                 {relations.length === 0 && !loading && (
                   <div className="text-center py-8">
                     <Link2 className="h-12 w-12 text-gray-300 mx-auto" />
-                    <p className="mt-2 text-gray-500">
-                      Ingen relationer fundet. Klik &quot;Generer med AI&quot; for at oprette dem.
-                    </p>
+                    <p className="mt-2 text-gray-500">Ingen relationer fundet. Klik &quot;Generer med AI&quot; for at oprette dem.</p>
                   </div>
                 )}
               </div>

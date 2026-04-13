@@ -163,7 +163,7 @@ const Analytics = () => {
                         <div key={index} className="flex items-center justify-between">
                           <span className=" text-gray-600">{formatDate(item.date)}</span>
                           <div className="flex items-center space-x-2">
-                            <div className="bg-blue-500 h-4 rounded" style={{ width: `${Math.max(item.count * 20, 10)}px` }}></div>
+                            <div className="bg-blue-600 h-4 rounded" style={{ width: `${Math.max(item.count * 20, 10)}px` }}></div>
                             <span className=" font-medium text-gray-900">{item.count}</span>
                           </div>
                         </div>

@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { SplitScreen } from "../../src/components/SplitScreen";
 import { useOnboardingStore } from "../../src/store/onboarding";
 import { Button } from "../../src/components/ui/button";
+import { Toggle } from "../../src/components/ui/toggle";
 import { UnauthedRoute } from "@/components/UnauthedRoute";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -49,17 +50,15 @@ function Interests() {
         <p className="text-gray-600 mb-6">Vælg de ting du godt kan lide at lave</p>
         <div className="flex flex-wrap gap-2 mb-6">
           {availableInterests.map((interest) => (
-            <button
+            <Toggle
               key={interest.interest_id}
-              onClick={() => toggleInterest(interest.interest_id)}
-              className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                interests.includes(interest.interest_id)
-                  ? "bg-gray-900 text-white border-gray-900"
-                  : "border-gray-300 hover:border-gray-500"
-              }`}
+              variant="outline"
+              pressed={interests.includes(interest.interest_id)}
+              onPressedChange={() => toggleInterest(interest.interest_id)}
+              className="rounded-full px-4 py-2 h-auto text-sm font-medium data-[state=on]:bg-gray-900 data-[state=on]:text-white data-[state=on]:border-gray-900"
             >
               {interest.interest_da}
-            </button>
+            </Toggle>
           ))}
         </div>
 

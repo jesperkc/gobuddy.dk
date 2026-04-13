@@ -30,6 +30,7 @@ import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as ActivitiesIndexRouteImport } from './routes/activities/index'
 import { Route as StravaCallbackRouteImport } from './routes/strava/callback'
 import { Route as InteresserSlugRouteImport } from './routes/interesser/$slug'
+import { Route as GodaddyDesignSystemRouteImport } from './routes/godaddy/design-system'
 import { Route as GodaddyAnalyticsRouteImport } from './routes/godaddy/analytics'
 import { Route as ChatBuddyIdRouteImport } from './routes/chat/$buddyId'
 import { Route as BuddySlugRouteImport } from './routes/buddy/$slug'
@@ -153,6 +154,11 @@ const InteresserSlugRoute = InteresserSlugRouteImport.update({
   path: '/interesser/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GodaddyDesignSystemRoute = GodaddyDesignSystemRouteImport.update({
+  id: '/design-system',
+  path: '/design-system',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
 const GodaddyAnalyticsRoute = GodaddyAnalyticsRouteImport.update({
   id: '/analytics',
   path: '/analytics',
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/buddy/$slug': typeof BuddySlugRoute
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/godaddy/design-system': typeof GodaddyDesignSystemRoute
   '/interesser/$slug': typeof InteresserSlugRoute
   '/strava/callback': typeof StravaCallbackRoute
   '/activities': typeof ActivitiesIndexRoute
@@ -303,6 +310,7 @@ export interface FileRoutesByTo {
   '/buddy/$slug': typeof BuddySlugRoute
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/godaddy/design-system': typeof GodaddyDesignSystemRoute
   '/interesser/$slug': typeof InteresserSlugRoute
   '/strava/callback': typeof StravaCallbackRoute
   '/activities': typeof ActivitiesIndexRoute
@@ -344,6 +352,7 @@ export interface FileRoutesById {
   '/buddy/$slug': typeof BuddySlugRoute
   '/chat/$buddyId': typeof ChatBuddyIdRoute
   '/godaddy/analytics': typeof GodaddyAnalyticsRoute
+  '/godaddy/design-system': typeof GodaddyDesignSystemRoute
   '/interesser/$slug': typeof InteresserSlugRoute
   '/strava/callback': typeof StravaCallbackRoute
   '/activities/': typeof ActivitiesIndexRoute
@@ -386,6 +395,7 @@ export interface FileRouteTypes {
     | '/buddy/$slug'
     | '/chat/$buddyId'
     | '/godaddy/analytics'
+    | '/godaddy/design-system'
     | '/interesser/$slug'
     | '/strava/callback'
     | '/activities'
@@ -425,6 +435,7 @@ export interface FileRouteTypes {
     | '/buddy/$slug'
     | '/chat/$buddyId'
     | '/godaddy/analytics'
+    | '/godaddy/design-system'
     | '/interesser/$slug'
     | '/strava/callback'
     | '/activities'
@@ -465,6 +476,7 @@ export interface FileRouteTypes {
     | '/buddy/$slug'
     | '/chat/$buddyId'
     | '/godaddy/analytics'
+    | '/godaddy/design-system'
     | '/interesser/$slug'
     | '/strava/callback'
     | '/activities/'
@@ -663,6 +675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InteresserSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/godaddy/design-system': {
+      id: '/godaddy/design-system'
+      path: '/design-system'
+      fullPath: '/godaddy/design-system'
+      preLoaderRoute: typeof GodaddyDesignSystemRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
     '/godaddy/analytics': {
       id: '/godaddy/analytics'
       path: '/analytics'
@@ -787,6 +806,7 @@ declare module '@tanstack/react-router' {
 
 interface GodaddyRouteRouteChildren {
   GodaddyAnalyticsRoute: typeof GodaddyAnalyticsRoute
+  GodaddyDesignSystemRoute: typeof GodaddyDesignSystemRoute
   GodaddyIndexRoute: typeof GodaddyIndexRoute
   GodaddyInterestsCreateRoute: typeof GodaddyInterestsCreateRoute
   GodaddyInterestsGenerateRoute: typeof GodaddyInterestsGenerateRoute
@@ -800,6 +820,7 @@ interface GodaddyRouteRouteChildren {
 
 const GodaddyRouteRouteChildren: GodaddyRouteRouteChildren = {
   GodaddyAnalyticsRoute: GodaddyAnalyticsRoute,
+  GodaddyDesignSystemRoute: GodaddyDesignSystemRoute,
   GodaddyIndexRoute: GodaddyIndexRoute,
   GodaddyInterestsCreateRoute: GodaddyInterestsCreateRoute,
   GodaddyInterestsGenerateRoute: GodaddyInterestsGenerateRoute,

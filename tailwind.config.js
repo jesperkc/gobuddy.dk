@@ -2,7 +2,7 @@
 export default {
   mode: "jit",
   darkMode: ["class"],
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}", "./app/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -45,6 +45,19 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+        },
+        blue: {
+          50:  "#eff6ff",
+          100: "#d8e7f8",
+          200: "#b9d4ef",
+          300: "#92bbe3",
+          400: "#649ed5",
+          500: "#2e7cc5",  // brand-blue
+          600: "#2969ac",
+          700: "#245693",
+          800: "#1f447d",
+          900: "#1b3568",
+          950: "#172554",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

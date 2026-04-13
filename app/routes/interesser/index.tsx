@@ -26,7 +26,8 @@ function InteresserPage() {
       try {
         const { data, error } = await supabase
           .from("interests")
-          .select(`
+          .select(
+            `
             interest_id,
             slug,
             interest_da,
@@ -34,7 +35,8 @@ function InteresserPage() {
             icon,
             category,
             user_interests (count)
-          `)
+          `,
+          )
           .eq("custom", false)
           .order("category")
           .order("interest_da");
@@ -65,9 +67,7 @@ function InteresserPage() {
 
   const filtered = search
     ? interests.filter(
-        (i) =>
-          i.interest_da.toLowerCase().includes(search.toLowerCase()) ||
-          i.interest_en.toLowerCase().includes(search.toLowerCase())
+        (i) => i.interest_da.toLowerCase().includes(search.toLowerCase()) || i.interest_en.toLowerCase().includes(search.toLowerCase()),
       )
     : interests;
 
@@ -120,9 +120,7 @@ function InteresserPage() {
         {!loading &&
           Object.entries(grouped).map(([category, items]) => (
             <div key={category}>
-              <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-                {category}
-              </h2>
+              <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">{category}</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {items.map((interest) => (
                   <Link
@@ -133,7 +131,7 @@ function InteresserPage() {
                   >
                     <div className="flex items-start justify-between">
                       <span className="text-2xl">{interest.icon}</span>
-                      <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                      <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-900 transition-colors" />
                     </div>
                     <h3 className="font-medium mt-2">{interest.interest_da}</h3>
                     {interest.user_count > 0 && (
@@ -153,7 +151,7 @@ function InteresserPage() {
           <p className="text-gray-600 mb-3">Klar til at finde din buddy?</p>
           <Link
             to="/signup"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700 transition-colors no-underline"
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-800 transition-colors no-underline"
           >
             Opret gratis profil
             <ArrowRight className="w-4 h-4" />

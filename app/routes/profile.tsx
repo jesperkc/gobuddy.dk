@@ -188,7 +188,7 @@ function Profile() {
                   </h2>
                   <Link
                     to="/feed"
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs text-blue-700 hover:underline"
                   >
                     Se alle i feed →
                   </Link>

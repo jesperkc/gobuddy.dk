@@ -43,14 +43,16 @@ function InterestPage() {
         // Fetch users with this interest
         const { data: userInterests, error: uiError } = await supabase
           .from("user_interests")
-          .select(`
+          .select(
+            `
             description,
             profiles (
               profile_id,
               first_name,
               city
             )
-          `)
+          `,
+          )
           .eq("interest_id", interestData.interest_id)
           .limit(50);
 
@@ -82,10 +84,7 @@ function InterestPage() {
   return (
     <DefaultLayout>
       <div className="max-w-3xl mx-auto space-y-8">
-        <Link
-          to="/interesser"
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800"
-        >
+        <Link to="/interesser" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
           <ArrowLeft className="w-4 h-4" />
           Alle interesser
         </Link>
@@ -117,8 +116,7 @@ function InterestPage() {
               <div className="flex items-center gap-2 mt-4 text-gray-600">
                 <Users className="w-5 h-5" />
                 <span>
-                  {buddies.length} {buddies.length === 1 ? "buddy" : "buddies"} er interesseret i{" "}
-                  {interest.interest_da.toLowerCase()}
+                  {buddies.length} {buddies.length === 1 ? "buddy" : "buddies"} er interesseret i {interest.interest_da.toLowerCase()}
                 </span>
               </div>
             </div>
@@ -126,24 +124,15 @@ function InterestPage() {
             {/* Buddies list */}
             {buddies.length > 0 ? (
               <div>
-                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-                  Buddies med denne interesse
-                </h2>
+                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Buddies med denne interesse</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {buddies.map((buddy) => {
-                    const initials = buddy.first_name
-                      ? buddy.first_name.slice(0, 2).toUpperCase()
-                      : "?";
+                    const initials = buddy.first_name ? buddy.first_name.slice(0, 2).toUpperCase() : "?";
 
                     return (
-                      <div
-                        key={buddy.profile_id}
-                        className="flex items-center gap-3 rounded-xl border p-4"
-                      >
+                      <div key={buddy.profile_id} className="flex items-center gap-3 rounded-xl border p-4">
                         <Avatar className="h-10 w-10">
-                          <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
-                            {initials}
-                          </AvatarFallback>
+                          <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">{initials}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium">{buddy.first_name || "Anonym"}</p>
@@ -153,11 +142,7 @@ function InterestPage() {
                               {buddy.city}
                             </p>
                           )}
-                          {buddy.description && (
-                            <p className="text-xs text-gray-500 mt-0.5 truncate">
-                              {buddy.description}
-                            </p>
-                          )}
+                          {buddy.description && <p className="text-xs text-gray-500 mt-0.5 truncate">{buddy.description}</p>}
                         </div>
                       </div>
                     );
@@ -173,12 +158,10 @@ function InterestPage() {
 
             {/* CTA */}
             <div className="text-center border-t pt-8">
-              <p className="text-gray-600 mb-3">
-                Interesseret i {interest.interest_da.toLowerCase()}?
-              </p>
+              <p className="text-gray-600 mb-3">Interesseret i {interest.interest_da.toLowerCase()}?</p>
               <Link
                 to="/signup"
-                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-700 transition-colors no-underline"
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-800 transition-colors no-underline"
               >
                 Opret gratis profil
                 <ArrowRight className="w-4 h-4" />

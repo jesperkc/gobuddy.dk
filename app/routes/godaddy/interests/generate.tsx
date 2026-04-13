@@ -260,7 +260,7 @@ const GenerateInterests = () => {
                             <h4 className="font-semibold text-gray-900">{interest.interest_da}</h4>
                             <p className=" text-gray-600">{interest.interest_en}</p>
                           </div>
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
                             {interest.category}
                           </span>
                         </div>

@@ -89,7 +89,7 @@ function Login() {
           </div>
 
           <div className="text-right">
-            <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
+            <Link to="/forgot-password" className="text-sm text-blue-700 hover:text-blue-900">
               Glemt adgangskode?
             </Link>
           </div>
@@ -110,7 +110,7 @@ function Login() {
         </Form>
         <p className="mt-6 text-center text-gray-600">
           Har du ikke en konto?{" "}
-          <Link to="/" className="text-blue-600 hover:text-blue-800 font-medium">
+          <Link to="/" className="text-blue-700 hover:text-blue-900 font-medium">
             Opret en konto her
           </Link>
         </p>

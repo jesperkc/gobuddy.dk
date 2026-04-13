@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
-import { MapPin, ArrowRight, Compass, UserPen, Calendar, User2, Users, Users2 } from "lucide-react";
+import { MapPin, ArrowRight, Compass, UserPen, Calendar, Users } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { PageTitle } from "@/components/PageTitle";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";

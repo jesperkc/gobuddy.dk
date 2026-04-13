@@ -2,6 +2,7 @@ import { Tables } from "database.types";
 import { useEffect, useMemo, useState } from "react";
 import { Ban, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { Toggle } from "./ui/toggle";
 
 export interface NonInterestsPickerProps {
   selectedNonInterests: Set<string>;
@@ -19,10 +20,7 @@ export const NonInterestsPicker = ({
 
   useEffect(() => {
     const fetchInterests = async () => {
-      const { data, error } = await supabase
-        .from("interests")
-        .select("*")
-        .order("interest_da");
+      const { data, error } = await supabase.from("interests").select("*").order("interest_da");
 
       if (error) throw error;
       setAvailableInterests(data || []);
@@ -30,14 +28,8 @@ export const NonInterestsPicker = ({
     fetchInterests();
   }, []);
 
-  const popularInterests = useMemo(
-    () => availableInterests.filter((i) => i.onboarding),
-    [availableInterests],
-  );
-  const otherInterests = useMemo(
-    () => availableInterests.filter((i) => !i.onboarding),
-    [availableInterests],
-  );
+  const popularInterests = useMemo(() => availableInterests.filter((i) => i.onboarding), [availableInterests]);
+  const otherInterests = useMemo(() => availableInterests.filter((i) => !i.onboarding), [availableInterests]);
 
   const groupByCategory = (interests: Tables<"interests">[]) => {
     const map = new Map<string, Tables<"interests">[]>();
@@ -53,36 +45,34 @@ export const NonInterestsPicker = ({
   const otherGrouped = useMemo(() => groupByCategory(otherInterests), [otherInterests]);
 
   const renderGrid = (grouped: Map<string, Tables<"interests">[]>) =>
-    Array.from(grouped.entries()).map(([category, interests]) => (
-      <div key={category}>
-        <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{category}</h4>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {interests.map((interest) => {
-            const isSelected = selectedNonInterests.has(interest.interest_id);
-            const isDisabled = disabledInterestIds.has(interest.interest_id);
-            return (
-              <button
-                key={interest.interest_id}
-                onClick={() => toggleNonInterest(interest.interest_id)}
-                disabled={isDisabled}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left transition-all text-sm ${
-                  isSelected
-                    ? "bg-red-50 text-red-700 border-red-300 ring-1 ring-red-200 font-medium"
-                    : isDisabled
-                      ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
-                      : "border-gray-200 hover:border-red-400 hover:bg-red-50/50"
-                }`}
-              >
-                {interest.icon && <span className="text-lg shrink-0">{isSelected ? "" : interest.icon}</span>}
-                {isSelected && <Ban className="w-4 h-4 shrink-0" />}
-                {!interest.icon && isSelected && null}
-                <span className="truncate">{interest.interest_da}</span>
-              </button>
-            );
-          })}
+    Array.from(grouped.entries()).map(([category, interests]) => {
+      const visible = interests.filter((i) => !disabledInterestIds.has(i.interest_id));
+      if (visible.length === 0) return null;
+      return (
+        <div key={category}>
+          <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">{category}</h4>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {visible.map((interest) => {
+              const isSelected = selectedNonInterests.has(interest.interest_id);
+              return (
+                <Toggle
+                  key={interest.interest_id}
+                  variant="red"
+                  size={"lg"}
+                  pressed={isSelected}
+                  onPressedChange={() => toggleNonInterest(interest.interest_id)}
+                  className="text-left text-sm justify-start"
+                >
+                  {isSelected && <Ban className="w-4 h-4 shrink-0" />}
+                  {!interest.icon && isSelected && null}
+                  <span className="truncate">{interest.interest_da}</span>
+                </Toggle>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    ));
+      );
+    });
 
   return (
     <>
@@ -99,9 +89,7 @@ export const NonInterestsPicker = ({
       )}
 
       {/* Popular interests (always visible) */}
-      <div className="space-y-6 mb-6">
-        {renderGrid(popularGrouped)}
-      </div>
+      <div className="space-y-6 mb-6">{renderGrid(popularGrouped)}</div>
 
       {/* Other interests (collapsible) */}
       {otherInterests.length > 0 && (
@@ -111,16 +99,16 @@ export const NonInterestsPicker = ({
             className="flex items-center gap-1.5 text-sm font-medium text-red-500 hover:text-red-700 mb-6 cursor-pointer"
           >
             {showAll ? (
-              <>Skjul flere ikke-interesser <ChevronUp className="w-4 h-4" /></>
+              <>
+                Skjul flere ikke-interesser <ChevronUp className="w-4 h-4" />
+              </>
             ) : (
-              <>Vis {otherInterests.length} flere ikke-interesser <ChevronDown className="w-4 h-4" /></>
+              <>
+                Vis {otherInterests.length} flere ikke-interesser <ChevronDown className="w-4 h-4" />
+              </>
             )}
           </button>
-          {showAll && (
-            <div className="space-y-6 mb-6">
-              {renderGrid(otherGrouped)}
-            </div>
-          )}
+          {showAll && <div className="space-y-6 mb-6">{renderGrid(otherGrouped)}</div>}
         </>
       )}
 

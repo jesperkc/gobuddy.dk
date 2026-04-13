@@ -42,7 +42,7 @@ const UserManagement = () => {
             user_roles (
               role
             )
-          `
+          `,
           )
           .order("created_at", { ascending: false });
 
@@ -105,7 +105,7 @@ const UserManagement = () => {
             };
           }
           return u;
-        })
+        }),
       );
     } catch (error) {
       console.error("Error updating user role:", error);
@@ -153,7 +153,7 @@ const UserManagement = () => {
     if (selectedIds.size === 0) return;
 
     const confirmed = confirm(
-      `Er du sikker på at du vil slette ${selectedIds.size} bruger${selectedIds.size !== 1 ? "e" : ""}? Dette kan ikke fortrydes.`
+      `Er du sikker på at du vil slette ${selectedIds.size} bruger${selectedIds.size !== 1 ? "e" : ""}? Dette kan ikke fortrydes.`,
     );
     if (!confirmed) return;
 
@@ -162,7 +162,10 @@ const UserManagement = () => {
       const ids = Array.from(selectedIds);
 
       // Delete related data in dependency order, then profiles, then auth users
-      const { error: messagesError } = await supabaseAdmin.from("messages").delete().or(ids.map(id => `sender_id.eq.${id},receiver_id.eq.${id}`).join(","));
+      const { error: messagesError } = await supabaseAdmin
+        .from("messages")
+        .delete()
+        .or(ids.map((id) => `sender_id.eq.${id},receiver_id.eq.${id}`).join(","));
       if (messagesError) console.error("Error deleting messages:", messagesError);
 
       const { error: interestsError } = await supabaseAdmin.from("user_interests").delete().in("profile_id", ids);
@@ -330,7 +333,7 @@ const UserManagement = () => {
                   </Link>
                   <Link
                     to="/godaddy/users/create"
-                    className="inline-flex items-center px-4 py-2 border border-transparent  font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    className="inline-flex items-center px-4 py-2 border border-transparent  font-medium rounded-md text-white bg-blue-600 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Opret ny bruger

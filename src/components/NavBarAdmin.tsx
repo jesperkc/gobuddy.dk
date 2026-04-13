@@ -1,7 +1,7 @@
 // No need to import logo as we'll use a div placeholder
 import { useAuth } from "../contexts/AuthContext";
 import { useClientEffect } from "../lib/ssr-utils";
-import { Heart, LayoutDashboard, ScatterChart, User } from "lucide-react";
+import { Heart, LayoutDashboard, Palette, ScatterChart, User } from "lucide-react";
 import { useUserProfileStore } from "@/store/userProfile";
 import { Navbar } from "./ui/navbar";
 // import { useUserProfileStore } from "@/store/userProfile";
@@ -26,6 +26,11 @@ const adminNavItems = [
     label: "Interesser",
     href: "/godaddy/interests",
     icon: <Heart className="w-5 h-5" />,
+  },
+  {
+    label: "Design System",
+    href: "/godaddy/design-system",
+    icon: <Palette className="w-5 h-5" />,
   },
 ];
 
