@@ -330,7 +330,7 @@ function BuddyProfile() {
                   <button
                     onClick={sendWave}
                     disabled={sendingWave}
-                    className="h-12 w-12 rounded-full bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors flex items-center justify-center disabled:opacity-50"
+                    className="h-12 w-12 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors flex items-center justify-center disabled:opacity-50"
                   >
                     <Hand className={`w-6 h-6 ${sendingWave ? "animate-bounce" : ""}`} />
                   </button>

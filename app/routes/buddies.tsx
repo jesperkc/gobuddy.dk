@@ -212,15 +212,15 @@ function DiscoverPage() {
 
         {/* Missing profile data warnings */}
         {!hasInterests && !loading && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-center">
-            <Search className="w-8 h-8 text-amber-500 mx-auto mb-2" />
+          <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-5 text-center">
+            <Search className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
             <p className="font-medium">Tilføj interesser først</p>
             <p className="text-sm text-gray-600 mt-1">Vi kan kun finde buddies, hvis du har valgt mindst én interesse.</p>
           </div>
         )}
 
         {!hasLocation && hasInterests && !loading && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 flex items-center gap-2">
+          <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800 flex items-center gap-2">
             <MapPin className="w-4 h-4 shrink-0" />
             Tilføj din placering for at se afstand til andre buddies.
           </div>

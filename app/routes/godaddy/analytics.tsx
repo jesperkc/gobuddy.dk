@@ -213,7 +213,7 @@ const Analytics = () => {
                           <span className=" text-gray-600">{item.ageGroup} år</span>
                           <div className="flex items-center space-x-2">
                             <div
-                              className="bg-purple-500 h-4 rounded"
+                              className="bg-violet-500 h-4 rounded"
                               style={{
                                 width: `${Math.max((item.count / Math.max(...analytics.ageDistribution.map((a) => a.count))) * 200, 10)}px`,
                               }}
@@ -295,11 +295,11 @@ const Analytics = () => {
                       </div>
                     </div>
 
-                    <div className="bg-purple-50 overflow-hidden shadow rounded-lg">
+                    <div className="bg-violet-50 overflow-hidden shadow rounded-lg">
                       <div className="p-5">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
-                            <User className="h-6 w-6 text-purple-400" />
+                            <User className="h-6 w-6 text-violet-400" />
                           </div>
                           <div className="ml-5 w-0 flex-1">
                             <dl>
