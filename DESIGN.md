@@ -42,14 +42,29 @@ The signature interaction is the **glow button** on the landing page — a black
 
 ### Tailwind Palette in Use
 
-The app uses Tailwind's default gray, blue, violet, green, red, and amber scales directly in components:
+The app uses **custom brand-derived color scales** defined in `tailwind.config.js`. All standard Tailwind color names are overridden with scales generated from HSL interpolation anchored on the brand colors. Gray uses Tailwind defaults.
+
+| Color    | Hue  | 500 Value   | Role                                  |
+| -------- | ---- | ----------- | ------------------------------------- |
+| Red      | 0°   | `#d32222`   | Errors, destructive, non-interests    |
+| Orange   | 25°  | `#e9680c`   | Warnings, caution states              |
+| Yellow   | 48°  | `#e9bc0c`   | Warning banners, highlights           |
+| Green    | 154° | `#2ad489` ★ | Brand green, success, Hi5 indicators  |
+| Blue     | 209° | `#2e7cc5` ★ | Brand blue, shared interests, avatars |
+| Violet   | 265° | `#6e2fc6`   | Related interests                     |
+| Pink     | 330° | `#d3227a`   | Accent, decorative                    |
+
+★ = brand color anchor
+
+Each scale provides shades from 50 (lightest) through 950 (darkest). Always use these named scales (e.g. `text-blue-700`, `bg-green-50`) — never use arbitrary hex values.
 
 - **Blue-50/100/700**: Shared interest badges, avatar backgrounds
 - **Violet-50/100/700**: Related interest badges
 - **Gray-50/100/200/400/500/700/900**: Borders, text hierarchy, backgrounds
 - **Green-100/600**: Hi5 sent indicator
 - **Red-50/600**: Admin links, destructive states
-- **Amber-50/200/500/800**: Warning banners
+
+Preview all colors at `/godaddy/design-system` (admin-only).
 
 ### Borders
 
@@ -258,9 +273,13 @@ Muted text:       hsl(0 0% 45.1%) (gray)
 Card border:      gray-100
 Input border:     hsl(0 0% 20%)
 
-Brand green:      #27d489
-Brand blue:       #155dfc
+Brand green:      #2ad489  (green-500)
+Brand blue:       #2e7cc5  (blue-500)
 Focus ring:       #155dfc
+
+Custom color scales (tailwind.config.js):
+  red / orange / yellow / green / blue / violet / pink
+  Each: 50 → 100 → 200 → 300 → 400 → 500 → 600 → 700 → 800 → 900 → 950
 
 Shared badges:    bg-blue-50 text-blue-700
 Related badges:   bg-violet-50 text-violet-700
@@ -276,7 +295,8 @@ Destructive:      hsl(0 84.2% 60.2%)
 `bg-white`, `border border-gray-100`, `rounded-2xl`, `p-5`. Hover: `hover:shadow-lg hover:-translate-y-1 transition-all duration-200`. Animation: `card-reveal` class with `animationDelay`.
 
 **Interest badge (shared):**
-`rounded-full`, `px-2.5 py-0.5`, `text-xs font-medium`, `bg-blue-50 text-blue-700 ring-1 ring-blue-100`.
+Use the `InterestBadge` component (`src/components/InterestBadge.tsx`). Variants: `default` (blue), `shared` (blue + ring), `muted` (gray). Sizes: `sm` (pill), `lg` (with description).
+`<InterestBadge name="Løb" icon="🏃" variant="shared" />`
 
 **Primary button:**
 `bg-primary text-primary-foreground shadow-sm rounded-md h-9 px-4 py-2`. Hover: `hover:bg-primary/90`.

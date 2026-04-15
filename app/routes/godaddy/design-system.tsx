@@ -75,8 +75,76 @@ function DesignSystemPage() {
           </div>
         </Section>
 
-        {/* ── Tailwind Blue Scale ───────────────────────────────── */}
-        <Section title="Tailwind Blue-skala">
+        {/* ── Red Scale ──────────────────────────────────────────── */}
+        <Section title="Red-skala">
+          <div className="flex flex-wrap gap-3">
+            <Swatch name="red-50" className="bg-red-50" />
+            <Swatch name="red-100" className="bg-red-100" />
+            <Swatch name="red-200" className="bg-red-200" />
+            <Swatch name="red-300" className="bg-red-300" />
+            <Swatch name="red-400" className="bg-red-400" />
+            <Swatch name="red-500" className="bg-red-500" />
+            <Swatch name="red-600" className="bg-red-600" />
+            <Swatch name="red-700" className="bg-red-700" />
+            <Swatch name="red-800" className="bg-red-800" />
+            <Swatch name="red-900" className="bg-red-900" />
+            <Swatch name="red-950" className="bg-red-950" />
+          </div>
+        </Section>
+
+        {/* ── Orange Scale ───────────────────────────────────────── */}
+        <Section title="Orange-skala">
+          <div className="flex flex-wrap gap-3">
+            <Swatch name="orange-50" className="bg-orange-50" />
+            <Swatch name="orange-100" className="bg-orange-100" />
+            <Swatch name="orange-200" className="bg-orange-200" />
+            <Swatch name="orange-300" className="bg-orange-300" />
+            <Swatch name="orange-400" className="bg-orange-400" />
+            <Swatch name="orange-500" className="bg-orange-500" />
+            <Swatch name="orange-600" className="bg-orange-600" />
+            <Swatch name="orange-700" className="bg-orange-700" />
+            <Swatch name="orange-800" className="bg-orange-800" />
+            <Swatch name="orange-900" className="bg-orange-900" />
+            <Swatch name="orange-950" className="bg-orange-950" />
+          </div>
+        </Section>
+
+        {/* ── Yellow Scale ───────────────────────────────────────── */}
+        <Section title="Yellow-skala">
+          <div className="flex flex-wrap gap-3">
+            <Swatch name="yellow-50" className="bg-yellow-50" />
+            <Swatch name="yellow-100" className="bg-yellow-100" />
+            <Swatch name="yellow-200" className="bg-yellow-200" />
+            <Swatch name="yellow-300" className="bg-yellow-300" />
+            <Swatch name="yellow-400" className="bg-yellow-400" />
+            <Swatch name="yellow-500" className="bg-yellow-500" />
+            <Swatch name="yellow-600" className="bg-yellow-600" />
+            <Swatch name="yellow-700" className="bg-yellow-700" />
+            <Swatch name="yellow-800" className="bg-yellow-800" />
+            <Swatch name="yellow-900" className="bg-yellow-900" />
+            <Swatch name="yellow-950" className="bg-yellow-950" />
+          </div>
+        </Section>
+
+        {/* ── Brand Green Scale ──────────────────────────────────── */}
+        <Section title="Green-skala (brand)">
+          <div className="flex flex-wrap gap-3">
+            <Swatch name="green-50" className="bg-green-50" />
+            <Swatch name="green-100" className="bg-green-100" />
+            <Swatch name="green-200" className="bg-green-200" />
+            <Swatch name="green-300" className="bg-green-300" />
+            <Swatch name="green-400" className="bg-green-400" />
+            <Swatch name="green-500" className="bg-green-500" />
+            <Swatch name="green-600" className="bg-green-600" />
+            <Swatch name="green-700" className="bg-green-700" />
+            <Swatch name="green-800" className="bg-green-800" />
+            <Swatch name="green-900" className="bg-green-900" />
+            <Swatch name="green-950" className="bg-green-950" />
+          </div>
+        </Section>
+
+        {/* ── Brand Blue Scale ───────────────────────────────────── */}
+        <Section title="Blue-skala (brand)">
           <div className="flex flex-wrap gap-3">
             <Swatch name="blue-50" className="bg-blue-50" />
             <Swatch name="blue-100" className="bg-blue-100" />
@@ -92,8 +160,42 @@ function DesignSystemPage() {
           </div>
         </Section>
 
-        {/* ── Tailwind Gray Scale ───────────────────────────────── */}
-        <Section title="Tailwind Gray-skala">
+        {/* ── Violet Scale ───────────────────────────────────────── */}
+        <Section title="Violet-skala">
+          <div className="flex flex-wrap gap-3">
+            <Swatch name="violet-50" className="bg-violet-50" />
+            <Swatch name="violet-100" className="bg-violet-100" />
+            <Swatch name="violet-200" className="bg-violet-200" />
+            <Swatch name="violet-300" className="bg-violet-300" />
+            <Swatch name="violet-400" className="bg-violet-400" />
+            <Swatch name="violet-500" className="bg-violet-500" />
+            <Swatch name="violet-600" className="bg-violet-600" />
+            <Swatch name="violet-700" className="bg-violet-700" />
+            <Swatch name="violet-800" className="bg-violet-800" />
+            <Swatch name="violet-900" className="bg-violet-900" />
+            <Swatch name="violet-950" className="bg-violet-950" />
+          </div>
+        </Section>
+
+        {/* ── Pink Scale ─────────────────────────────────────────── */}
+        <Section title="Pink-skala">
+          <div className="flex flex-wrap gap-3">
+            <Swatch name="pink-50" className="bg-pink-50" />
+            <Swatch name="pink-100" className="bg-pink-100" />
+            <Swatch name="pink-200" className="bg-pink-200" />
+            <Swatch name="pink-300" className="bg-pink-300" />
+            <Swatch name="pink-400" className="bg-pink-400" />
+            <Swatch name="pink-500" className="bg-pink-500" />
+            <Swatch name="pink-600" className="bg-pink-600" />
+            <Swatch name="pink-700" className="bg-pink-700" />
+            <Swatch name="pink-800" className="bg-pink-800" />
+            <Swatch name="pink-900" className="bg-pink-900" />
+            <Swatch name="pink-950" className="bg-pink-950" />
+          </div>
+        </Section>
+
+        {/* ── Gray Scale ─────────────────────────────────────────── */}
+        <Section title="Gray-skala">
           <div className="flex flex-wrap gap-3">
             <Swatch name="gray-50" className="bg-gray-50" />
             <Swatch name="gray-100" className="bg-gray-100" />
@@ -106,21 +208,6 @@ function DesignSystemPage() {
             <Swatch name="gray-800" className="bg-gray-800" />
             <Swatch name="gray-900" className="bg-gray-900" />
             <Swatch name="gray-950" className="bg-gray-950" />
-          </div>
-        </Section>
-
-        {/* ── Tailwind Red/Green/Yellow ─────────────────────────── */}
-        <Section title="Semantiske farver">
-          <div className="flex flex-wrap gap-3">
-            <Swatch name="green-100" className="bg-green-100" />
-            <Swatch name="green-500" className="bg-green-500" />
-            <Swatch name="green-700" className="bg-green-700" />
-            <Swatch name="red-100" className="bg-red-100" />
-            <Swatch name="red-500" className="bg-red-500" />
-            <Swatch name="red-700" className="bg-red-700" />
-            <Swatch name="yellow-100" className="bg-yellow-100" />
-            <Swatch name="yellow-500" className="bg-yellow-500" />
-            <Swatch name="orange-500" className="bg-orange-500" />
           </div>
         </Section>
 

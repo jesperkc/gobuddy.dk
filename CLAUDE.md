@@ -42,7 +42,13 @@ npm run types        # Regenerate Supabase TypeScript types into database.types.
 
 **Strava integration:** OAuth 2.0 connection stored in `strava_connections` table. Environment variables: `VITE_STRAVA_CLIENT_ID` (public), `VITE_STRAVA_CLIENT_SECRET` (client secret), `VITE_APP_URL` (base URL for OAuth redirect). Create a Strava API app at https://www.strava.com/settings/api. Set the callback domain to your `VITE_APP_URL`.
 
-**Styling:** Tailwind CSS v4 with `@tailwindcss/postcss`. Config in `tailwind.config.js`, base styles in `src/index.css`. Uses shadcn/ui-style components with CSS variables for theming and Radix UI primitives. Custom font: `amifer` (used for headings).
+**Styling:** Tailwind CSS v4 with `@tailwindcss/postcss`. Config in `tailwind.config.js`, base styles in `src/index.css`. Uses shadcn/ui components (new-york style) with CSS variables for theming and Radix UI primitives. Custom font: `amifer` (used for headings).
+
+**Color system:** Custom brand-derived color scales defined in `tailwind.config.js`. All standard Tailwind color names (blue, green, red, orange, yellow, violet, pink) are overridden with custom scales built around the brand colors. Blue-500 = brand-blue (`#2e7cc5`), Green-500 = brand-green (`#2ad489`). Always use these scales (e.g. `text-blue-700`, `bg-green-50`) — do not use arbitrary color values. Gray uses Tailwind defaults.
+
+**UI components:** Always use shadcn/ui components (`Input`, `Textarea`, `Select`, `Checkbox`, `RadioGroup`, `Switch`, `Toggle`, `Button`, `Badge`, etc.) instead of native HTML form elements. For interest badges, use the shared `InterestBadge` component (`src/components/InterestBadge.tsx`) with variants: `default`, `shared`, `muted` and sizes: `sm`, `lg`.
+
+**Design system:** Preview all colors, typography, and components at `/godaddy/design-system` (admin-only).
 
 **SSR considerations:** The app uses TanStack Start for SSR. Browser-only code must use utilities from `src/lib/ssr-utils.ts` (`isBrowser`, `useClientEffect`, `ClientOnly`, `safeWindow`, etc.) to avoid hydration mismatches.
 
