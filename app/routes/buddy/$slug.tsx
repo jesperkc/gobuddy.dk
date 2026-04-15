@@ -12,6 +12,7 @@ import { Link } from "@tanstack/react-router";
 import { ProfilePhotoDialog } from "../../../src/components/ProfilePhotoDialog";
 import { useActivityPostsStore } from "@/store/activityPosts";
 import { ActivityPostCard } from "@/components/ActivityPostCard";
+import { InterestBadge } from "@/components/InterestBadge";
 
 interface PublicProfile {
   profile_id: string;
@@ -349,15 +350,13 @@ function BuddyProfile() {
                   {profile.interests.map((interest) => {
                     const isShared = myInterestIds.has(interest.interest_id);
                     return (
-                      <div
+                      <InterestBadge
                         key={interest.interest_id}
-                        className={`inline-flex flex-col px-3 py-1.5 rounded-xl text-base ${
-                          isShared ? "bg-blue-50 text-blue-700 ring-1 ring-blue-200" : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        <span className="font-medium">{interest.interest_da}</span>
-                        {interest.description && <span className="text-gray-500 mt-0.5">{interest.description}</span>}
-                      </div>
+                        name={interest.interest_da}
+                        description={interest.description}
+                        variant={isShared ? "shared" : "muted"}
+                        size="lg"
+                      />
                     );
                   })}
                 </div>

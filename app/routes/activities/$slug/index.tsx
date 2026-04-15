@@ -10,6 +10,7 @@ import { Button } from "../../../../src/components/ui/button";
 import { Avatar, AvatarFallback } from "../../../../src/components/ui/avatar";
 import { Map } from "../../../../src/components/Map";
 import { Skeleton } from "../../../../src/components/ui/skeleton";
+import { InterestBadge } from "../../../../src/components/InterestBadge";
 
 function EventDetailPage() {
   const { slug } = Route.useParams();
@@ -155,13 +156,11 @@ function EventDetailPage() {
         {interests.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-6">
             {interests.map((interest) => (
-              <span
+              <InterestBadge
                 key={interest.interest_id}
-                className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700"
-              >
-                <span>{interest.icon}</span>
-                {interest.interest_da}
-              </span>
+                name={interest.interest_da}
+                icon={interest.icon}
+              />
             ))}
           </div>
         )}

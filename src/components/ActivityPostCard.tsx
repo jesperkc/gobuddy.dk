@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ExternalLink, Calendar, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { ActivityPost } from "@/store/activityPosts";
+import { InterestBadge } from "@/components/InterestBadge";
 
 interface ActivityPostCardProps {
   post: ActivityPost;
@@ -131,9 +132,7 @@ export function ActivityPostCard({
       {/* Footer: interest badge + source link */}
       <div className="flex items-center justify-between">
         {post.interest && (
-          <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-            {post.interest.interest_da}
-          </span>
+          <InterestBadge name={post.interest.interest_da} />
         )}
 
         {post.source_url && (

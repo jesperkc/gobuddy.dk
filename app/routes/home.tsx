@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
-import { MapPin, ArrowRight, Compass, UserPen, Calendar, Users } from "lucide-react";
+import { MapPin, ArrowRight, Calendar, Users } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { PageTitle } from "@/components/PageTitle";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
@@ -8,7 +8,6 @@ import { useAuth } from "../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { useEventsStore } from "../../src/store/events";
 import { useActivityPostsStore } from "../../src/store/activityPosts";
-import { Button } from "../../src/components/ui/button";
 import { safeDate } from "../../src/lib/ssr-utils";
 import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
@@ -228,22 +227,6 @@ function HomePage() {
               <p className="text-sm text-gray-400">Ingen aktiviteter i dit feed endnu.</p>
             )}
           </div>
-        </div>
-
-        {/* Quick links */}
-        <div className="flex gap-3">
-          <Button asChild variant="outline" className="flex-1">
-            <Link to="/buddies">
-              <Compass className="w-4 h-4" />
-              Find buddies
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="flex-1">
-            <Link to="/profile">
-              <UserPen className="w-4 h-4" />
-              Min profil
-            </Link>
-          </Button>
         </div>
       </div>
     </DefaultLayout>

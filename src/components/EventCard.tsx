@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Calendar, MapPin, Users } from "lucide-react";
 import { type EventWithDetails, formatEventDate } from "@/store/events";
 import { formatDistance } from "@/lib/geo";
+import { InterestBadge } from "@/components/InterestBadge";
 
 interface EventCardProps {
   event: EventWithDetails;
@@ -44,13 +45,11 @@ export function EventCard({ event, distanceKm, index = 0 }: EventCardProps) {
       {interests.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {interests.map((interest) => (
-            <span
+            <InterestBadge
               key={interest.interest_id}
-              className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700"
-            >
-              <span>{interest.icon}</span>
-              {interest.interest_da}
-            </span>
+              name={interest.interest_da}
+              icon={interest.icon}
+            />
           ))}
         </div>
       )}

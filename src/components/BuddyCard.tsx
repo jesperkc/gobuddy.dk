@@ -2,6 +2,7 @@ import { MapPin, Users, Sparkles, Hand } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistance } from "@/lib/geo";
+import { InterestBadge } from "@/components/InterestBadge";
 
 export interface BuddyProfile {
   profile_id: string;
@@ -153,13 +154,12 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
           </p>
           <div className="flex flex-wrap justify-center gap-1.5">
             {sharedInterests.map((interest) => (
-              <span
+              <InterestBadge
                 key={interest.interest_id}
-                className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded-full text-xs font-medium ring-1 ring-blue-100"
-              >
-                <span>{interest.icon}</span>
-                {interest.interest_da}
-              </span>
+                name={interest.interest_da}
+                icon={interest.icon}
+                variant="shared"
+              />
             ))}
             {relatedInterests.map((interest) => (
               <span

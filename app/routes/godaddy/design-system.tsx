@@ -7,25 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { InterestBadge } from "@/components/InterestBadge";
 import { Toggle } from "@/components/ui/toggle";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Bold, Italic, Heart, Star, Check, X, AlertTriangle, Info } from "lucide-react";
 
 /* ─── Section wrapper ─────────────────────────────────────────────── */
@@ -55,7 +43,7 @@ function DesignSystemPage() {
 
   return (
     <AdminShell>
-      <div className="max-w-5xl mx-auto space-y-12 pb-16">
+      <div className="space-y-12">
         <div>
           <h1 className="text-4xl font-bold mb-2">Design System</h1>
           <p className="text-gray-500">En oversigt over farver, typografi og komponenter.</p>
@@ -175,18 +163,22 @@ function DesignSystemPage() {
               <Button size="default">Default</Button>
               <Button size="lg">Large</Button>
               <Button size="xl">Extra Large</Button>
-              <Button size="icon"><Heart className="h-4 w-4" /></Button>
+              <Button size="icon">
+                <Heart className="h-4 w-4" />
+              </Button>
             </div>
             <div className="flex flex-wrap gap-3 items-center">
               <Button disabled>Disabled</Button>
-              <Button variant="outline" disabled>Disabled Outline</Button>
+              <Button variant="outline" disabled>
+                Disabled Outline
+              </Button>
             </div>
           </div>
         </Section>
 
         {/* ── Input ─────────────────────────────────────────────── */}
         <Section title="Input">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="ds-text">Tekst</Label>
               <Input id="ds-text" placeholder="Indtast tekst..." />
@@ -252,7 +244,9 @@ function DesignSystemPage() {
             </div>
             <div className="flex items-center gap-2">
               <Checkbox id="ds-cb3" disabled />
-              <Label htmlFor="ds-cb3" className="text-muted-foreground">Disabled</Label>
+              <Label htmlFor="ds-cb3" className="text-muted-foreground">
+                Disabled
+              </Label>
             </div>
           </div>
         </Section>
@@ -318,9 +312,15 @@ function DesignSystemPage() {
             <div>
               <p className="text-sm text-gray-500 mb-2">Sizes</p>
               <div className="flex flex-wrap gap-3 items-center">
-                <Toggle variant="outline" size="sm"><Bold className="h-4 w-4" /></Toggle>
-                <Toggle variant="outline" size="default"><Bold className="h-4 w-4" /></Toggle>
-                <Toggle variant="outline" size="lg"><Bold className="h-4 w-4" /></Toggle>
+                <Toggle variant="outline" size="sm">
+                  <Bold className="h-4 w-4" />
+                </Toggle>
+                <Toggle variant="outline" size="default">
+                  <Bold className="h-4 w-4" />
+                </Toggle>
+                <Toggle variant="outline" size="lg">
+                  <Bold className="h-4 w-4" />
+                </Toggle>
               </div>
             </div>
           </div>
@@ -336,6 +336,22 @@ function DesignSystemPage() {
           </div>
         </Section>
 
+        {/* ── InterestBadge ────────────────────────────────────── */}
+        <Section title="InterestBadge">
+          <h3 className="text-sm font-medium text-gray-500">Small (default)</h3>
+          <div className="flex flex-wrap gap-3">
+            <InterestBadge name="Løb" icon="🏃" />
+            <InterestBadge name="Cykling" icon="🚴" variant="shared" />
+            <InterestBadge name="Svømning" icon="🏊" variant="muted" />
+          </div>
+          <h3 className="text-sm font-medium text-gray-500 mt-4">Large (with description)</h3>
+          <div className="flex flex-wrap gap-3">
+            <InterestBadge name="Løb" description="Motionsløb, trail og marathon" variant="default" size="lg" />
+            <InterestBadge name="Cykling" description="Landevej, MTB og gravel" variant="shared" size="lg" />
+            <InterestBadge name="Svømning" description="Frisvømning og åbent vand" variant="muted" size="lg" />
+          </div>
+        </Section>
+
         {/* ── Dialog ────────────────────────────────────────────── */}
         <Section title="Dialog">
           <Dialog>
@@ -345,9 +361,7 @@ function DesignSystemPage() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Dialog titel</DialogTitle>
-                <DialogDescription>
-                  Dette er en eksempel-dialog. Klik udenfor eller tryk Escape for at lukke.
-                </DialogDescription>
+                <DialogDescription>Dette er en eksempel-dialog. Klik udenfor eller tryk Escape for at lukke.</DialogDescription>
               </DialogHeader>
               <div className="flex justify-end gap-2 pt-4">
                 <Button variant="outline">Annuller</Button>
@@ -370,7 +384,7 @@ function DesignSystemPage() {
 
         {/* ── Alerts / Banners ──────────────────────────────────── */}
         <Section title="Alerts (eksempler)">
-          <div className="space-y-3 max-w-xl">
+          <div className="space-y-3">
             <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
               <Info className="h-5 w-5 shrink-0" /> Info: Dette er en informationsbesked.
             </div>
