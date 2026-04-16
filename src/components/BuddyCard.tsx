@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistance } from "@/lib/geo";
 import { InterestBadge } from "@/components/InterestBadge";
+import { InterestIcon } from "@/components/InterestIcon";
 
 export interface BuddyProfile {
   profile_id: string;
@@ -175,7 +176,7 @@ export function BuddyCard({ buddy, sharedInterestIds, relatedInterests = [], dis
                 key={interest.interest_id}
                 className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-50 text-gray-600 rounded-full text-xs font-medium ring-1 ring-gray-100"
               >
-                <span>{interest.icon}</span>
+                <InterestIcon icon={interest.icon} size={14} />
                 {interest.interest_da}
               </span>
             ))}

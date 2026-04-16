@@ -11,6 +11,7 @@ import { Button } from "../../src/components/ui/button";
 import { Skeleton } from "../../src/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { InterestIcon } from "@/components/InterestIcon";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "../../src/lib/supabase";
 import { toast } from "sonner";
@@ -105,7 +106,10 @@ function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPos
               <SelectItem value="__none__">Vælg interesse (valgfrit)</SelectItem>
               {interests.map((i) => (
                 <SelectItem key={i.interest_id} value={i.interest_id}>
-                  {i.icon} {i.interest_da}
+                  <span className="inline-flex items-center gap-2">
+                    <InterestIcon icon={i.icon} size={14} />
+                    {i.interest_da}
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>

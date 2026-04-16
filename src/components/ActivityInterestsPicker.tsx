@@ -5,6 +5,7 @@ interface InterestOption {
 }
 
 import { Toggle } from "./ui/toggle";
+import { InterestIcon } from "./InterestIcon";
 
 interface ActivityInterestsPickerProps {
   interests: InterestOption[];
@@ -27,7 +28,7 @@ export function ActivityInterestsPicker({ interests, selectedIds, toggle }: Acti
           onPressedChange={() => toggle(interest.interest_id)}
           className="rounded-full px-3 py-1.5 h-auto"
         >
-          <span>{interest.icon}</span>
+          <span>{interest.icon && <InterestIcon icon={interest.icon} size={16} />}</span>
           {interest.interest_da}
         </Toggle>
       ))}

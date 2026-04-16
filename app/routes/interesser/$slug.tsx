@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Users, MapPin } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { supabase } from "../../../src/lib/supabase";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
+import { InterestIcon } from "@/components/InterestIcon";
 
 interface InterestDetail {
   interest_id: string;
@@ -106,7 +107,7 @@ function InterestPage() {
             {/* Interest header */}
             <div>
               <div className="flex items-center gap-3">
-                <span className="text-5xl">{interest.icon}</span>
+                <InterestIcon icon={interest.icon} size={56} />
                 <div>
                   <h1 className="text-4xl font-bold">{interest.interest_da}</h1>
                   <p className="text-gray-500 mt-1">{interest.category}</p>

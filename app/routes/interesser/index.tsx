@@ -4,6 +4,7 @@ import { Search, Users, ArrowRight } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { supabase } from "../../../src/lib/supabase";
 import { Input } from "@/components/ui/input";
+import { InterestIcon } from "@/components/InterestIcon";
 
 interface InterestWithCount {
   interest_id: string;
@@ -130,7 +131,7 @@ function InteresserPage() {
                     className="group rounded-xl border p-4 hover:border-blue-300 hover:bg-blue-50/50 transition-colors no-underline text-inherit"
                   >
                     <div className="flex items-start justify-between">
-                      <span className="text-2xl">{interest.icon}</span>
+                      <InterestIcon icon={interest.icon} size={28} />
                       <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-blue-900 transition-colors" />
                     </div>
                     <h3 className="font-medium mt-2">{interest.interest_da}</h3>

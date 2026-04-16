@@ -1,5 +1,6 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { InterestIcon } from "./InterestIcon";
 import React from "react";
 
 const interestBadgeVariants = cva("inline-flex items-center font-medium", {
@@ -40,7 +41,9 @@ export function InterestBadge({ name, icon, description, variant, size, classNam
         </>
       ) : (
         <>
-          {icon && <span>{icon}</span>}
+          {typeof icon === "string"
+            ? icon && <InterestIcon icon={icon} size={16} />
+            : icon && <span>{icon}</span>}
           {name}
         </>
       )}
