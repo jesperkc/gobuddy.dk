@@ -13,6 +13,7 @@ import type { StravaConnection } from "@/lib/strava";
 import { useActivityPostsStore } from "@/store/activityPosts";
 import { ActivityPostCard } from "@/components/ActivityPostCard";
 import { toast } from "sonner";
+import { InterestBadge } from "@/components/InterestBadge";
 
 function Profile() {
   const { user } = useAuth();
@@ -32,11 +33,7 @@ function Profile() {
 
     const loadStrava = async () => {
       try {
-        const { data } = await supabase
-          .from("strava_connections")
-          .select("*")
-          .eq("profile_id", user.id)
-          .single();
+        const { data } = await supabase.from("strava_connections").select("*").eq("profile_id", user.id).single();
 
         if (data) {
           setStravaConnection(data as unknown as StravaConnection);
@@ -112,13 +109,7 @@ function Profile() {
                 <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Interesser</h2>
                 <div className="flex flex-wrap gap-2">
                   {interests.map((interest) => (
-                    <span
-                      key={interest.interest_id}
-                      className="inline-flex items-center px-3 py-1.5 rounded-full text-base font-medium bg-gray-100 text-gray-800"
-                      title={interest.description}
-                    >
-                      {interest.interests.interest_da}
-                    </span>
+                    <InterestBadge key={interest.interest_id} name={interest.interests.interest_da} variant="default" size="md" />
                   ))}
                 </div>
               </div>
@@ -133,63 +124,55 @@ function Profile() {
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {nonInterests.map((interest) => (
-                    <span
+                    <InterestBadge
                       key={interest.interest_id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-base font-medium bg-red-50 text-red-700 border border-red-200"
-                    >
-                      <Ban className="w-3.5 h-3.5" />
-                      {interest.interests.interest_da}
-                    </span>
+                      name={interest.interests.interest_da}
+                      icon={<Ban className="w-3.5 h-3.5" />}
+                      variant="red"
+                      size="md"
+                    />
                   ))}
                 </div>
               </div>
             )}
 
             {/* Activity Stats — computed from all activity posts */}
-            {activityPosts.length > 0 && (() => {
-              const statsMap = new Map<string, { label: string; icon: string; count: number }>();
-              for (const post of activityPosts) {
-                if (!post.interest) continue;
-                const key = post.interest.interest_id;
-                const existing = statsMap.get(key) || {
-                  label: post.interest.interest_da,
-                  icon: post.interest.icon,
-                  count: 0,
-                };
-                existing.count++;
-                statsMap.set(key, existing);
-              }
-              const stats = Array.from(statsMap.values()).sort((a, b) => b.count - a.count);
-              return stats.length > 0 ? (
-                <div>
-                  <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
-                    Aktivitetsstatistik
-                  </h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {stats.map((s) => (
-                      <div key={s.label} className="bg-gray-50 rounded-lg p-3 text-center">
-                        <p className="text-xl font-bold">{s.count}</p>
-                        <p className="text-xs text-gray-500">
-                          {s.label}
-                        </p>
-                      </div>
-                    ))}
+            {activityPosts.length > 0 &&
+              (() => {
+                const statsMap = new Map<string, { label: string; icon: string; count: number }>();
+                for (const post of activityPosts) {
+                  if (!post.interest) continue;
+                  const key = post.interest.interest_id;
+                  const existing = statsMap.get(key) || {
+                    label: post.interest.interest_da,
+                    icon: post.interest.icon,
+                    count: 0,
+                  };
+                  existing.count++;
+                  statsMap.set(key, existing);
+                }
+                const stats = Array.from(statsMap.values()).sort((a, b) => b.count - a.count);
+                return stats.length > 0 ? (
+                  <div>
+                    <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Aktivitetsstatistik</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {stats.map((s) => (
+                        <div key={s.label} className="bg-gray-50 rounded-lg p-3 text-center">
+                          <p className="text-xl font-bold">{s.count}</p>
+                          <p className="text-xs text-gray-500">{s.label}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : null;
-            })()}
+                ) : null;
+              })()}
 
             {/* Activity Posts */}
             {activityPosts.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-                    Seneste aktiviteter
-                  </h2>
-                  <Link
-                    to="/feed"
-                    className="text-xs text-blue-700 hover:underline"
-                  >
+                  <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide">Seneste aktiviteter</h2>
+                  <Link to="/feed" className="text-xs text-blue-700 hover:underline">
                     Se alle i feed →
                   </Link>
                 </div>

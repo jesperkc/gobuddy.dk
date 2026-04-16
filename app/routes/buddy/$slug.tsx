@@ -232,6 +232,10 @@ function BuddyProfile() {
     fetchRelatedInterests();
   }, [profile, myInterestIds, myInterestMap]);
 
+  const relatedBuddyInterestIds = useMemo(() => {
+    return new Set(relatedPairs.map((p) => p.buddyInterest.interest_id));
+  }, [relatedPairs]);
+
   function goToChat() {
     if (!profile) return;
     openChat(profile.profile_id, profile.first_name);
@@ -342,24 +346,52 @@ function BuddyProfile() {
               </div>
             </div>
 
-            {/* Interests */}
+            {/* Interest badges */}
             {profile.interests.length > 0 && (
-              <div>
-                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Interesser</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {profile.interests.map((interest) => {
+              <div className="flex flex-wrap gap-2">
+                {profile.interests.map((interest) => {
+                  const isShared = myInterestIds.has(interest.interest_id);
+                  const isRelated = relatedBuddyInterestIds.has(interest.interest_id);
+                  return (
+                    <InterestBadge
+                      key={interest.interest_id}
+                      name={interest.interest_da}
+                      icon={interest.icon}
+                      variant={isShared ? "shared" : isRelated ? "related" : "default"}
+                      size="md"
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Interest detail cards (only those with descriptions) */}
+            {profile.interests.filter((i) => i.description).length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {profile.interests
+                  .filter((i) => i.description)
+                  .map((interest) => {
                     const isShared = myInterestIds.has(interest.interest_id);
+                    const isRelated = relatedBuddyInterestIds.has(interest.interest_id);
                     return (
-                      <InterestBadge
+                      <div
                         key={interest.interest_id}
-                        name={interest.interest_da}
-                        description={interest.description}
-                        variant={isShared ? "shared" : "muted"}
-                        size="lg"
-                      />
+                        className={`rounded-xl border p-4 ${
+                          isShared
+                            ? "bg-green-50 border-green-200"
+                            : isRelated
+                              ? "bg-violet-50 border-violet-200"
+                              : "bg-white border-gray-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-lg">{interest.icon}</span>
+                          <span className="font-medium text-gray-900">{interest.interest_da}</span>
+                        </div>
+                        <p className="text-sm text-gray-500">{interest.description}</p>
+                      </div>
                     );
                   })}
-                </div>
               </div>
             )}
 
@@ -402,15 +434,15 @@ function BuddyProfile() {
                   <Ban className="w-4 h-4" />
                   Ikke-interesser
                 </h2>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-wrap gap-2">
                   {profile.nonInterests.map((interest) => (
-                    <div
+                    <InterestBadge
                       key={interest.interest_id}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-base font-medium bg-red-50 text-red-700 border border-red-200"
-                    >
-                      <Ban className="w-3.5 h-3.5" />
-                      {interest.interest_da}
-                    </div>
+                      name={interest.interest_da}
+                      icon={<Ban className="w-3.5 h-3.5" />}
+                      variant="red"
+                      size="md"
+                    />
                   ))}
                 </div>
               </div>
