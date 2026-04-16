@@ -1,63 +1,31 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
-import { MapPin, Calendar, ArrowLeft, MessageCircle, Hand, Sparkles, Ban } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
 import { useAuth } from "../../../src/contexts/AuthContext";
 import { useUserProfileStore } from "../../../src/store/userProfile";
 import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
-import { ErrorBanner } from "@/components/ErrorBanner";
-import { Link } from "@tanstack/react-router";
-import { ProfilePhotoDialog } from "../../../src/components/ProfilePhotoDialog";
 import { useActivityPostsStore } from "@/store/activityPosts";
-import { ActivityPostCard } from "@/components/ActivityPostCard";
-import { InterestBadge } from "@/components/InterestBadge";
-
-interface PublicProfile {
-  profile_id: string;
-  first_name: string | null;
-  age: number | null;
-  city: string | null;
-  country: string | null;
-  avatar_url: string | null;
-  created_at: string | null;
-  interests: {
-    interest_id: string;
-    interest_da: string;
-    icon: string;
-    description: string | null;
-  }[];
-  nonInterests: {
-    interest_id: string;
-    interest_da: string;
-    icon: string;
-  }[];
-}
-
-interface RelatedPair {
-  myInterest: { interest_id: string; interest_da: string };
-  buddyInterest: { interest_id: string; interest_da: string };
-  score: number;
-}
+import { ProfileView, type ProfileViewData, type RelatedPair } from "@/components/ProfileView";
 
 function BuddyProfile() {
   const { slug } = Route.useParams();
   const { user } = useAuth();
   const { profile: myProfile, loadProfile } = useUserProfileStore();
   const openChat = useChatPopupStore((s) => s.openChat);
-  const [profile, setProfile] = useState<PublicProfile | null>(null);
+  const [profile, setProfile] = useState<ProfileViewData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [waveSent, setWaveSent] = useState(false);
   const [sendingWave, setSendingWave] = useState(false);
   const [relatedPairs, setRelatedPairs] = useState<RelatedPair[]>([]);
+  const [stravaAthleteId, setStravaAthleteId] = useState<number | null>(null);
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
 
   useEffect(() => {
-    if (user && !myProfile) {
-      loadProfile(user);
-    }
+    if (user && !myProfile) loadProfile(user);
   }, [user, myProfile, loadProfile]);
 
   // Check if hi5 already sent to this buddy
@@ -146,12 +114,22 @@ function BuddyProfile() {
 
   // Load activity posts for this buddy
   useEffect(() => {
-    if (profile?.profile_id) {
-      fetchActivityPosts(profile.profile_id, 50);
-    }
+    if (profile?.profile_id) fetchActivityPosts(profile.profile_id, 50);
   }, [profile?.profile_id, fetchActivityPosts]);
 
-  // Fetch related interests between my interests and the buddy's interests
+  // Load buddy's Strava connection (public athlete id). If RLS blocks it, silently hide.
+  useEffect(() => {
+    if (!profile?.profile_id) return;
+    supabase
+      .from("strava_connections")
+      .select("strava_athlete_id")
+      .eq("profile_id", profile.profile_id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.strava_athlete_id) setStravaAthleteId(data.strava_athlete_id);
+      });
+  }, [profile?.profile_id]);
+
   const myInterestIds = useMemo(() => {
     if (!myProfile?.user_interests) return new Set<string>();
     return new Set(myProfile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id));
@@ -178,7 +156,6 @@ function BuddyProfile() {
       try {
         const myIds = Array.from(myInterestIds);
         const buddyIds = profile!.interests.map((i) => i.interest_id);
-        // Exclude exact matches
         const buddyOnlyIds = buddyIds.filter((id) => !myInterestIds.has(id) && !myNonInterestIds.has(id));
         if (buddyOnlyIds.length === 0) return;
 
@@ -221,7 +198,6 @@ function BuddyProfile() {
           }
         }
 
-        // Sort by score descending
         pairs.sort((a, b) => b.score - a.score);
         setRelatedPairs(pairs);
       } catch (err) {
@@ -230,11 +206,7 @@ function BuddyProfile() {
     }
 
     fetchRelatedInterests();
-  }, [profile, myInterestIds, myInterestMap]);
-
-  const relatedBuddyInterestIds = useMemo(() => {
-    return new Set(relatedPairs.map((p) => p.buddyInterest.interest_id));
-  }, [relatedPairs]);
+  }, [profile, myInterestIds, myNonInterestIds, myInterestMap]);
 
   function goToChat() {
     if (!profile) return;
@@ -246,7 +218,6 @@ function BuddyProfile() {
     setSendingWave(true);
 
     try {
-      // Send message and record hi5 in parallel
       const [msgResult, hi5Result] = await Promise.all([
         supabase.from("messages").insert({
           sender_id: user.id,
@@ -273,218 +244,43 @@ function BuddyProfile() {
     }
   }
 
-  const initials = profile?.first_name ? profile.first_name.slice(0, 2).toUpperCase() : "?";
-
   return (
     <DefaultLayout>
-      <div className="space-y-6">
-        <Link to="/buddies" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-6">
-          <ArrowLeft className="w-4 h-4" />
-          Tilbage til buddies
-        </Link>
+      <Link to="/buddies" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-6">
+        <ArrowLeft className="w-4 h-4" />
+        Tilbage til buddies
+      </Link>
 
-        <ErrorBanner message={error} />
-
-        {loading ? (
-          <div className="space-y-4 animate-pulse">
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-gray-200" />
-              <div className="space-y-2">
-                <div className="h-7 bg-gray-200 rounded w-40" />
-                <div className="h-4 bg-gray-100 rounded w-28" />
-              </div>
-            </div>
-            <div className="flex gap-2 mt-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-8 bg-gray-100 rounded-full w-24" />
-              ))}
+      {loading ? (
+        <div className="space-y-4 animate-pulse">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-gray-200" />
+            <div className="space-y-2">
+              <div className="h-7 bg-gray-200 rounded w-40" />
+              <div className="h-4 bg-gray-100 rounded w-28" />
             </div>
           </div>
-        ) : profile ? (
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="flex items-center gap-4">
-              <ProfilePhotoDialog
-                avatarUrl={profile.avatar_url}
-                name={profile.first_name}
-                initials={initials}
-              />
-              <div className="flex-1">
-                <h1 className="text-3xl">
-                  {profile.first_name || "Anonym"}
-                  {profile.age ? `, ${profile.age}` : ""}
-                </h1>
-                {profile.city && (
-                  <p className="text-gray-500 mt-1 flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {profile.city}
-                    {profile.country ? `, ${profile.country}` : ""}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={goToChat}
-                  className="h-12 w-12 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors flex items-center justify-center"
-                  title={`Skriv til ${profile.first_name || "denne buddy"}`}
-                >
-                  <MessageCircle className="w-6 h-6" />
-                </button>
-                {!waveSent ? (
-                  <button
-                    onClick={sendWave}
-                    disabled={sendingWave}
-                    className="h-12 w-12 rounded-full bg-orange-100 text-orange-700 hover:bg-orange-200 transition-colors flex items-center justify-center disabled:opacity-50"
-                  >
-                    <Hand className={`w-6 h-6 ${sendingWave ? "animate-bounce" : ""}`} />
-                  </button>
-                ) : (
-                  <div className="h-12 w-12 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                    <Hand className="w-6 h-6" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Interest badges */}
-            {profile.interests.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {profile.interests.map((interest) => {
-                  const isShared = myInterestIds.has(interest.interest_id);
-                  const isRelated = relatedBuddyInterestIds.has(interest.interest_id);
-                  return (
-                    <InterestBadge
-                      key={interest.interest_id}
-                      name={interest.interest_da}
-                      icon={interest.icon}
-                      variant={isShared ? "shared" : isRelated ? "related" : "default"}
-                      size="md"
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Interest detail cards (only those with descriptions) */}
-            {profile.interests.filter((i) => i.description).length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {profile.interests
-                  .filter((i) => i.description)
-                  .map((interest) => {
-                    const isShared = myInterestIds.has(interest.interest_id);
-                    const isRelated = relatedBuddyInterestIds.has(interest.interest_id);
-                    return (
-                      <div
-                        key={interest.interest_id}
-                        className={`rounded-xl border p-4 ${
-                          isShared
-                            ? "bg-green-50 border-green-200"
-                            : isRelated
-                              ? "bg-violet-50 border-violet-200"
-                              : "bg-white border-gray-200"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-lg">{interest.icon}</span>
-                          <span className="font-medium text-gray-900">{interest.interest_da}</span>
-                        </div>
-                        <p className="text-sm text-gray-500">{interest.description}</p>
-                      </div>
-                    );
-                  })}
-              </div>
-            )}
-
-            {/* Related interests */}
-            {relatedPairs.length > 0 && (
-              <div>
-                <h2 className="text-sm font-medium text-violet-600 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4" />
-                  Relaterede interesser
-                </h2>
-                <div className="space-y-2">
-                  {relatedPairs.map((pair) => (
-                    <div
-                      key={`${pair.myInterest.interest_id}-${pair.buddyInterest.interest_id}`}
-                      className="flex items-center gap-3 rounded-xl bg-violet-50 border border-violet-100 px-4 py-3"
-                    >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <span className="text-base font-medium text-violet-800">Du: {pair.myInterest.interest_da}</span>
-                        <span className="text-violet-400">→</span>
-                        <span className="text-base font-medium text-violet-800">
-                          {profile.first_name || "De"}: {pair.buddyInterest.interest_da}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="w-16 h-1.5 rounded-full bg-violet-200 overflow-hidden">
-                          <div className="h-full rounded-full bg-violet-500" style={{ width: `${Math.round(pair.score * 100)}%` }} />
-                        </div>
-                        <span className="text-xs text-violet-500 font-medium w-8 text-right">{Math.round(pair.score * 100)}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Non-interests */}
-            {profile.nonInterests.length > 0 && (
-              <div>
-                <h2 className="text-sm font-medium text-red-500 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                  <Ban className="w-4 h-4" />
-                  Ikke-interesser
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {profile.nonInterests.map((interest) => (
-                    <InterestBadge
-                      key={interest.interest_id}
-                      name={interest.interest_da}
-                      icon={<Ban className="w-3.5 h-3.5" />}
-                      variant="red"
-                      size="md"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Activity Posts */}
-            {activityPosts.length > 0 && (
-              <div>
-                <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">Seneste aktiviteter</h2>
-                <div className="space-y-3">
-                  {activityPosts.slice(0, 10).map((post, i) => (
-                    <ActivityPostCard key={post.id} post={post} showAuthor={false} index={i} />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Member since */}
-            {profile.created_at && (
-              <div className="border-t pt-6">
-                <div className="flex items-center gap-2 text-base">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-500">Medlem siden</span>
-                  <span className="text-gray-900">
-                    {new Date(profile.created_at).toLocaleDateString("da-DK", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Highfive confirmation */}
-            {waveSent && (
-              <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-center text-base text-green-700">
-                👋 Highfive sendt! De kan se din besked i chatten.
-              </div>
-            )}
+          <div className="flex gap-2 mt-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-8 bg-gray-100 rounded-full w-24" />
+            ))}
           </div>
-        ) : null}
-      </div>
+        </div>
+      ) : profile ? (
+        <ProfileView
+          data={profile}
+          isOwn={false}
+          myInterestIds={myInterestIds}
+          relatedPairs={relatedPairs}
+          stravaAthleteId={stravaAthleteId}
+          activityPosts={activityPosts}
+          onChat={goToChat}
+          onWave={sendWave}
+          waveSent={waveSent}
+          sendingWave={sendingWave}
+          error={error}
+        />
+      ) : null}
     </DefaultLayout>
   );
 }
