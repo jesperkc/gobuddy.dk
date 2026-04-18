@@ -270,18 +270,24 @@ export type Database = {
           interest_id_a: string
           interest_id_b: string
           score: number
+          source: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
           interest_id_a: string
           interest_id_b: string
           score: number
+          source?: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
           interest_id_a?: string
           interest_id_b?: string
           score?: number
+          source?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -294,6 +300,29 @@ export type Database = {
           {
             foreignKeyName: "interest_relations_interest_id_b_fkey"
             columns: ["interest_id_b"]
+            isOneToOne: false
+            referencedRelation: "interests"
+            referencedColumns: ["interest_id"]
+          },
+        ]
+      }
+      interest_tags: {
+        Row: {
+          interest_id: string
+          tag: string
+        }
+        Insert: {
+          interest_id: string
+          tag: string
+        }
+        Update: {
+          interest_id?: string
+          tag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interest_tags_interest_id_fkey"
+            columns: ["interest_id"]
             isOneToOne: false
             referencedRelation: "interests"
             referencedColumns: ["interest_id"]
@@ -591,6 +620,14 @@ export type Database = {
     }
     Functions: {
       delete_unused_custom_interests_delete: { Args: never; Returns: undefined }
+      get_related_interests: {
+        Args: { min_score?: number; my_ids: string[] }
+        Returns: {
+          my_id: string
+          related_id: string
+          score: number
+        }[]
+      }
     }
     Enums: {
       app_permission: "channels.delete" | "messages.delete"

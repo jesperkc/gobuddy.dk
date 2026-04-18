@@ -9,6 +9,7 @@ import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
 import { useActivityPostsStore } from "@/store/activityPosts";
 import { ProfileView, type ProfileViewData, type RelatedPair } from "@/components/ProfileView";
+import { SCORE_MEDIUM } from "@/lib/interestRelations";
 
 function BuddyProfile() {
   const { slug } = Route.useParams();
@@ -159,40 +160,30 @@ function BuddyProfile() {
         const buddyOnlyIds = buddyIds.filter((id) => !myInterestIds.has(id) && !myNonInterestIds.has(id));
         if (buddyOnlyIds.length === 0) return;
 
-        const [relA, relB] = await Promise.all([
-          supabase
-            .from("interest_relations")
-            .select("interest_id_a, interest_id_b, score")
-            .in("interest_id_a", myIds)
-            .in("interest_id_b", buddyOnlyIds)
-            .gte("score", 0.5),
-          supabase
-            .from("interest_relations")
-            .select("interest_id_a, interest_id_b, score")
-            .in("interest_id_a", buddyOnlyIds)
-            .in("interest_id_b", myIds)
-            .gte("score", 0.5),
-        ]);
+        const buddyOnlySet = new Set(buddyOnlyIds);
+        const { data: relData, error: relErr } = await supabase.rpc("get_related_interests", {
+          my_ids: myIds,
+          min_score: SCORE_MEDIUM,
+        });
+        if (relErr) throw relErr;
 
-        const allRels = [...(relA.data || []), ...(relB.data || [])];
         const buddyInterestMap = new Map(profile!.interests.map((i) => [i.interest_id, i.interest_da]));
 
         const pairs: RelatedPair[] = [];
         const seen = new Set<string>();
 
-        for (const rel of allRels) {
-          const myId = myInterestIds.has(rel.interest_id_a) ? rel.interest_id_a : rel.interest_id_b;
-          const buddyId = myId === rel.interest_id_a ? rel.interest_id_b : rel.interest_id_a;
-          const key = `${myId}-${buddyId}`;
+        for (const rel of relData ?? []) {
+          if (!buddyOnlySet.has(rel.related_id)) continue;
+          const key = `${rel.my_id}-${rel.related_id}`;
           if (seen.has(key)) continue;
           seen.add(key);
 
-          const myName = myInterestMap.get(myId);
-          const buddyName = buddyInterestMap.get(buddyId);
+          const myName = myInterestMap.get(rel.my_id);
+          const buddyName = buddyInterestMap.get(rel.related_id);
           if (myName && buddyName) {
             pairs.push({
-              myInterest: { interest_id: myId, interest_da: myName },
-              buddyInterest: { interest_id: buddyId, interest_da: buddyName },
+              myInterest: { interest_id: rel.my_id, interest_da: myName },
+              buddyInterest: { interest_id: rel.related_id, interest_da: buddyName },
               score: rel.score,
             });
           }

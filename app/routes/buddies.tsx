@@ -11,6 +11,7 @@ import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
 import { BuddyCard, type BuddyProfile, type RawBuddyRow, type RelatedInterestInfo, mapBuddyRow } from "../../src/components/BuddyCard";
 import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
+import { SCORE_MEDIUM } from "@/lib/interestRelations";
 
 function DiscoverPage() {
   const { user } = useAuth();
@@ -58,8 +59,8 @@ function DiscoverPage() {
       try {
         const myIds = Array.from(myInterestIds);
 
-        // Fetch profiles, interest_relations, and hi5s in parallel
-        const [profilesResult, relationsAResult, relationsBResult, hi5sResult] = await Promise.all([
+        // Fetch profiles, related interests via RPC, and hi5s in parallel
+        const [profilesResult, relationsResult, hi5sResult] = await Promise.all([
           supabase
             .from("profiles")
             .select(
@@ -86,12 +87,12 @@ function DiscoverPage() {
             `,
             )
             .neq("profile_id", user!.id),
-          supabase.from("interest_relations").select("interest_id_a, interest_id_b, score").in("interest_id_a", myIds).gte("score", 0.5),
-          supabase.from("interest_relations").select("interest_id_a, interest_id_b, score").in("interest_id_b", myIds).gte("score", 0.5),
+          supabase.rpc("get_related_interests", { my_ids: myIds, min_score: SCORE_MEDIUM }),
           supabase.from("hi5s").select("receiver_id").eq("sender_id", user!.id),
         ]);
 
         if (profilesResult.error) throw profilesResult.error;
+        if (relationsResult.error) throw relationsResult.error;
 
         // Build hi5 sent set
         const sentIds = new Set((hi5sResult.data || []).map((h: { receiver_id: string }) => h.receiver_id));
@@ -99,13 +100,9 @@ function DiscoverPage() {
 
         // Build map: my interest_id → Set of related interest_ids
         const myToRelated = new Map<string, Set<string>>();
-        const allRelations = [...(relationsAResult.data || []), ...(relationsBResult.data || [])];
-
-        for (const rel of allRelations) {
-          const myId = myInterestIds.has(rel.interest_id_a) ? rel.interest_id_a : rel.interest_id_b;
-          const otherId = myId === rel.interest_id_a ? rel.interest_id_b : rel.interest_id_a;
-          if (!myToRelated.has(myId)) myToRelated.set(myId, new Set());
-          myToRelated.get(myId)!.add(otherId);
+        for (const rel of relationsResult.data ?? []) {
+          if (!myToRelated.has(rel.my_id)) myToRelated.set(rel.my_id, new Set());
+          myToRelated.get(rel.my_id)!.add(rel.related_id);
         }
 
         // Collect all related interest IDs (not including exact matches or my non-interests)
