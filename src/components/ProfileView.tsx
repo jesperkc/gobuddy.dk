@@ -4,13 +4,13 @@ import {
   Calendar,
   Mail,
   Pencil,
-  Ban,
   ExternalLink,
   MessageCircle,
   Hand,
   Sparkles,
   Activity,
   Heart,
+  MinusCircle,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { ProfilePhotoDialog } from "./ProfilePhotoDialog";
@@ -101,145 +101,171 @@ export function ProfileView({
     activityPosts.length > 0;
 
   const hasSidebar =
-    activityStats.length > 0 ||
     data.nonInterests.length > 0 ||
     stravaAthleteId != null ||
-    isOwn ||
-    memberSince;
+    (isOwn && !!data.email);
+
+  const totalActivities = activityPosts.length;
+  const topActivityKinds = activityStats.length;
 
   return (
     <div className="space-y-6">
       <ErrorBanner message={error} />
 
       {/* Hero */}
-      <section className="card-reveal rounded-3xl border border-gray-100 bg-white p-6 sm:p-8 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-          <div className="shrink-0">
-            <div className="rounded-full ring-4 ring-gray-50 p-1 bg-white">
-              <ProfilePhotoDialog
-                avatarUrl={data.avatar_url}
-                name={data.first_name}
-                initials={initials}
-                avatarClassName="h-24 w-24 sm:h-28 sm:w-28 text-3xl"
-              />
+      <section className="card-reveal relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
+        {/* Decorative cover band */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 top-0 h-28 sm:h-32 bg-gradient-to-br from-blue-100 via-blue-50 to-green-50"
+        />
+
+        <div className="relative p-6 sm:p-8 pt-8 sm:pt-10">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-7">
+            <div className="shrink-0">
+              <div className="rounded-full ring-4 ring-white bg-white shadow-sm">
+                <ProfilePhotoDialog
+                  avatarUrl={data.avatar_url}
+                  name={data.first_name}
+                  initials={initials}
+                  avatarClassName="h-28 w-28 sm:h-36 sm:w-36 text-4xl"
+                />
+              </div>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h1
+                className="text-4xl sm:text-5xl leading-tight tracking-tight"
+                style={{ textWrap: "balance" }}
+              >
+                {data.first_name || (isOwn ? "Unavngivet" : "Anonym")}
+                {data.age ? (
+                  <span className="text-gray-400 font-normal tabular-nums">, {data.age}</span>
+                ) : null}
+              </h1>
+
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-600">
+                {data.city && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-gray-500" />
+                    {data.city}
+                    {data.country ? `, ${data.country}` : ""}
+                  </span>
+                )}
+                {memberSince && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    Medlem siden {memberSince}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="shrink-0 flex flex-row gap-2 sm:self-end">
+              {isOwn ? (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/profile-edit">
+                    <Pencil className="w-3.5 h-3.5" />
+                    Rediger profil
+                  </Link>
+                </Button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  {onChat && (
+                    <Button
+                      onClick={onChat}
+                      size="default"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      title={`Skriv til ${data.first_name || "denne buddy"}`}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="hidden sm:inline">Skriv</span>
+                    </Button>
+                  )}
+                  {onWave &&
+                    (!waveSent ? (
+                      <Button
+                        onClick={onWave}
+                        disabled={sendingWave}
+                        size="default"
+                        variant="outline"
+                        className="border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
+                        title="Send highfive"
+                      >
+                        <Hand className={`w-4 h-4 ${sendingWave ? "animate-bounce" : ""}`} />
+                        <span className="hidden sm:inline">Highfive</span>
+                      </Button>
+                    ) : (
+                      <span className="inline-flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-3 h-9 text-green-700 text-sm font-medium">
+                        <Hand className="w-4 h-4" />
+                        <span className="hidden sm:inline">Sendt</span>
+                      </span>
+                    ))}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <h1
-              className="text-4xl sm:text-5xl leading-tight tracking-tight"
-              style={{ textWrap: "balance" }}
-            >
-              {data.first_name || (isOwn ? "Unavngivet" : "Anonym")}
-              {data.age ? (
-                <span className="text-gray-400 font-normal tabular-nums">, {data.age}</span>
-              ) : null}
-            </h1>
-
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-500">
-              {data.city && (
-                <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-gray-400" />
-                  {data.city}
-                  {data.country ? `, ${data.country}` : ""}
-                </span>
+          {/* Stat strip */}
+          {(totalActivities > 0 ||
+            data.interests.length > 0 ||
+            (!isOwn && relatedPairs.length > 0)) && (
+            <div className="mt-6 grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-x-8 gap-y-3 border-t border-gray-100 pt-5">
+              {data.interests.length > 0 && (
+                <Stat value={data.interests.length} label="interesser" />
               )}
-              {memberSince && (
-                <span className="inline-flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-gray-400" />
-                  Medlem siden {memberSince}
-                </span>
-              )}
-            </div>
-
-            {/* Quick stats */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {activityPosts.length > 0 && (
-                <StatPill
-                  icon={<Activity className="w-3.5 h-3.5" />}
-                  value={activityPosts.length}
-                  label={activityPosts.length === 1 ? "aktivitet" : "aktiviteter"}
+              {totalActivities > 0 && (
+                <Stat
+                  value={totalActivities}
+                  label={totalActivities === 1 ? "aktivitet" : "aktiviteter"}
+                  hint={topActivityKinds > 1 ? `på tværs af ${topActivityKinds} typer` : undefined}
                 />
               )}
               {!isOwn && relatedPairs.length > 0 && (
-                <StatPill
-                  icon={<Sparkles className="w-3.5 h-3.5" />}
+                <Stat
                   value={relatedPairs.length}
-                  label="relaterede"
+                  label={relatedPairs.length === 1 ? "fælles tråd" : "fælles tråde"}
                   tone="violet"
                 />
               )}
             </div>
-          </div>
+          )}
 
-          {/* Actions */}
-          <div className="shrink-0 flex flex-row sm:flex-col gap-2 sm:items-end">
-            {isOwn ? (
-              <Button asChild variant="outline" size="sm">
-                <Link to="/profile-edit">
-                  <Pencil className="w-3.5 h-3.5" />
-                  Rediger
-                </Link>
-              </Button>
-            ) : (
-              <div className="flex items-center gap-2">
-                {onChat && (
-                  <button
-                    onClick={onChat}
-                    className="h-11 w-11 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 active:scale-[0.96] transition-[background-color,transform] flex items-center justify-center"
-                    title={`Skriv til ${data.first_name || "denne buddy"}`}
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                  </button>
-                )}
-                {onWave &&
-                  (!waveSent ? (
-                    <button
-                      onClick={onWave}
-                      disabled={sendingWave}
-                      className="h-11 w-11 rounded-full bg-green-100 text-green-700 hover:bg-green-200 active:scale-[0.96] transition-[background-color,transform] flex items-center justify-center disabled:opacity-50"
-                      title="Send highfive"
-                    >
-                      <Hand className={`w-5 h-5 ${sendingWave ? "animate-bounce" : ""}`} />
-                    </button>
-                  ) : (
-                    <div
-                      className="h-11 w-11 rounded-full bg-green-100 text-green-700 flex items-center justify-center"
-                      title="Highfive sendt"
-                    >
-                      <Hand className="w-5 h-5" />
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
+          {/* Interest badges */}
+          {data.interests.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {[...data.interests]
+                .sort((a, b) => {
+                  const aShared = !isOwn && myInterestIds?.has(a.interest_id) ? 2 : 0;
+                  const bShared = !isOwn && myInterestIds?.has(b.interest_id) ? 2 : 0;
+                  const aRelated = !isOwn && relatedBuddyInterestIds.has(a.interest_id) ? 1 : 0;
+                  const bRelated = !isOwn && relatedBuddyInterestIds.has(b.interest_id) ? 1 : 0;
+                  return bShared + bRelated - (aShared + aRelated);
+                })
+                .map((interest) => {
+                  const isShared = !isOwn && myInterestIds?.has(interest.interest_id);
+                  const isRelated = !isOwn && relatedBuddyInterestIds.has(interest.interest_id);
+                  return (
+                    <InterestBadge
+                      key={interest.interest_id}
+                      name={interest.interest_da}
+                      icon={interest.icon}
+                      variant={isShared ? "shared" : isRelated ? "related" : "default"}
+                      size="md"
+                    />
+                  );
+                })}
+            </div>
+          )}
+
+          {/* Highfive confirmation */}
+          {!isOwn && waveSent && (
+            <div className="mt-5 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+              👋 Highfive sendt! De kan se din besked i chatten.
+            </div>
+          )}
         </div>
-
-        {/* Interest badges — full-width row inside hero */}
-        {data.interests.length > 0 && (
-          <div className="mt-6 pt-6 border-t border-gray-100 flex flex-wrap gap-2">
-            {data.interests.map((interest) => {
-              const isShared = !isOwn && myInterestIds?.has(interest.interest_id);
-              const isRelated = !isOwn && relatedBuddyInterestIds.has(interest.interest_id);
-              return (
-                <InterestBadge
-                  key={interest.interest_id}
-                  name={interest.interest_da}
-                  icon={interest.icon}
-                  variant={isShared ? "shared" : isRelated ? "related" : "default"}
-                  size="md"
-                />
-              );
-            })}
-          </div>
-        )}
-
-        {/* Highfive confirmation inside hero */}
-        {!isOwn && waveSent && (
-          <div className="mt-5 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            👋 Highfive sendt! De kan se din besked i chatten.
-          </div>
-        )}
       </section>
 
       {/* Main + sidebar */}
@@ -257,7 +283,7 @@ export function ProfileView({
                     return (
                       <div
                         key={interest.interest_id}
-                        className={`rounded-xl border p-4 transition-colors ${
+                        className={`rounded-xl border p-4 transition-colors flex gap-3 ${
                           isShared
                             ? "bg-green-50 border-green-200"
                             : isRelated
@@ -265,13 +291,26 @@ export function ProfileView({
                               : "bg-gray-50/60 border-gray-100"
                         }`}
                       >
-                        <div className="flex items-center gap-2 mb-1">
+                        <div
+                          className={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center ${
+                            isShared
+                              ? "bg-white/80 text-green-700"
+                              : isRelated
+                                ? "bg-white/80 text-violet-700"
+                                : "bg-white text-gray-700"
+                          }`}
+                        >
                           <InterestIcon icon={interest.icon} size={20} />
-                          <span className="font-medium text-gray-900">{interest.interest_da}</span>
                         </div>
-                        <p className="text-sm text-gray-500" style={{ textWrap: "pretty" }}>
-                          {interest.description}
-                        </p>
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-900">{interest.interest_da}</p>
+                          <p
+                            className="text-sm text-gray-600 mt-0.5"
+                            style={{ textWrap: "pretty" }}
+                          >
+                            {interest.description}
+                          </p>
+                        </div>
                       </div>
                     );
                   })}
@@ -302,14 +341,14 @@ export function ProfileView({
                           {data.first_name || "De"}: {pair.buddyInterest.interest_da}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <div className="w-16 h-1.5 rounded-full bg-violet-200 overflow-hidden">
+                      <div className="flex items-center gap-2 shrink-0 w-28">
+                        <div className="flex-1 h-1.5 rounded-full bg-violet-200 overflow-hidden">
                           <div
                             className="h-full rounded-full bg-violet-500"
                             style={{ width: `${Math.round(pair.score * 100)}%` }}
                           />
                         </div>
-                        <span className="text-xs text-violet-500 font-medium w-9 text-right tabular-nums">
+                        <span className="text-xs text-violet-600 font-medium w-9 text-right tabular-nums">
                           {Math.round(pair.score * 100)}%
                         </span>
                       </div>
@@ -352,68 +391,52 @@ export function ProfileView({
         {/* Sidebar */}
         {hasSidebar && (
           <aside className="space-y-6">
-            {/* Activity stats */}
-            {activityStats.length > 0 && (
-              <Card title="Aktivitetsstatistik" icon={<Activity className="w-4 h-4" />} delay={80}>
-                <div className="grid grid-cols-2 gap-2">
-                  {activityStats.map((s) => (
-                    <div
-                      key={s.label}
-                      className="rounded-xl bg-gray-50/60 border border-gray-100 p-3 text-center"
-                    >
-                      <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                        <InterestIcon icon={s.icon} size={16} className="text-gray-500" />
-                        <p className="text-xl font-semibold tabular-nums">{s.count}</p>
-                      </div>
-                      <p className="text-xs text-gray-500 truncate">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )}
-
             {/* Non-interests */}
             {data.nonInterests.length > 0 && (
-              <Card title="Ikke-interesser" icon={<Ban className="w-4 h-4" />} tone="red" delay={140}>
+              <Card
+                title="Ikke noget for mig"
+                icon={<MinusCircle className="w-4 h-4" />}
+                delay={120}
+              >
                 <div className="flex flex-wrap gap-2">
                   {data.nonInterests.map((interest) => (
                     <InterestBadge
                       key={interest.interest_id}
                       name={interest.interest_da}
-                      icon={<Ban className="w-3.5 h-3.5" />}
-                      variant="red"
-                      size="md"
+                      variant="muted"
+                      size="sm"
+                      className="line-through decoration-gray-400 decoration-1"
                     />
                   ))}
                 </div>
               </Card>
             )}
 
-            {/* Strava */}
-            {stravaAthleteId != null && (
-              <Card title="Tilslutninger" delay={200}>
-                <a
-                  href={`https://www.strava.com/athletes/${stravaAthleteId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FC4C02]/10 text-[#FC4C02] hover:bg-[#FC4C02]/20 active:scale-[0.96] transition-[background-color,transform] text-sm font-medium"
-                >
-                  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                    <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
-                  </svg>
-                  Strava
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </Card>
-            )}
-
-            {/* Details (own only — email) */}
-            {isOwn && data.email && (
-              <Card title="Detaljer" delay={260}>
-                <div className="flex items-center gap-2 text-sm min-w-0">
-                  <Mail className="w-4 h-4 text-gray-400 shrink-0" />
-                  <span className="text-gray-500 shrink-0">Email:</span>
-                  <span className="text-gray-900 truncate">{data.email}</span>
+            {/* Detaljer (Strava + email combined) */}
+            {(stravaAthleteId != null || (isOwn && data.email)) && (
+              <Card title="Detaljer" delay={180}>
+                <div className="space-y-3">
+                  {stravaAthleteId != null && (
+                    <a
+                      href={`https://www.strava.com/athletes/${stravaAthleteId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#FC4C02]/10 text-[#FC4C02] hover:bg-[#FC4C02]/20 active:scale-[0.96] transition-[background-color,transform] text-sm font-medium"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+                      </svg>
+                      Strava
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  {isOwn && data.email && (
+                    <div className="flex items-center gap-2 text-sm min-w-0">
+                      <Mail className="w-4 h-4 text-gray-500 shrink-0" />
+                      <span className="text-gray-600 shrink-0">Email:</span>
+                      <span className="text-gray-900 truncate">{data.email}</span>
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
@@ -443,7 +466,7 @@ function Card({
   action?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const titleColor =
+  const iconColor =
     tone === "violet" ? "text-violet-600" : tone === "red" ? "text-red-500" : "text-gray-500";
 
   return (
@@ -453,9 +476,10 @@ function Card({
     >
       <div className="flex items-center justify-between mb-4">
         <h2
-          className={`text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 ${titleColor}`}
+          className="text-base font-semibold text-gray-900 flex items-center gap-2"
+          style={{ textWrap: "balance" }}
         >
-          {icon}
+          <span className={iconColor}>{icon}</span>
           {title}
         </h2>
         {action}
@@ -465,28 +489,27 @@ function Card({
   );
 }
 
-function StatPill({
-  icon,
+function Stat({
   value,
   label,
+  hint,
   tone = "default",
 }: {
-  icon: React.ReactNode;
   value: number;
   label: string;
+  hint?: string;
   tone?: "default" | "violet";
 }) {
-  const colors =
-    tone === "violet"
-      ? "bg-violet-50 text-violet-700 border-violet-100"
-      : "bg-gray-50 text-gray-700 border-gray-100";
+  const valueColor = tone === "violet" ? "text-violet-700" : "text-gray-900";
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${colors}`}
-    >
-      <span className="text-gray-400">{icon}</span>
-      <span className="font-semibold tabular-nums">{value}</span>
-      <span className="text-gray-500">{label}</span>
-    </span>
+    <div className="flex flex-col">
+      <span className={`text-2xl font-semibold tabular-nums leading-none ${valueColor}`}>
+        {value}
+      </span>
+      <span className="text-xs text-gray-500 mt-1">
+        {label}
+        {hint ? <span className="hidden sm:inline text-gray-400"> · {hint}</span> : null}
+      </span>
+    </div>
   );
 }

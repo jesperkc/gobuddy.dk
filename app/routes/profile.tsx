@@ -79,13 +79,33 @@ function Profile() {
   return (
     <DefaultLayout>
       {loading || !viewData ? (
-        <div className="space-y-4 animate-pulse">
-          <div className="h-8 bg-gray-100 rounded w-48" />
-          <div className="h-4 bg-gray-100 rounded w-32" />
-          <div className="flex gap-2 mt-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-8 bg-gray-100 rounded-full w-24" />
-            ))}
+        <div className="space-y-6">
+          <div className="card-reveal relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
+            <div aria-hidden className="absolute inset-x-0 top-0 h-28 sm:h-32 bg-gradient-to-br from-blue-100 via-blue-50 to-green-50" />
+            <div className="relative p-6 sm:p-8 pt-8 sm:pt-10 animate-pulse">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-7">
+                <div className="h-28 w-28 sm:h-36 sm:w-36 rounded-full bg-gray-200 ring-4 ring-white" />
+                <div className="flex-1 space-y-3">
+                  <div className="h-10 bg-gray-200 rounded w-56" />
+                  <div className="h-4 bg-gray-100 rounded w-40" />
+                </div>
+              </div>
+              <div className="mt-6 pt-5 border-t border-gray-100 flex gap-8">
+                <div className="space-y-2">
+                  <div className="h-6 w-8 bg-gray-200 rounded" />
+                  <div className="h-3 w-16 bg-gray-100 rounded" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-6 w-8 bg-gray-200 rounded" />
+                  <div className="h-3 w-16 bg-gray-100 rounded" />
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-8 bg-gray-100 rounded-full w-24" />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       ) : (
