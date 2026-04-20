@@ -42,7 +42,7 @@ npm run types        # Regenerate Supabase TypeScript types into database.types.
 
 **Strava integration:** OAuth 2.0 connection stored in `strava_connections` table. Environment variables: `VITE_STRAVA_CLIENT_ID` (public), `VITE_STRAVA_CLIENT_SECRET` (client secret), `VITE_APP_URL` (base URL for OAuth redirect). Create a Strava API app at https://www.strava.com/settings/api. Set the callback domain to your `VITE_APP_URL`.
 
-**Styling:** Tailwind CSS v4 with `@tailwindcss/postcss`. Config in `tailwind.config.js`, base styles in `src/index.css`. Uses shadcn/ui components (new-york style) with CSS variables for theming and Radix UI primitives. Custom font: `amifer` (used for headings).
+**Styling:** Tailwind CSS v4 with `@tailwindcss/postcss`. Config in `tailwind.config.js`, base styles in `src/index.css`. Uses shadcn/ui components (new-york style) with CSS variables for theming and Radix UI primitives. Body font: `Inter`. Heading font: `Alwyn New Rounded Medium` (self-hosted from `/public/fonts/`, auto-applied to h1–h6 via `font-alwyn`).
 
 **Color system:** Custom brand-derived color scales defined in `tailwind.config.js`. All standard Tailwind color names (blue, green, red, orange, yellow, violet, pink) are overridden with custom scales built around the brand colors. Blue-500 = brand-blue (`#2e7cc5`), Green-500 = brand-green (`#2ad489`). Always use these scales (e.g. `text-blue-700`, `bg-green-50`) — do not use arbitrary color values. Gray uses Tailwind defaults.
 

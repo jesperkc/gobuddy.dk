@@ -6,8 +6,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // patua: ["Patua One", "Sans-serif"],
-        amifer: ["amifer", "sans-serif"],
+        alwyn: ['"Alwyn New Rounded"', "system-ui", "sans-serif"],
         sans: ['"Inter"', "system-ui", "sans-serif"],
       },
       borderRadius: {

@@ -4,7 +4,7 @@
 
 GoBuddy helps Danes find friends through shared hobbies. The interface is clean and warm — white card surfaces floating on a warm cream page background (`#faf9f7`), light gray borders, and standard Tailwind shadows. The overall feel is modern and minimal, leaning on good typography and clear information hierarchy rather than decorative flourishes.
 
-The typography pairs two voices: **Amifer**, a characterful display typeface loaded from Adobe TypeKit, handles every heading and gives the brand its recognizable personality. **Inter**, a variable-weight workhorse from Google Fonts, handles body copy, labels, navigation, and form fields with quietly excellent legibility. OpenType features (`cv02`, `cv03`, `cv04`, `cv11`) are enabled globally to give Inter subtle character.
+The typography pairs two voices: **Alwyn New Rounded Medium**, a self-hosted display typeface (loaded from `/public/fonts/`), handles every heading and gives the brand its distinctive personality. **Inter**, a variable-weight workhorse from Google Fonts, handles body copy, labels, navigation, and form fields with quietly excellent legibility. OpenType features (`cv02`, `cv03`, `cv04`, `cv11`) are enabled globally to give Inter subtle character.
 
 The signature interaction is the **glow button** on the landing page — a black CTA with an animated gradient border that pulses and blurs on hover, lifting upward with `translateY(-5px)`. Cards throughout the app use a gentler hover: a slight upward lift (`-translate-y-1`) and a larger shadow (`shadow-lg`). A staggered `cardReveal` entrance animation (fade in + slide up) gives lists a polished feel.
 
@@ -12,7 +12,7 @@ The signature interaction is the **glow button** on the landing page — a black
 
 - Warm cream page background (`#faf9f7`) with white card surfaces and light gray borders (`border-gray-100`)
 - Standard Tailwind shadow scale (`shadow-sm`, `shadow-lg`)
-- Amifer for headings, Inter for everything else
+- Alwyn New for headings, Inter for everything else
 - Card hover: `-translate-y-1` + `shadow-lg`
 - Glow button CTA with animated gradient border
 - `cardReveal` staggered entrance animation on cards
@@ -86,7 +86,7 @@ Preview all colors at `/godaddy/design-system` (admin-only).
 
 ### Font Stack
 
-- **Display**: `Amifer` via Adobe TypeKit (`https://use.typekit.net/ejg7xnf.css`), fallback `sans-serif`
+- **Display**: `Alwyn New Rounded` (Medium 500) self-hosted via `@font-face` from `/fonts/alwyn-new-rounded-medium.{woff2,woff}`, fallback `system-ui`, `sans-serif`
 - **Body/UI**: `Inter` via Google Fonts (variable, weight 100–900, optical sizing 14–32), fallback `system-ui, sans-serif`
 - **OpenType on body**: `"cv02", "cv03", "cv04", "cv11"` enabled globally
 
@@ -94,10 +94,10 @@ Preview all colors at `/godaddy/design-system` (admin-only).
 
 | Role            | Font   | Size    | Weight | Line Height | Context                         |
 | --------------- | ------ | ------- | ------ | ----------- | ------------------------------- |
-| Hero Heading    | Amifer | 30–36px | 700    | tight       | Landing page headline           |
-| Page Heading    | Amifer | 24–30px | 700    | tight       | h1 on interior pages            |
-| Section Heading | Amifer | 18–20px | 600    | 1.25        | h2, card-group titles           |
-| Card Title      | Amifer | 16–18px | 600    | tight       | h3 inside cards                 |
+| Hero Heading    | Alwyn New | 30–36px | 700    | tight       | Landing page headline           |
+| Page Heading    | Alwyn New | 24–30px | 700    | tight       | h1 on interior pages            |
+| Section Heading | Alwyn New | 18–20px | 600    | 1.25        | h2, card-group titles           |
+| Card Title      | Alwyn New | 16–18px | 600    | tight       | h3 inside cards                 |
 | Body Large      | Inter  | 18–20px | 400    | 1.40–1.60   | Descriptions, landing page copy |
 | Body Standard   | Inter  | 14–16px | 400    | 1.50        | Labels, UI text, form fields    |
 | Body Medium     | Inter  | 16px    | 500    | 1.40        | Button labels                   |
@@ -106,7 +106,7 @@ Preview all colors at `/godaddy/design-system` (admin-only).
 
 ### Principles
 
-- **Amifer is only for headings**: Applied to h1–h6 via the `font-amifer` Tailwind utility in a global CSS layer. Body text, labels, and UI elements always use Inter.
+- **Alwyn New is only for headings**: Applied to h1–h6 via the `font-alwyn` Tailwind utility in a global CSS layer. Body text, labels, and UI elements always use Inter.
 - **Weight hierarchy**: 600–700 for headings, 500 for interactive UI (buttons, nav), 400 for body text.
 - **Responsive sizing**: Most heading sizes use Tailwind responsive prefixes (`text-3xl sm:text-4xl`) rather than fixed pixel values.
 
@@ -224,14 +224,14 @@ The shadow system uses Tailwind's defaults. There are no custom shadow tokens. E
 - Use `bg-background` (warm cream `#faf9f7`) for page backgrounds and `bg-white` for card surfaces
 - Apply `hover:shadow-lg hover:-translate-y-1 transition-all duration-200` to interactive cards
 - Use `cardReveal` animation with staggered `animationDelay` on card lists
-- Keep Amifer strictly on h1–h6 elements via `font-amifer`
+- Keep Alwyn New strictly on h1–h6 elements via `font-alwyn`
 - Use blue-50/700 for shared interests, violet-50/700 for related, gray-50/600 for other
 - Use `bg-blue-100 text-blue-700` for avatar initials
 - Use `rounded-2xl` (16px) on cards and `rounded-full` on badges
 
 ### Don't
 
-- Don't apply Amifer to body text, labels, or button text
+- Don't apply Alwyn New to body text, labels, or button text
 - Don't use custom shadows — stick to Tailwind's `shadow-sm`, `shadow-lg` scale
 - Don't skip the `cardReveal` entrance animation on card grids
 - Don't use hard-coded colors — use the CSS variables via Tailwind classes where possible
