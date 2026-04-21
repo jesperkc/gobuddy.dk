@@ -3,6 +3,7 @@ import { ExternalLink, Calendar, Trash2, Lock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { ActivityPost } from "@/store/activityPosts";
 import { InterestBadge } from "@/components/InterestBadge";
+import { ActivityPostInteractions } from "@/components/ActivityPostInteractions";
 
 interface ActivityPostCardProps {
   post: ActivityPost;
@@ -126,6 +127,8 @@ export function ActivityPostCard({ post, showAuthor = true, onDelete, index = 0 
           </a>
         )}
       </div>
+
+      <ActivityPostInteractions post={post} />
     </div>
   );
 }
