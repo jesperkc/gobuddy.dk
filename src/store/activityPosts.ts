@@ -10,6 +10,7 @@ export interface ActivityPost {
   source_url: string | null;
   activity_date: string | null;
   created_at: string;
+  private: boolean;
   interest: {
     interest_id: string;
     interest_da: string;
@@ -29,7 +30,7 @@ export interface ActivityPost {
 }
 
 const POST_SELECT = `
-  id, profile_id, title, description, source, source_url, activity_date, created_at,
+  id, profile_id, title, description, source, source_url, activity_date, created_at, private,
   interest:interests (interest_id, interest_da, icon),
   profile:profiles!profile_id (profile_id, first_name, slug, avatar_url),
   media:activity_post_media (id, url, media_type)
@@ -71,6 +72,9 @@ export const useActivityPostsStore = create<ActivityPostsState>((set, get) => ({
 
       if (profileId) {
         query = query.eq("profile_id", profileId);
+      } else {
+        // Public feed: never include private posts (even one's own)
+        query = query.eq("private", false);
       }
 
       const { data, error } = await query;

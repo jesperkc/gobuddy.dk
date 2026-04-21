@@ -59,6 +59,7 @@ export type Database = {
           description: string | null
           id: string
           interest_id: string | null
+          private: boolean
           profile_id: string
           source: string
           source_data: Json | null
@@ -73,6 +74,7 @@ export type Database = {
           description?: string | null
           id?: string
           interest_id?: string | null
+          private?: boolean
           profile_id: string
           source?: string
           source_data?: Json | null
@@ -87,6 +89,7 @@ export type Database = {
           description?: string | null
           id?: string
           interest_id?: string | null
+          private?: boolean
           profile_id?: string
           source?: string
           source_data?: Json | null

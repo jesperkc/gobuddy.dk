@@ -138,6 +138,8 @@ async function importActivity(
   if (activity.moving_time > 0) descParts.push(formatDuration(activity.moving_time));
   if (activity.total_elevation_gain > 0) descParts.push(`↑ ${Math.round(activity.total_elevation_gain)} m`);
 
+  const isPrivate = activity.visibility !== "everyone";
+
   const { data: post, error } = await supabaseAdmin
     .from("activity_posts")
     .upsert(
@@ -151,6 +153,7 @@ async function importActivity(
         source_url: `https://www.strava.com/activities/${activity.id}`,
         source_data: activity,
         activity_date: activity.start_date,
+        private: isPrivate,
       },
       { onConflict: "source,source_id" }
     )

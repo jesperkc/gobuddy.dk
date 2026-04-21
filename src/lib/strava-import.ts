@@ -242,6 +242,7 @@ async function upsertActivityPost(
 
   const stravaUrl = `https://www.strava.com/activities/${activity.id}`;
   const description = buildDescription(activity);
+  const isPrivate = activity.visibility !== "everyone";
 
   const { data: post, error } = await supabaseAdmin
     .from("activity_posts")
@@ -256,6 +257,7 @@ async function upsertActivityPost(
         source_url: stravaUrl,
         source_data: activity as unknown as Record<string, unknown>,
         activity_date: activity.start_date,
+        private: isPrivate,
       },
       { onConflict: "source,source_id" }
     )

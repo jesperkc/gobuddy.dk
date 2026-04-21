@@ -37,6 +37,7 @@ export interface StravaActivity {
   average_speed: number;
   max_speed: number;
   total_elevation_gain: number;
+  visibility?: "everyone" | "followers_only" | "only_me" | string;
 }
 
 export interface StravaStats {

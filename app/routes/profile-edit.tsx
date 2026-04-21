@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { PageTitle } from "@/components/PageTitle";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Check, ExternalLink, Link2, Link2Off, Loader2, RefreshCw, Zap } from "lucide-react";
+import { ArrowLeft, Check, ExternalLink, Link2, Link2Off, Loader2, Lock, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/lib/supabase";
@@ -343,6 +343,7 @@ export function ProfileEdit() {
               source_url: `https://www.strava.com/activities/${activity.id}`,
               source_data: activity as unknown as Record<string, unknown>,
               activity_date: activity.start_date,
+              private: activity.visibility !== "everyone",
             },
             { onConflict: "source,source_id" }
           );
@@ -729,7 +730,14 @@ export function ProfileEdit() {
                             className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg"
                           >
                             <div>
-                              <p className="font-medium text-sm">{activity.name}</p>
+                              <p className="font-medium text-sm flex items-center gap-1.5">
+                                {activity.name}
+                                {activity.visibility && activity.visibility !== "everyone" && (
+                                  <span title="Privat aktivitet — kun synlig for dig" className="inline-flex">
+                                    <Lock className="h-3 w-3 text-gray-400" aria-label="Privat aktivitet" />
+                                  </span>
+                                )}
+                              </p>
                               <p className="text-xs text-gray-500">
                                 {activity.sport_type} · {new Date(activity.start_date_local).toLocaleDateString("da-DK")}
                               </p>

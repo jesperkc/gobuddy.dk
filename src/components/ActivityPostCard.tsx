@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ExternalLink, Calendar, Trash2 } from "lucide-react";
+import { ExternalLink, Calendar, Trash2, Lock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { ActivityPost } from "@/store/activityPosts";
 import { InterestBadge } from "@/components/InterestBadge";
@@ -33,12 +33,7 @@ const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
   manual: { label: "Manuel", color: "bg-gray-100 text-gray-600" },
 };
 
-export function ActivityPostCard({
-  post,
-  showAuthor = true,
-  onDelete,
-  index = 0,
-}: ActivityPostCardProps) {
+export function ActivityPostCard({ post, showAuthor = true, onDelete, index = 0 }: ActivityPostCardProps) {
   const sourceInfo = SOURCE_LABELS[post.source] || SOURCE_LABELS.manual;
 
   return (
@@ -46,48 +41,35 @@ export function ActivityPostCard({
       className="card-reveal rounded-2xl border border-gray-100 bg-white p-5 transition-all duration-200"
       style={{ animationDelay: `${index * 60}ms` }}
     >
-      {/* Header: author + source + date */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          {showAuthor && post.profile && (
-            <>
-              <Link
-                to="/buddy/$slug"
-                params={{ slug: post.profile.slug }}
-                className="no-underline"
-              >
-                <Avatar className="h-7 w-7 text-xs">
-                  {post.profile.avatar_url && (
-                    <AvatarImage src={post.profile.avatar_url} alt={post.profile.first_name || ""} />
-                  )}
+      {/* Header: [avatar | name + title]  |  [date + delete] */}
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-start gap-2 min-w-0 flex-1">
+          <div className="min-w-0 flex-1">
+            {showAuthor && post.profile && (
+              <Link to="/buddy/$slug" params={{ slug: post.profile.slug }} className="flex items-center gap-2 min-w-0 flex-1 mb-2">
+                <Avatar className="h-9 w-9 text-xs">
+                  {post.profile.avatar_url && <AvatarImage src={post.profile.avatar_url} alt={post.profile.first_name || ""} />}
                   <AvatarFallback className="bg-blue-100 text-blue-700">
                     {post.profile.first_name?.slice(0, 2).toUpperCase() || "?"}
                   </AvatarFallback>
                 </Avatar>
+                <span className="block text-sm font-medium text-gray-900 hover:text-blue-900 no-underline truncate">
+                  {post.profile.first_name || "Ukendt"}
+                </span>
               </Link>
-              <Link
-                to="/buddy/$slug"
-                params={{ slug: post.profile.slug }}
-                className="text-sm font-medium text-gray-900 hover:text-blue-900 no-underline"
-              >
-                {post.profile.first_name || "Ukendt"}
-              </Link>
-            </>
-          )}
-
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${sourceInfo.color}`}
-          >
-            {post.source === "strava" && (
-              <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-current">
-                <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
-              </svg>
             )}
-            {sourceInfo.label}
-          </span>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h3 className="text-lg font-semibold text-gray-900 truncate min-w-0">{post.title}</h3>
+              {post.private && (
+                <span title="Privat aktivitet — kun synlig for dig" className="inline-flex shrink-0">
+                  <Lock className="h-3 w-3 text-gray-400" aria-label="Privat aktivitet" />
+                </span>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {post.activity_date && (
             <span className="text-xs text-gray-400 flex items-center gap-1">
               <Calendar className="h-3 w-3" />
@@ -107,35 +89,31 @@ export function ActivityPostCard({
         </div>
       </div>
 
-      {/* Title */}
-      <h3 className="text-lg font-semibold text-gray-900 mb-1">{post.title}</h3>
-
       {/* Description */}
-      {post.description && (
-        <p className="text-sm text-gray-600 mb-3">{post.description}</p>
-      )}
+      {post.description && <p className="text-sm text-gray-600 mb-3">{post.description}</p>}
 
       {/* Media */}
       {post.media && post.media.length > 0 && (
         <div className="flex gap-2 mb-3 overflow-x-auto">
           {post.media.map((m) => (
-            <img
-              key={m.id}
-              src={m.url}
-              alt=""
-              className="h-32 w-auto rounded-lg object-cover flex-shrink-0"
-              loading="lazy"
-            />
+            <img key={m.id} src={m.url} alt="" className="h-32 w-auto rounded-lg object-cover flex-shrink-0" loading="lazy" />
           ))}
         </div>
       )}
 
       {/* Footer: interest badge + source link */}
       <div className="flex items-center justify-between">
-        {post.interest && (
-          <InterestBadge name={post.interest.interest_da} />
-        )}
-
+        <span className="flex items-center justify-between gap-2">
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${sourceInfo.color}`}>
+            {post.source === "strava" && (
+              <svg viewBox="0 0 24 24" className="w-2.5 h-2.5 fill-current">
+                <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+              </svg>
+            )}
+            {sourceInfo.label}
+          </span>
+          {post.interest && <InterestBadge name={post.interest.interest_da} />}
+        </span>
         {post.source_url && (
           <a
             href={post.source_url}
