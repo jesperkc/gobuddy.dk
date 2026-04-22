@@ -168,9 +168,10 @@ function EditEventPage() {
   };
 
   return (
-    <DefaultLayout>
+    <DefaultLayout
+      header={<PageTitle>Rediger aktivitet</PageTitle>}
+    >
       <div className="space-y-6">
-        <PageTitle>Rediger aktivitet</PageTitle>
         <EventForm
           onSubmit={handleSubmit}
           submitting={submitting}

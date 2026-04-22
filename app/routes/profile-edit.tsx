@@ -533,17 +533,18 @@ export function ProfileEdit() {
   }
 
   return (
-    <DefaultLayout>
+    <DefaultLayout
+      header={
+        <div className="flex items-center justify-between">
+          <PageTitle>Rediger profil</PageTitle>
+          <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/profile" })}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Tilbage
+          </Button>
+        </div>
+      }
+    >
       <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <PageTitle>Rediger profil</PageTitle>
-        <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/profile" })}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Tilbage
-        </Button>
-      </div>
-
       <ErrorBanner message={error} />
 
       <ProfileTabBar

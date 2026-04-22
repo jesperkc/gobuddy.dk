@@ -82,12 +82,15 @@ function InboxPage() {
   }
 
   return (
-    <DefaultLayout>
-      <div className="space-y-6">
+    <DefaultLayout
+      header={
         <div>
           <PageTitle>Beskeder</PageTitle>
           <p className="text-gray-500 mt-1">Dine samtaler med buddies</p>
         </div>
+      }
+    >
+      <div className="space-y-6">
 
         {loading && (
           <div className="space-y-3">

@@ -103,17 +103,21 @@ function EventDetailPage() {
   };
 
   return (
-    <DefaultLayout>
+    <DefaultLayout
+      header={
+        <div>
+          <Link
+            to="/activities"
+            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Alle aktiviteter
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900">{event.title}</h1>
+        </div>
+      }
+    >
       <div className="space-y-6">
-        {/* Back link */}
-        <Link
-          to="/activities"
-          className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Alle aktiviteter
-        </Link>
-
         {/* Status banners */}
         {isCancelled && (
           <div className="rounded-lg bg-red-50 border border-red-200 p-3 mb-4 flex items-center gap-2 text-red-700 text-sm">
@@ -126,9 +130,6 @@ function EventDetailPage() {
             Denne aktivitet er afsluttet
           </div>
         )}
-
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">{event.title}</h1>
 
         {/* Meta */}
         <div className="flex flex-col gap-1.5 text-sm text-gray-500 mb-4">

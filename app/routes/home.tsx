@@ -129,9 +129,8 @@ function HomePage() {
   const profileComplete = !!profile?.first_name && !!profile?.age && hasInterests && hasLocation;
 
   return (
-    <DefaultLayout>
-      <div className="space-y-8">
-        {/* Greeting */}
+    <DefaultLayout
+      header={
         <div>
           <PageTitle>
             {getGreeting()}, {profile?.first_name || "Ven"}
@@ -143,7 +142,9 @@ function HomePage() {
             </p>
           )}
         </div>
-
+      }
+    >
+      <div className="space-y-8">
         {/* Profile completion nudge */}
         {!profileComplete && (
           <div className="rounded-xl bg-gray-50 p-5">

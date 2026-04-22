@@ -158,10 +158,9 @@ function ChatPage() {
   const buddyInitials = buddyName ? buddyName.slice(0, 2).toUpperCase() : "?";
 
   return (
-    <DefaultLayout>
-      <div className="flex flex-col" style={{ height: "calc(100vh - 10rem)" }}>
-        {/* Header */}
-        <div className="flex items-center gap-3 pb-4 border-b">
+    <DefaultLayout
+      header={
+        <div className="flex items-center gap-3">
           <Link to="/chat" className="text-gray-500 hover:text-gray-800">
             <ArrowLeft className="w-5 h-5" />
           </Link>
@@ -172,6 +171,9 @@ function ChatPage() {
             <p className="font-medium leading-tight">{buddyName || "Anonym"}</p>
           </Link>
         </div>
+      }
+    >
+      <div className="flex flex-col" style={{ height: "calc(100vh - 14rem)" }}>
 
         {/* Messages area */}
         <div className="flex-1 overflow-y-auto py-4 space-y-1">

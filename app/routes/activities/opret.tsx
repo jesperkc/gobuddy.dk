@@ -87,9 +87,10 @@ function CreateEventPage() {
   };
 
   return (
-    <DefaultLayout>
+    <DefaultLayout
+      header={<PageTitle>Opret aktivitet</PageTitle>}
+    >
       <div className="space-y-6">
-        <PageTitle>Opret aktivitet</PageTitle>
         <EventForm onSubmit={handleSubmit} submitting={submitting} myInterests={myInterests} />
       </div>
     </DefaultLayout>

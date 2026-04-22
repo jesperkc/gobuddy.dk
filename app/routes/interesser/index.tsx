@@ -83,9 +83,8 @@ function InteresserPage() {
   const totalUsers = interests.reduce((sum, i) => sum + i.user_count, 0);
 
   return (
-    <DefaultLayout>
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Hero */}
+    <DefaultLayout
+      header={
         <div className="text-center space-y-3">
           <h1 className="text-4xl font-bold">Find din næste hobby-buddy</h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
@@ -93,7 +92,9 @@ function InteresserPage() {
             {totalUsers > 0 && ` ${totalUsers} buddies venter allerede.`}
           </p>
         </div>
-
+      }
+    >
+      <div className="max-w-4xl mx-auto space-y-8">
         {/* Search */}
         <div className="relative max-w-md mx-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />

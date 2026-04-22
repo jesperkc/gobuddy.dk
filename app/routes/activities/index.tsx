@@ -34,9 +34,8 @@ function EventsPage() {
   };
 
   return (
-    <DefaultLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <DefaultLayout
+      header={
         <div className="flex items-center justify-between">
           <div>
             <PageTitle>Aktiviteter</PageTitle>
@@ -51,7 +50,9 @@ function EventsPage() {
             </Button>
           </Link>
         </div>
-
+      }
+    >
+      <div className="space-y-6">
         {/* Content */}
         {loading && (
           <div className="grid gap-4 sm:grid-cols-2">

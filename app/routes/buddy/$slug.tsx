@@ -8,7 +8,7 @@ import { useUserProfileStore } from "../../../src/store/userProfile";
 import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
 import { useActivityPostsStore } from "@/store/activityPosts";
-import { ProfileView, type ProfileViewData, type RelatedPair } from "@/components/ProfileView";
+import { ProfileView, ProfileHero, type ProfileViewData, type RelatedPair, ProfileHeroSkeleton } from "@/components/ProfileView";
 import { SCORE_MEDIUM } from "@/lib/interestRelations";
 
 function BuddyProfile() {
@@ -235,32 +235,39 @@ function BuddyProfile() {
     }
   }
 
-  return (
-    <DefaultLayout>
-      <Link to="/buddies" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-6">
+  const heroHeader = (
+    <div>
+      <Link to="/buddies" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-4">
         <ArrowLeft className="w-4 h-4" />
         Tilbage til buddies
       </Link>
 
       {loading ? (
-        <div className="space-y-4 animate-pulse">
-          <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-full bg-gray-200" />
-            <div className="space-y-2">
-              <div className="h-7 bg-gray-200 rounded w-40" />
-              <div className="h-4 bg-gray-100 rounded w-28" />
-            </div>
-          </div>
-          <div className="flex gap-2 mt-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-8 bg-gray-100 rounded-full w-24" />
-            ))}
-          </div>
-        </div>
+        <ProfileHeroSkeleton />
       ) : profile ? (
+        <ProfileHero
+          data={profile}
+          isOwn={false}
+          myInterestIds={myInterestIds}
+          relatedPairs={relatedPairs}
+          activityPosts={activityPosts}
+          onChat={goToChat}
+          onWave={sendWave}
+          waveSent={waveSent}
+          sendingWave={sendingWave}
+          flat
+        />
+      ) : null}
+    </div>
+  );
+
+  return (
+    <DefaultLayout header={heroHeader}>
+      {!loading && profile && (
         <ProfileView
           data={profile}
           isOwn={false}
+          hideHero
           myInterestIds={myInterestIds}
           relatedPairs={relatedPairs}
           stravaAthleteId={stravaAthleteId}
@@ -271,7 +278,7 @@ function BuddyProfile() {
           sendingWave={sendingWave}
           error={error}
         />
-      ) : null}
+      )}
     </DefaultLayout>
   );
 }

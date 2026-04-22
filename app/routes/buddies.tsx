@@ -199,14 +199,15 @@ function DiscoverPage() {
   const hasInterests = myInterestIds.size > 0;
 
   return (
-    <DefaultLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <DefaultLayout
+      header={
         <div>
           <PageTitle>Find buddies</PageTitle>
           <p className="text-gray-500 mt-1">Folk i nærheden der deler dine interesser</p>
         </div>
-
+      }
+    >
+      <div className="space-y-6">
         {/* Missing profile data warnings */}
         {!hasInterests && !loading && (
           <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-5 text-center">

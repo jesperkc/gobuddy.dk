@@ -148,9 +148,8 @@ function FeedPage() {
   };
 
   return (
-    <DefaultLayout>
-      <div className="space-y-6">
-        {/* Header */}
+    <DefaultLayout
+      header={
         <div className="flex items-center justify-between">
           <div>
             <PageTitle>Feed</PageTitle>
@@ -163,7 +162,9 @@ function FeedPage() {
             </Button>
           )}
         </div>
-
+      }
+    >
+      <div className="space-y-6">
         {/* Create form */}
         {showCreateForm && <CreatePostForm onCreated={handleCreated} onCancel={() => setShowCreateForm(false)} />}
 

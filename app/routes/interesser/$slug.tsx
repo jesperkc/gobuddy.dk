@@ -83,28 +83,20 @@ function InterestPage() {
   }, [slug]);
 
   return (
-    <DefaultLayout>
-      <div className="max-w-3xl mx-auto space-y-8">
-        <Link to="/interesser" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
-          <ArrowLeft className="w-4 h-4" />
-          Alle interesser
-        </Link>
+    <DefaultLayout
+      header={
+        <div>
+          <Link to="/interesser" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-4">
+            <ArrowLeft className="w-4 h-4" />
+            Alle interesser
+          </Link>
 
-        {loading && (
-          <div className="space-y-4 animate-pulse">
-            <div className="h-10 bg-gray-200 rounded w-48" />
-            <div className="h-5 bg-gray-100 rounded w-72" />
-            <div className="grid grid-cols-2 gap-3 mt-8">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-20 rounded-xl bg-gray-100" />
-              ))}
+          {loading ? (
+            <div className="space-y-4 animate-pulse">
+              <div className="h-10 bg-gray-200 rounded w-48" />
+              <div className="h-5 bg-gray-100 rounded w-72" />
             </div>
-          </div>
-        )}
-
-        {!loading && interest && (
-          <>
-            {/* Interest header */}
+          ) : interest ? (
             <div>
               <div className="flex items-center gap-3">
                 <InterestIcon icon={interest.icon} size={56} />
@@ -121,7 +113,13 @@ function InterestPage() {
                 </span>
               </div>
             </div>
-
+          ) : null}
+        </div>
+      }
+    >
+      <div className="max-w-3xl mx-auto space-y-8">
+        {!loading && interest && (
+          <>
             {/* Buddies list */}
             {buddies.length > 0 ? (
               <div>
