@@ -1,5 +1,19 @@
 import { Link } from "@tanstack/react-router";
-import { MapPin, Calendar, Mail, Pencil, ExternalLink, MessageCircle, Hand, Sparkles, Activity, Heart, MinusCircle } from "lucide-react";
+import {
+  MapPin,
+  Calendar,
+  Mail,
+  Pencil,
+  ExternalLink,
+  MessageCircle,
+  Hand,
+  Sparkles,
+  Activity,
+  Heart,
+  MinusCircle,
+  UserPlus,
+  UserCheck,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { ProfilePhotoDialog } from "./ProfilePhotoDialog";
 import { ErrorBanner } from "./ErrorBanner";
@@ -7,6 +21,7 @@ import { InterestBadge } from "./InterestBadge";
 import { ActivityPostCard } from "./ActivityPostCard";
 import { InterestIcon } from "./InterestIcon";
 import type { ActivityPost } from "@/store/activityPosts";
+import { FollowingCard } from "./FollowingCard";
 
 export interface ProfileViewInterest {
   interest_id: string;
@@ -48,6 +63,9 @@ interface ProfileHeroProps {
   onWave?: () => void;
   waveSent?: boolean;
   sendingWave?: boolean;
+  onFollow?: () => void;
+  isFollowing?: boolean;
+  followLoading?: boolean;
   /** Render without card wrapper (for use inside page header) */
   flat?: boolean;
 }
@@ -94,6 +112,9 @@ export function ProfileHero({
   onWave,
   waveSent = false,
   sendingWave = false,
+  onFollow,
+  isFollowing = false,
+  followLoading = false,
   flat = false,
 }: ProfileHeroProps) {
   const initials = data.first_name?.slice(0, 2).toUpperCase() || "?";
@@ -182,6 +203,23 @@ export function ProfileHero({
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span className="hidden sm:inline">Skriv</span>
+                  </Button>
+                )}
+                {onFollow && (
+                  <Button
+                    onClick={onFollow}
+                    disabled={followLoading}
+                    size="default"
+                    variant="outline"
+                    className={
+                      isFollowing
+                        ? "border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
+                        : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                    }
+                    title={isFollowing ? "Stop med at følge" : `Følg ${data.first_name || "denne buddy"}`}
+                  >
+                    {isFollowing ? <UserCheck className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+                    <span className="hidden sm:inline">{isFollowing ? "Følger" : "Følg"}</span>
                   </Button>
                 )}
                 {onWave &&
@@ -279,6 +317,9 @@ interface ProfileViewProps {
   onWave?: () => void;
   waveSent?: boolean;
   sendingWave?: boolean;
+  onFollow?: () => void;
+  isFollowing?: boolean;
+  followLoading?: boolean;
   error?: string | null;
   hideHero?: boolean;
 }
@@ -295,6 +336,9 @@ export function ProfileView({
   onWave,
   waveSent = false,
   sendingWave = false,
+  onFollow,
+  isFollowing = false,
+  followLoading = false,
   error = "",
   hideHero = false,
 }: ProfileViewProps) {
@@ -304,7 +348,7 @@ export function ProfileView({
 
   const hasMainContent = interestsWithDescriptions.length > 0 || (!isOwn && relatedPairs.length > 0) || activityPosts.length > 0;
 
-  const hasSidebar = data.nonInterests.length > 0 || stravaAthleteId != null || (isOwn && !!data.email);
+  const hasSidebar = data.nonInterests.length > 0 || stravaAthleteId != null || (isOwn && !!data.email) || isOwn;
 
   return (
     <div className="space-y-6">
@@ -321,6 +365,9 @@ export function ProfileView({
           onWave={onWave}
           waveSent={waveSent}
           sendingWave={sendingWave}
+          onFollow={onFollow}
+          isFollowing={isFollowing}
+          followLoading={followLoading}
         />
       )}
 
@@ -467,6 +514,11 @@ export function ProfileView({
                     </div>
                   )}
                 </div>
+              </Card>
+            )}
+            {isOwn && (
+              <Card title="Følger" icon={<UserCheck className="w-4 h-4" />} delay={240}>
+                <FollowingCard userId={data.profile_id} />
               </Card>
             )}
           </aside>

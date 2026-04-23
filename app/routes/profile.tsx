@@ -43,7 +43,7 @@ function Profile() {
     if (!profile || !user) return null;
     const all = profile.user_interests || [];
     return {
-      profile_id: profile.id,
+      profile_id: user.id,
       first_name: profile.first_name || null,
       age: profile.age || null,
       city: profile.city || null,
@@ -82,15 +82,17 @@ function Profile() {
   return (
     <DefaultLayout header={heroHeader}>
       {!loading && viewData && (
-        <ProfileView
-          data={viewData}
-          isOwn
-          hideHero
-          stravaAthleteId={stravaConnection?.strava_athlete_id ?? null}
-          activityPosts={activityPosts}
-          onDeletePost={handleDeletePost}
-          error={error}
-        />
+        <>
+          <ProfileView
+            data={viewData}
+            isOwn
+            hideHero
+            stravaAthleteId={stravaConnection?.strava_athlete_id ?? null}
+            activityPosts={activityPosts}
+            onDeletePost={handleDeletePost}
+            error={error}
+          />
+        </>
       )}
     </DefaultLayout>
   );

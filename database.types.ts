@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_post_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          post_id: string
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          post_id: string
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "activity_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_post_comments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      activity_post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "activity_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_post_likes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       activity_post_media: {
         Row: {
           created_at: string | null
@@ -240,6 +315,39 @@ export type Database = {
           {
             foreignKeyName: "events_creator_id_fkey"
             columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "follows_following_id_fkey"
+            columns: ["following_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["profile_id"]

@@ -21,6 +21,8 @@ function BuddyProfile() {
   const [error, setError] = useState<string | null>(null);
   const [waveSent, setWaveSent] = useState(false);
   const [sendingWave, setSendingWave] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
   const [relatedPairs, setRelatedPairs] = useState<RelatedPair[]>([]);
   const [stravaAthleteId, setStravaAthleteId] = useState<number | null>(null);
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
@@ -40,6 +42,20 @@ function BuddyProfile() {
       .maybeSingle()
       .then(({ data }) => {
         if (data) setWaveSent(true);
+      });
+  }, [user, profile]);
+
+  // Check follow state for this buddy
+  useEffect(() => {
+    if (!user || !profile) return;
+    supabase
+      .from("follows")
+      .select("follower_id")
+      .eq("follower_id", user.id)
+      .eq("following_id", profile.profile_id)
+      .maybeSingle()
+      .then(({ data }) => {
+        setIsFollowing(!!data);
       });
   }, [user, profile]);
 
@@ -204,6 +220,34 @@ function BuddyProfile() {
     openChat(profile.profile_id, profile.first_name);
   }
 
+  async function toggleFollow() {
+    if (!user || !profile || followLoading) return;
+    setFollowLoading(true);
+    const wasFollowing = isFollowing;
+    setIsFollowing(!wasFollowing);
+    try {
+      if (wasFollowing) {
+        const { error: delErr } = await supabase
+          .from("follows")
+          .delete()
+          .eq("follower_id", user.id)
+          .eq("following_id", profile.profile_id);
+        if (delErr) throw delErr;
+      } else {
+        const { error: insErr } = await supabase
+          .from("follows")
+          .insert({ follower_id: user.id, following_id: profile.profile_id });
+        if (insErr) throw insErr;
+      }
+    } catch (err) {
+      console.error("Error toggling follow:", err);
+      setIsFollowing(wasFollowing);
+      setError("Kunne ikke opdatere følg-status. Prøv igen.");
+    } finally {
+      setFollowLoading(false);
+    }
+  }
+
   async function sendWave() {
     if (!user || !profile || sendingWave) return;
     setSendingWave(true);
@@ -255,6 +299,9 @@ function BuddyProfile() {
           onWave={sendWave}
           waveSent={waveSent}
           sendingWave={sendingWave}
+          onFollow={toggleFollow}
+          isFollowing={isFollowing}
+          followLoading={followLoading}
           flat
         />
       ) : null}
@@ -276,6 +323,9 @@ function BuddyProfile() {
           onWave={sendWave}
           waveSent={waveSent}
           sendingWave={sendingWave}
+          onFollow={toggleFollow}
+          isFollowing={isFollowing}
+          followLoading={followLoading}
           error={error}
         />
       )}
