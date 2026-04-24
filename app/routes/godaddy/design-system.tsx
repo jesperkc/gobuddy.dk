@@ -223,10 +223,10 @@ function DesignSystemPage() {
         {/* ── Typography ────────────────────────────────────────── */}
         <Section title="Typografi">
           <div className="space-y-3">
-            <h1>Heading 1 — font-alwyn</h1>
-            <h2>Heading 2 — font-alwyn</h2>
-            <h3>Heading 3 — font-alwyn</h3>
-            <h4>Heading 4 — font-alwyn</h4>
+            <h1>Heading 1 — font-baloo</h1>
+            <h2>Heading 2 — font-baloo</h2>
+            <h3>Heading 3 — font-baloo</h3>
+            <h4>Heading 4 — font-baloo</h4>
             <p className="text-base">Body text (Inter) — Den hurtige brune ræv springer over den dovne hund.</p>
             <p className="text-sm text-muted-foreground">Muted small text — Sekundær beskrivelse.</p>
             <p className="text-xs text-gray-400">Extra small — Metadata og labels.</p>

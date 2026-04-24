@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        alwyn: ['"Alwyn New Rounded"', "system-ui", "sans-serif"],
+        baloo: ['"Baloo 2"', "system-ui", "sans-serif"],
         sans: ['"Inter"', "system-ui", "sans-serif"],
       },
       borderRadius: {
