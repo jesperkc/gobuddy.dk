@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useEffect, useState, useRef } from "react";
-import { BellIcon, HelpCircleIcon, ChevronDownIcon } from "lucide-react";
+import { HelpCircleIcon } from "lucide-react";
 
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from "./dropdown-menu";
-import { Badge } from "./badge";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from "./navigation-menu";
@@ -95,47 +94,6 @@ const InfoMenu = ({ onItemClick }: { onItemClick?: (item: string) => void }) => 
       <DropdownMenuItem onClick={() => onItemClick?.("documentation")}>Documentation</DropdownMenuItem>
       <DropdownMenuItem onClick={() => onItemClick?.("contact")}>Contact Support</DropdownMenuItem>
       <DropdownMenuItem onClick={() => onItemClick?.("feedback")}>Send Feedback</DropdownMenuItem>
-    </DropdownMenuContent>
-  </DropdownMenu>
-);
-
-// Notification Menu Component
-const NotificationMenu = ({ notificationCount = 3, onItemClick }: { notificationCount?: number; onItemClick?: (item: string) => void }) => (
-  <DropdownMenu>
-    <DropdownMenuTrigger asChild>
-      <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-        <BellIcon className="h-4 w-4" />
-        {notificationCount > 0 && (
-          <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs">
-            {notificationCount > 9 ? "9+" : notificationCount}
-          </Badge>
-        )}
-        <span className="sr-only">Notifications</span>
-      </Button>
-    </DropdownMenuTrigger>
-    <DropdownMenuContent align="end" className="w-80">
-      <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem onClick={() => onItemClick?.("notification1")}>
-        <div className="flex flex-col gap-1">
-          <p className=" font-medium">New message received</p>
-          <p className="text-xs text-muted-foreground">2 minutes ago</p>
-        </div>
-      </DropdownMenuItem>
-      <DropdownMenuItem onClick={() => onItemClick?.("notification2")}>
-        <div className="flex flex-col gap-1">
-          <p className=" font-medium">System update available</p>
-          <p className="text-xs text-muted-foreground">1 hour ago</p>
-        </div>
-      </DropdownMenuItem>
-      <DropdownMenuItem onClick={() => onItemClick?.("notification3")}>
-        <div className="flex flex-col gap-1">
-          <p className=" font-medium">Weekly report ready</p>
-          <p className="text-xs text-muted-foreground">3 hours ago</p>
-        </div>
-      </DropdownMenuItem>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem onClick={() => onItemClick?.("view-all")}>View all notifications</DropdownMenuItem>
     </DropdownMenuContent>
   </DropdownMenu>
 );
@@ -357,8 +315,6 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
             <div className="flex items-center gap-2">
               {/* Info menu */}
               {/* <InfoMenu onItemClick={onInfoItemClick} /> */}
-              {/* Notification */}
-              {/* <NotificationMenu notificationCount={notificationCount} onItemClick={onNotificationItemClick} /> */}
             </div>
             {/* User menu */}
             <UserMenu userName={profile?.first_name} userEmail={profile?.email} userAvatar={userAvatar} handleLogout={logout} />
@@ -371,4 +327,4 @@ export const Navbar = React.forwardRef<HTMLElement, NavbarProps>(
 
 Navbar.displayName = "Navbar";
 
-export { Logo, HamburgerIcon, InfoMenu, NotificationMenu, UserMenu };
+export { Logo, HamburgerIcon, InfoMenu, UserMenu };

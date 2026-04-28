@@ -30,15 +30,29 @@ function DiscoverPage() {
     }
   }, [user, profile, loadProfile]);
 
-  const myInterestIds = useMemo(() => {
-    if (!profile?.user_interests) return new Set<string>();
-    return new Set(profile.user_interests.filter((i) => !i.is_non_interest).map((i) => i.interest_id));
-  }, [profile]);
+  const interestKey = useMemo(
+    () =>
+      (profile?.user_interests ?? [])
+        .filter((i) => !i.is_non_interest)
+        .map((i) => i.interest_id)
+        .sort()
+        .join(","),
+    [profile?.user_interests],
+  );
 
-  const myNonInterestIds = useMemo(() => {
-    if (!profile?.user_interests) return new Set<string>();
-    return new Set(profile.user_interests.filter((i) => i.is_non_interest).map((i) => i.interest_id));
-  }, [profile]);
+  const nonInterestKey = useMemo(
+    () =>
+      (profile?.user_interests ?? [])
+        .filter((i) => i.is_non_interest)
+        .map((i) => i.interest_id)
+        .sort()
+        .join(","),
+    [profile?.user_interests],
+  );
+
+  const myInterestIds = useMemo(() => (interestKey ? new Set(interestKey.split(",")) : new Set<string>()), [interestKey]);
+
+  const myNonInterestIds = useMemo(() => (nonInterestKey ? new Set(nonInterestKey.split(",")) : new Set<string>()), [nonInterestKey]);
 
   const myLat = profile?.latitude;
   const myLng = profile?.longitude;
@@ -46,20 +60,23 @@ function DiscoverPage() {
 
   useLocationUpdate(user, profile, loadProfile);
 
+  const profileReady = !!profile;
+
   useEffect(() => {
-    if (!user || myInterestIds.size === 0) {
+    if (!user) {
       setLoading(false);
       return;
     }
+    if (!profileReady) return;
 
     async function fetchBuddies() {
-      setLoading(true);
       setError(null);
 
       try {
         const myIds = Array.from(myInterestIds);
 
-        // Fetch profiles, related interests via RPC, and hi5s in parallel
+        // Fetch profiles, related interests via RPC, and hi5s in parallel.
+        // Skip the related-interests RPC when the user has no interests of their own.
         const [profilesResult, relationsResult, hi5sResult] = await Promise.all([
           supabase
             .from("profiles")
@@ -87,7 +104,9 @@ function DiscoverPage() {
             `,
             )
             .neq("profile_id", user!.id),
-          supabase.rpc("get_related_interests", { my_ids: myIds, min_score: SCORE_MEDIUM }),
+          myIds.length > 0
+            ? supabase.rpc("get_related_interests", { my_ids: myIds, min_score: SCORE_MEDIUM })
+            : Promise.resolve({ data: [] as Array<{ my_id: string; related_id: string }>, error: null }),
           supabase.from("hi5s").select("receiver_id").eq("sender_id", user!.id),
         ]);
 
@@ -115,9 +134,13 @@ function DiscoverPage() {
 
         const rows = (profilesResult.data || []) as unknown as RawBuddyRow[];
 
+        // When the user has interests, filter to buddies sharing at least one (direct or related).
+        // When the user has none, show everyone — they can still be sorted by distance/recency.
         const mapped = rows
           .map(mapBuddyRow)
-          .filter((b) => b.interests.some((i) => myInterestIds.has(i.interest_id) || allRelatedIds.has(i.interest_id)));
+          .filter((b) =>
+            myInterestIds.size === 0 ? true : b.interests.some((i) => myInterestIds.has(i.interest_id) || allRelatedIds.has(i.interest_id)),
+          );
 
         // Build per-buddy related interests map
         const buddyRelatedMap = new Map<string, Map<string, RelatedInterestInfo[]>>();
@@ -153,7 +176,7 @@ function DiscoverPage() {
     }
 
     fetchBuddies();
-  }, [user, myInterestIds]);
+  }, [user, profileReady, myInterestIds, myNonInterestIds]);
 
   function getRelatedInterests(buddyId: string): RelatedInterestInfo[] {
     return relatedMap.get(buddyId)?.get("interests") || [];
@@ -178,8 +201,8 @@ function DiscoverPage() {
       // Tiebreaker: more shared interests first
       const sharedA = a.interests.filter((i) => myInterestIds.has(i.interest_id)).length;
       const sharedB = b.interests.filter((i) => myInterestIds.has(i.interest_id)).length;
-      const relatedA = getRelatedInterests(a.profile_id).length;
-      const relatedB = getRelatedInterests(b.profile_id).length;
+      const relatedA = relatedMap.get(a.profile_id)?.get("interests")?.length ?? 0;
+      const relatedB = relatedMap.get(b.profile_id)?.get("interests")?.length ?? 0;
       const scoreA = sharedA + relatedA * 0.5;
       const scoreB = sharedB + relatedB * 0.5;
       return scoreB - scoreA;
@@ -208,16 +231,15 @@ function DiscoverPage() {
       }
     >
       <div className="space-y-6">
-        {/* Missing profile data warnings */}
+        {/* Soft prompts — shown alongside results, not as a gate */}
         {!hasInterests && !loading && (
-          <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-5 text-center">
-            <Search className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
-            <p className="font-medium">Tilføj interesser først</p>
-            <p className="text-sm text-gray-600 mt-1">Vi kan kun finde buddies, hvis du har valgt mindst én interesse.</p>
+          <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800 flex items-center gap-2">
+            <Search className="w-4 h-4 shrink-0" />
+            Tilføj interesser for at finde buddies med fælles interesser.
           </div>
         )}
 
-        {!hasLocation && hasInterests && !loading && (
+        {!hasLocation && !loading && (
           <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800 flex items-center gap-2">
             <MapPin className="w-4 h-4 shrink-0" />
             Tilføj din placering for at se afstand til andre buddies.
@@ -229,27 +251,55 @@ function DiscoverPage() {
 
         {/* Loading */}
         {loading && (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-xl border p-5 animate-pulse">
-                <div className="flex items-start gap-4">
-                  <div className="h-12 w-12 rounded-full bg-gray-200" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-5 bg-gray-200 rounded w-1/3" />
-                    <div className="h-4 bg-gray-100 rounded w-1/4" />
-                    <div className="flex gap-2 mt-2">
-                      <div className="h-6 bg-gray-100 rounded-full w-16" />
-                      <div className="h-6 bg-gray-100 rounded-full w-20" />
-                    </div>
+          <>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-gray-500">
+                {sortedBuddies.length} {sortedBuddies.length === 1 ? "buddy" : "buddies"} fundet
+                {hasLocation && myCity && (
+                  <span>
+                    {" "}
+                    · Afstand fra <span className="font-medium text-gray-700">{myCity}</span>
+                  </span>
+                )}
+              </p>
+
+              {/* Sort dropdown */}
+              <Select
+                value={sortMode}
+                onValueChange={(value: "interests" | "newest") => {
+                  setSortMode(value);
+                  setVisibleCount(12);
+                }}
+              >
+                <SelectTrigger className="w-auto text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="interests">Flest fælles interesser</SelectItem>
+                  <SelectItem value="newest">Nyeste</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-5 animate-pulse">
+                  <div className="h-16 w-16 rounded-full bg-gray-200 mb-3" />
+                  <div className="h-4 w-20 bg-gray-200 rounded mb-2" />
+                  <div className="h-3 w-16 bg-gray-100 rounded" />
+                  <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+                    <div className="h-5 w-14 bg-gray-100 rounded-full" />
+                    <div className="h-5 w-20 bg-gray-100 rounded-full" />
+                    <div className="h-5 w-12 bg-gray-100 rounded-full" />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Results */}
-        {!loading && hasInterests && sortedBuddies.length > 0 && (
+        {!loading && sortedBuddies.length > 0 && (
           <>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-gray-500">
@@ -309,12 +359,12 @@ function DiscoverPage() {
         )}
 
         {/* No results */}
-        {!loading && hasInterests && sortedBuddies.length === 0 && !error && (
+        {!loading && sortedBuddies.length === 0 && !error && (
           <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center">
             <Frown className="w-10 h-10 text-gray-400 mx-auto mb-3" />
             <h2 className="text-lg font-medium mb-1">Ingen buddies fundet endnu</h2>
             <p className="text-gray-500 text-sm max-w-sm mx-auto">
-              Der er ingen andre brugere med fælles interesser lige nu. Tjek tilbage senere — der kommer hele tiden nye buddies til!
+              Der er ingen andre brugere lige nu. Tjek tilbage senere — der kommer hele tiden nye buddies til!
             </p>
           </div>
         )}

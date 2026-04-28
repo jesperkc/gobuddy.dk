@@ -84,8 +84,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.error("Error getting session:", error);
           setError(error.message);
         } else {
-          setSession(session);
-          setUser(session?.user ?? null);
+          setSession((prev) => (prev?.access_token === session?.access_token ? prev : session));
+          setUser((prev) => (prev?.id === session?.user?.id ? prev : session?.user ?? null));
 
           // Load user roles if user exists
           if (session?.user) {
@@ -110,8 +110,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       // console.log("Auth state change:", event, session);
 
-      setSession(session);
-      setUser(session?.user ?? null);
+      setSession((prev) => (prev?.access_token === session?.access_token ? prev : session));
+      setUser((prev) => (prev?.id === session?.user?.id ? prev : session?.user ?? null));
       setLoading(false);
 
       // Load user roles for authenticated users
