@@ -34,7 +34,7 @@ function Details() {
   };
 
   return (
-    <SplitScreen>
+    <SplitScreen illustration="cyclist" tagline="Lad os lære dig at kende — det tager kun et par minutter.">
       <div>
         <OnboardingStepper step={1} />
         <PageTitle>Fortæl os mere om dig</PageTitle>
@@ -68,11 +68,11 @@ function Details() {
             )}
           </Field>
 
-          <div className="flex justify-end">
-            <Button type="button" variant={"secondary"} onClick={() => navigate({ to: "/" })}>
+          <div className="flex items-center justify-between">
+            <Button type="button" variant="ghost" className="rounded-full" onClick={() => navigate({ to: "/" })}>
               Tilbage
             </Button>
-            <Button type="submit" className="ml-auto">
+            <Button type="submit" className="rounded-full bg-gray-900 hover:bg-gray-800 px-6">
               Videre
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

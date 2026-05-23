@@ -43,7 +43,7 @@ function Interests() {
   };
 
   return (
-    <SplitScreen>
+    <SplitScreen illustration="tennis" tagline="Det er nemmere at finde din buddy, når vi ved hvad du dyrker.">
       <div>
         <OnboardingStepper step={2} />
         <PageTitle>Hvad er dine interesser?</PageTitle>
@@ -62,11 +62,15 @@ function Interests() {
           ))}
         </div>
 
-        <div className="flex justify-end">
-          <Button type="button" variant={"secondary"} onClick={() => navigate({ to: "/details" })}>
+        <div className="flex items-center justify-between">
+          <Button type="button" variant="ghost" className="rounded-full" onClick={() => navigate({ to: "/details" })}>
             Tilbage
           </Button>
-          <Button disabled={interests.length === 0} onClick={() => navigate({ to: "/location" })} className="ml-auto">
+          <Button
+            disabled={interests.length === 0}
+            onClick={() => navigate({ to: "/location" })}
+            className="rounded-full bg-gray-900 hover:bg-gray-800 px-6"
+          >
             Videre
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>

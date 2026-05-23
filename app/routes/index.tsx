@@ -1,466 +1,470 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, MapPin, Users, Sparkles, MessageCircle, Calendar, Heart } from "lucide-react";
+import { useRef, useState } from "react";
 import { UnauthedRoute } from "@/components/UnauthedRoute";
 import { GobuddyLogo } from "@/components/GobuddyLogo";
+import CyclistIllustration from "@/assets/illustrations/cyclist.svg?react";
+import TennisIllustration from "@/assets/illustrations/tennisplayer.svg?react";
+import LifterIllustration from "@/assets/illustrations/lifter.svg?react";
+import { useClientEffect } from "@/lib/ssr-utils";
 
-const HERO_BUDDIES = [
-  { initials: "MK", name: "Mads K.", age: 33, city: "København S", distance: "2,3 km", interests: ["Svømning", "Løb", "Kajakroning"], match: 91, featured: true },
-  { initials: "JH", name: "Jonas H.", age: 47, city: "København", distance: "4,1 km", interests: ["Golf", "Løb"], match: 87 },
-  { initials: "LM", name: "Lasse M.", age: 40, city: "København", distance: "5,8 km", interests: ["CrossFit", "Klatring"], match: 84 },
-  { initials: "PF", name: "Per F.", age: 49, city: "Aarhus", distance: "3,2 km", interests: ["Golf", "Fiskeri"], match: 78 },
-] as const;
+type FannedBuddy = {
+  initials: string;
+  name: string;
+  age: number;
+};
 
-function HeroBuddyCards() {
-  const featured = HERO_BUDDIES[0];
-  const behind = HERO_BUDDIES.slice(1);
+const HERO_BUDDIES: FannedBuddy[] = [
+  { initials: "SØ", name: "Søren", age: 40 },
+  { initials: "MA", name: "Mathias", age: 40 },
+  { initials: "PE", name: "Peter", age: 53 },
+  { initials: "LA", name: "Lasse", age: 40 },
+  { initials: "JO", name: "John", age: 40 },
+];
+
+type FanLayout = {
+  tx: number;
+  ty: number;
+  rotate: number;
+  scale: number;
+  z: number;
+  parallax: number;
+  hideOnMobile: boolean;
+};
+
+const FAN_LAYOUT: FanLayout[] = [
+  { tx: -260, ty: 0, rotate: 9, scale: 0.94, z: 1, parallax: -0.22, hideOnMobile: true },
+  { tx: -130, ty: 20, rotate: -6, scale: 0.97, z: 2, parallax: -0.18, hideOnMobile: false },
+  { tx: 0, ty: 0, rotate: 0, scale: 1.04, z: 5, parallax: -0.1, hideOnMobile: false },
+  { tx: 130, ty: 20, rotate: 10, scale: 0.97, z: 2, parallax: -0.22, hideOnMobile: false },
+  { tx: 260, ty: 0, rotate: -4, scale: 0.94, z: 1, parallax: -0.18, hideOnMobile: true },
+];
+
+function FannedCard({ buddy, index, scrollY }: { buddy: FannedBuddy; index: number; scrollY: number }) {
+  const layout = FAN_LAYOUT[index];
+  const parallaxY = scrollY * layout.parallax;
 
   return (
-    <div className="relative w-full max-w-sm mx-auto lg:mx-0" aria-hidden="true">
-      {/* Background glow */}
-      <div className="absolute -inset-6 rounded-3xl bg-gradient-to-br from-[var(--brand-green)]/10 via-transparent to-[var(--brand-blue)]/10 blur-2xl" />
-
-      <div className="relative">
-        {/* Featured front card */}
-        <div
-          className="hero-card relative z-10"
-          style={{ animationDelay: "0s" }}
-        >
-          <div className="relative rounded-2xl border border-gray-100 bg-white shadow-lg p-5">
-            <div className="absolute -top-3 right-5 flex items-center gap-1 rounded-full bg-[var(--brand-green)] px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
-              <Sparkles size={10} />
-              Bedste match
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 shrink-0 rounded-full bg-blue-100 flex items-center justify-center text-sm font-semibold text-blue-700">
-                {featured.initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold text-base truncate">{featured.name}</p>
-                  <span className="text-xs text-gray-400">{featured.age} år</span>
-                </div>
-                <p className="text-xs text-gray-400 flex items-center gap-1">
-                  <MapPin size={10} /> {featured.distance} væk
-                </p>
-              </div>
-              <div className="shrink-0 text-right">
-                <span className="text-sm font-bold text-[var(--brand-green)]">{featured.match}%</span>
-                <p className="text-[10px] text-gray-300">match</p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {featured.interests.map((interest, j) => (
-                <span
-                  key={interest}
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ${
-                    j < 2
-                      ? "bg-blue-50 text-blue-700 ring-blue-100"
-                      : "bg-violet-50 text-violet-700 ring-violet-100"
-                  }`}
-                >
-                  {interest}
-                </span>
-              ))}
-            </div>
-
-            <button
-              className="mt-4 w-full rounded-lg bg-gradient-to-r from-[var(--brand-green)] to-[var(--brand-blue)] py-2.5 text-sm font-medium text-white"
-              tabIndex={-1}
-            >
-              Send high-five
-            </button>
-          </div>
+    <div
+      className={`absolute top-0 left-1/2 will-change-transform ${layout.hideOnMobile ? "hidden md:block" : ""}`}
+      style={{
+        transform: `translate3d(calc(-50% + ${layout.tx}px), ${layout.ty + parallaxY}px, 0) rotate(${layout.rotate}deg) scale(${layout.scale})`,
+        zIndex: layout.z,
+      }}
+      aria-hidden={index !== 2}
+    >
+      <div className="w-[150px] sm:w-[170px] rounded-2xl bg-white shadow-xl p-5 flex flex-col items-center">
+        <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center font-bold text-white text-lg mb-3 tracking-wide">
+          {buddy.initials}
         </div>
-
-        {/* Cards peeking out behind — stacked below the front card */}
-        {behind.map((buddy, i) => (
-          <div
-            key={buddy.initials}
-            className="hero-card relative"
-            style={{
-              animationDelay: `${(i + 1) * 0.1}s`,
-              zIndex: behind.length - i,
-              marginTop: i === 0 ? "-14px" : "-30px",
-              scale: `${1 - (i + 1) * 0.06}`,
-            }}
+        <h3 className="font-semibold text-base text-gray-900 leading-tight">
+          {buddy.name}
+          <span className="text-gray-400 font-normal ml-1.5">{buddy.age}</span>
+        </h3>
+        <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-blue-500 px-3 py-1 text-[11px] font-medium text-white">
+          <svg
+            width="10"
+            height="10"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <div className="rounded-2xl border border-gray-100/80 bg-white shadow-sm p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 shrink-0 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-400">
-                  {buddy.initials}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-gray-500 truncate">{buddy.name}</p>
-                  <p className="text-xs text-gray-400 flex items-center gap-1">
-                    <MapPin size={10} /> {buddy.distance} væk
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-1 shrink-0 max-w-[120px] justify-end">
-                  {buddy.interests.map((interest) => (
-                    <span key={interest} className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-gray-50 text-gray-400 ring-1 ring-gray-100">
-                      {interest}
-                    </span>
-                  ))}
-                </div>
-                <span className={`text-sm font-bold shrink-0 ml-1 ${
-                  buddy.match >= 85 ? "text-blue-400" : "text-gray-300"
-                }`}>
-                  {buddy.match}%
-                </span>
-              </div>
-            </div>
-          </div>
-        ))}
+            <polygon points="12 2 22 22 2 22" />
+          </svg>
+          Bouldering
+        </div>
       </div>
     </div>
   );
 }
 
-function StepCard({ number, icon, title, description, delay }: {
-  number: string;
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  delay: string;
-}) {
+function useInView<T extends HTMLElement>(threshold = 0.35): [(node: T | null) => void, boolean] {
+  const [el, setEl] = useState<T | null>(null);
+  const [inView, setInView] = useState(false);
+
+  useClientEffect(() => {
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setInView(true);
+            // observer.disconnect();
+          } else {
+            setInView(false);
+          }
+        }
+      },
+      { threshold },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [el]);
+
+  return [setEl, inView];
+}
+
+function HighlightPill({ children, inView }: { children: React.ReactNode; inView: boolean }) {
   return (
-    <div
-      className="card-reveal relative bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-      style={{ animationDelay: delay }}
+    <span
+      className="relative inline-block align-baseline"
+      style={{
+        margin: inView ? ".5rem" : "0rem",
+        transition: "margin 0.3s linear",
+        transitionDelay: inView ? "1.1s" : "0s",
+      }}
     >
-      <div className="flex items-start gap-4">
-        <div className="shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[var(--brand-green)] to-[var(--brand-blue)] flex items-center justify-center text-white font-bold text-sm">
-          {number}
-        </div>
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="text-gray-400">{icon}</span>
-            <h3 className="text-lg font-semibold">{title}</h3>
+      <span
+        className="absolute -inset-x-3 inset-y-0 bg-green-500 rounded-full origin-left"
+        style={{
+          color: inView ? "white" : "inherit",
+          transform: inView ? "scale(1, 1)" : "scale(.09, .07)",
+          transformOrigin: "center",
+          transition:
+            "transform 1.7s linear(0, 0.041 1.1%, 0.162 2.3%, 1.067 8.4%, 1.212 10.2%, 1.252 11.1%, 1.271 12%, 1.269 13.2%, 1.236 14.6%, 0.976 21.1%, 0.94 22.8%, 0.926 24.5%, 0.935 27.1%, 1.006 33.6%, 1.02 36.9%, 0.995 49.3%, 1.001 61.6%, 1)",
+          transitionDelay: inView ? "1s" : "0s",
+        }}
+        aria-hidden
+      />
+      <span
+        className="relative"
+        style={{
+          color: inView ? "white" : "inherit",
+          transition: "color 0s",
+          transitionDelay: inView ? "1s" : "0s",
+        }}
+      >
+        {children}
+      </span>
+    </span>
+  );
+}
+
+type StoryRowProps = {
+  side: "left" | "right";
+  illustration: React.ReactNode;
+  children: React.ReactNode;
+};
+
+function StoryRow({ side, illustration, children }: StoryRowProps) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-8 md:gap-12">
+      {side === "left" ? (
+        <>
+          <div className="flex justify-center md:justify-start">
+            <div className="w-[220px] sm:w-[280px] md:w-[340px]">{illustration}</div>
           </div>
-          <p className="text-gray-500 leading-relaxed">{description}</p>
-        </div>
-      </div>
+          <div className="text-2xl sm:text-3xl md:text-4xl leading-snug text-gray-900 text-center md:text-left">{children}</div>
+        </>
+      ) : (
+        <>
+          <div className="text-2xl sm:text-3xl md:text-4xl leading-snug text-gray-900 text-center md:text-right order-2 md:order-1">
+            {children}
+          </div>
+          <div className="flex justify-center md:justify-end order-1 md:order-2">
+            <div className="w-[220px] sm:w-[280px] md:w-[340px]">{illustration}</div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ConnectorCurve({ className = "", flip = false }: { className?: string; flip?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState<number | null>(null);
+  const [inView, setInView] = useState(false);
+
+  useClientEffect(() => {
+    if (!ref.current) return;
+    const node = ref.current;
+
+    const update = () => setWidth(node.getBoundingClientRect().width);
+    update();
+    const resizeObserver = new ResizeObserver(update);
+    resizeObserver.observe(node);
+
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) setInView(entry.isIntersecting);
+      },
+      { threshold: 0.35 },
+    );
+    intersectionObserver.observe(node);
+
+    return () => {
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+    };
+  }, []);
+
+  const strokeWidth = 10;
+  const svgHeight = 235;
+  const referenceWidth = 770;
+  const w = Math.max(width ?? referenceWidth, 320);
+
+  // Left side anchored to the left edge (coordinates from the reference path).
+  const leftStartX = 5;
+  const topY = 5;
+  const topVertEndY = 15.767;
+  const leftCurveCtrl1Y = 122.703;
+  const leftCurveCtrl2X = 107.883;
+  const leftCurveCtrl2Y = 199.541;
+  const leftCurveEndX = 210.42;
+  const leftCurveEndY = 169.185;
+
+  // Right side anchored to the right edge via offsets from the reference width.
+  // The diagonal L segment stretches as the width changes.
+  const diagonalEndX = w - (referenceWidth - 559.58);
+  const diagonalEndY = 65.8151;
+  const rightCurveCtrl1X = w - (referenceWidth - 662.117);
+  const rightCurveCtrl1Y = 35.4588;
+  const rightVertX = w - (referenceWidth - 765);
+  const rightCurveCtrl2Y = 112.297;
+  const rightVertStartY = 219.233;
+  const bottomY = 230;
+
+  const path =
+    `M${leftStartX} ${topY}` +
+    `V${topVertEndY}` +
+    `C${leftStartX} ${leftCurveCtrl1Y} ${leftCurveCtrl2X} ${leftCurveCtrl2Y} ${leftCurveEndX} ${leftCurveEndY}` +
+    `L${diagonalEndX} ${diagonalEndY}` +
+    `C${rightCurveCtrl1X} ${rightCurveCtrl1Y} ${rightVertX} ${rightCurveCtrl2Y} ${rightVertX} ${rightVertStartY}` +
+    `V${bottomY}`;
+
+  return (
+    <div ref={ref} className={className ? className : "w-full"}>
+      <svg
+        width={w}
+        height={svgHeight}
+        viewBox={`0 0 ${w} ${svgHeight}`}
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style={flip ? { transform: "scaleX(-1)" } : undefined}
+      >
+        <path
+          d={path}
+          stroke="#27D489"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          pathLength={1}
+          strokeDasharray={1}
+          strokeDashoffset={inView ? 0 : 0}
+          style={{ transition: "stroke-dashoffset 1.8s ease-out" }}
+        />
+      </svg>
     </div>
   );
 }
 
 function Index() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useClientEffect(() => {
+    let raf = 0;
+    let pending = false;
+    const handleScroll = () => {
+      if (pending) return;
+      pending = true;
+      raf = window.requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+        pending = false;
+      });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  const [pill1Ref, pill1InView] = useInView<HTMLDivElement>();
+  const [pill2Ref, pill2InView] = useInView<HTMLDivElement>();
+  const [pill3Ref, pill3InView] = useInView<HTMLDivElement>();
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <nav className="fixed top-0 w-full z-50 bg-background/50 backdrop-blur-lg border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center">
-            <GobuddyLogo className="logo h-10" withText />
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              to="/login"
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors px-3 py-2"
-            >
-              Log ind
+    <div className="min-h-screen bg-[#f5f3ef]">
+      {/* Hero — green background */}
+      <section className="relative bg-green-500 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20 sm:pt-8 sm:pb-28">
+          {/* Logo + nav */}
+          <div className="flex items-center justify-between mb-10 sm:mb-14">
+            <Link to="/" className="flex items-center" aria-label="GoBuddy">
+              <GobuddyLogo className="logo h-9 sm:h-10" withText colorLeft="#ffffff" colorRight="#ffffff" />
             </Link>
-            <Link
-              to="/details"
-              className="text-sm font-medium bg-primary text-primary-foreground rounded-lg px-4 py-2 hover:bg-primary/90 transition-colors shadow-sm"
-            >
-              Kom i gang
-            </Link>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 overflow-hidden">
-        {/* Background image */}
-        <div className="absolute inset-0">
-          <img
-            src="/hero-bg.jpg"
-            alt=""
-            className="h-full w-full object-cover object-[center_25%]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#faf9f7] via-[#faf9f7]/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#faf9f7] via-[#faf9f7]/20 to-[#faf9f7]/40" />
-        </div>
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left: text */}
-            <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm text-gray-600 mb-8 shadow-sm">
-                <span className="inline-block w-2 h-2 rounded-full bg-[var(--brand-green)] animate-pulse" />
-                Nyt i Danmark — gratis at bruge
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] leading-[1.08] mb-6 tracking-tight">
-                Find en makker
-                <br />
-                <span className="bg-gradient-to-r from-[var(--brand-green)] to-[var(--brand-blue)] bg-clip-text text-transparent">
-                  der deler dine interesser
-                </span>
-              </h1>
-
-              <p className="text-lg sm:text-xl text-gray-500 max-w-lg mx-auto lg:mx-0 mb-10 leading-relaxed">
-                GoBuddy matcher dig med ligesindede i dit nærområde baseret på jeres fælles interesser.
-              </p>
-
-              <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4">
-                <Link
-                  to="/details"
-                  className="glow-button inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-base font-medium bg-white text-black"
-                >
-                  Opret din profil
-                  <ArrowRight size={18} />
-                </Link>
-                <a
-                  href="#hvordan"
-                  className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors text-base font-medium px-4 py-3.5"
-                >
-                  Se hvordan det virker
-                  <ArrowRight size={16} />
-                </a>
-              </div>
-            </div>
-
-            {/* Right: buddy cards */}
-            <div className="flex justify-center lg:justify-end">
-              <HeroBuddyCards />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Social proof strip */}
-      <section className="border-y border-gray-100 bg-white/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm text-gray-400">
-          <span className="flex items-center gap-2">
-            <Users size={16} className="text-[var(--brand-green)]" />
-            34+ interesser at vælge imellem
-          </span>
-          <span className="hidden sm:inline text-gray-200">|</span>
-          <span className="flex items-center gap-2">
-            <MapPin size={16} className="text-[var(--brand-blue)]" />
-            Hele Danmark
-          </span>
-          <span className="hidden sm:inline text-gray-200">|</span>
-          <span className="flex items-center gap-2">
-            <Heart size={16} className="text-[var(--brand-green)]" />
-            100% gratis
-          </span>
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section id="hvordan" className="py-20 sm:py-28">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-sm font-medium text-[var(--brand-blue)] uppercase tracking-wide mb-3">Sådan virker det</p>
-            <h2 className="text-3xl sm:text-4xl">
-              Tre trin til nye makkerskaber
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
-            <StepCard
-              number="1"
-              icon={<Sparkles size={18} />}
-              title="Vælg dine interesser"
-              description="Fortæl os hvad du dyrker — fra padel og løb til cykling og svømning."
-              delay="0s"
-            />
-            <StepCard
-              number="2"
-              icon={<MapPin size={18} />}
-              title="Del din placering"
-              description="Vi finder folk i dit nærområde, så det er nemt at mødes og træne sammen."
-              delay="0.1s"
-            />
-            <StepCard
-              number="3"
-              icon={<MessageCircle size={18} />}
-              title="Find din makker"
-              description="Send en high-five, start en samtale, eller mød op til en aktivitet med din nye makker."
-              delay="0.2s"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Sticker between sections */}
-      <div className="flex justify-center -mt-10 -mb-10 relative z-10">
-        <img
-          src="/sticker-cycling.svg"
-          alt="New Cycling Buddy"
-          className="w-28 h-28 sm:w-36 sm:h-36 -rotate-6 drop-shadow-lg pointer-events-none select-none"
-        />
-      </div>
-
-      {/* Features */}
-      <section className="py-20 sm:py-28 bg-white/40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <p className="text-sm font-medium text-[var(--brand-green)] uppercase tracking-wide mb-3">Intelligent matching</p>
-              <h2 className="text-3xl sm:text-4xl mb-6">
-                Mere end bare fælles interesser
-              </h2>
-              <p className="text-lg text-gray-500 leading-relaxed mb-8">
-                GoBuddy forstår sammenhængen mellem interesser. Dyrker du løb? Så matcher vi dig også med folk der er vilde med triatlon eller CrossFit. Vores algoritme finder de skjulte forbindelser.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="shrink-0 mt-1 w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-[var(--brand-blue)]" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Fælles interesser</p>
-                    <p className="text-sm text-gray-500">Match direkte på de interesser I deler</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="shrink-0 mt-1 w-5 h-5 rounded-full bg-violet-50 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-violet-500" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Relaterede interesser</p>
-                    <p className="text-sm text-gray-500">Find folk med interesser der komplementerer dine</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="shrink-0 mt-1 w-5 h-5 rounded-full bg-green-50 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-[var(--brand-green)]" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Nærhed</p>
-                    <p className="text-sm text-gray-500">Makkere i din by gør det let at mødes</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Visual: interest matching demo */}
-            <div className="relative">
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold text-sm">DIG</div>
-                  <div>
-                    <p className="font-semibold text-sm">Dine interesser</p>
-                    <p className="text-xs text-gray-400">Baseret på din profil</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {["Løb", "Cykling", "Svømning"].map((i) => (
-                    <span key={i} className="rounded-full px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 ring-1 ring-blue-100">{i}</span>
-                  ))}
-                </div>
-
-                <div className="border-t border-dashed border-gray-200 my-5" />
-
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-11 h-11 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-semibold text-sm">MK</div>
-                  <div>
-                    <p className="font-semibold text-sm">Mads K.</p>
-                    <p className="text-xs text-gray-400 flex items-center gap-1"><MapPin size={10} /> 2,3 km væk</p>
-                  </div>
-                  <span className="ml-auto text-xs font-medium text-[var(--brand-green)] bg-green-50 rounded-full px-2.5 py-0.5">91% match</span>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="rounded-full px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 ring-1 ring-blue-100">Løb</span>
-                  <span className="rounded-full px-3 py-1 text-xs font-medium bg-blue-50 text-blue-700 ring-1 ring-blue-100">Svømning</span>
-                  <span className="rounded-full px-3 py-1 text-xs font-medium bg-violet-50 text-violet-700 ring-1 ring-violet-100">Triatlon</span>
-                  <span className="rounded-full px-3 py-1 text-xs font-medium bg-gray-50 text-gray-600 ring-1 ring-gray-100">Kajakroning</span>
-                </div>
-                <p className="text-xs text-violet-600 flex items-center gap-1">
-                  <Sparkles size={12} />
-                  Løb + Svømning → Triatlon (94% relateret)
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Activities section */}
-      <section className="py-20 sm:py-28">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-sm font-medium text-[var(--brand-green)] uppercase tracking-wide mb-3">Aktiviteter</p>
-            <h2 className="text-3xl sm:text-4xl mb-4">
-              Mød op til noget fedt
-            </h2>
-            <p className="text-lg text-gray-500 max-w-lg mx-auto">
-              Opret eller deltag i aktiviteter med folk der deler dine interesser. Fra løbeture til padel-kampe.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto">
-            {[
-              { title: "Fredagsløb i Fælledparken", interest: "Løb", people: "8 deltagere", date: "Hver fredag kl. 17", delay: "0s" },
-              { title: "Padel i Ørestad", interest: "Padel Tennis", people: "4 deltagere", date: "Lørdag 12. april", delay: "0.1s" },
-              { title: "Cykeltur langs kysten", interest: "Cykling", people: "6 deltagere", date: "Søndag 13. april", delay: "0.15s" },
-              { title: "CrossFit i Amager Strandpark", interest: "CrossFit", people: "5 deltagere", date: "Torsdag 10. april", delay: "0.2s" },
-            ].map((event) => (
-              <div
-                key={event.title}
-                className="card-reveal rounded-2xl border border-gray-100 bg-white p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
-                style={{ animationDelay: event.delay }}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Link to="/login" className="text-sm font-medium text-gray-900/80 hover:text-gray-900 transition-colors px-3 py-2">
+                Log ind
+              </Link>
+              <Link
+                to="/details"
+                className="text-sm font-medium bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors shadow-sm"
               >
-                <h3 className="font-semibold text-base mb-2">{event.title}</h3>
-                <div className="space-y-1.5 text-sm text-gray-500 mb-3">
-                  <p className="flex items-center gap-2"><Calendar size={14} /> {event.date}</p>
-                  <p className="flex items-center gap-2"><Users size={14} /> {event.people}</p>
-                </div>
-                <span className="inline-block rounded-full px-2.5 py-0.5 text-xs font-medium bg-blue-50 text-blue-700 ring-1 ring-blue-100">
-                  {event.interest}
-                </span>
-              </div>
+                Kom i gang
+              </Link>
+            </div>
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-center text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight mb-12 sm:mb-16">
+            <span className="block text-gray-900">Mød dine nye</span>
+            <span className="block text-white">bedste venner</span>
+          </h1>
+
+          {/* Fanned cards */}
+          <div className="relative h-[220px] sm:h-[260px] mb-12">
+            {HERO_BUDDIES.map((buddy, i) => (
+              <FannedCard key={buddy.initials} buddy={buddy} index={i} scrollY={scrollY} />
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Testimonial */}
-      <section className="py-20 sm:py-28 bg-white/40">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-50 mb-8">
-            <GobuddyLogo className="logo w-8 h-8" />
-          </div>
-          <blockquote className="text-xl sm:text-2xl leading-relaxed text-gray-700 mb-6">
-            "Jeg manglede en makker til padel og løb. Via GoBuddy fandt jeg Jonas, og nu træner vi sammen tre gange om ugen. Det er fedt at have nogen der holder én op på det."
-          </blockquote>
-          <p className="text-gray-400 font-medium">Mads K. — København</p>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-20 sm:py-28">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl mb-4">
-            Klar til at finde din makker?
-          </h2>
-          <p className="text-lg text-gray-500 mb-10 max-w-md mx-auto">
-            Det tager under 2 minutter at oprette din profil. Helt gratis, ingen forpligtelser.
+          {/* Subtitle */}
+          <p className="text-center text-sm sm:text-base text-gray-900/80 max-w-md mx-auto leading-relaxed">
+            Find ligesindede i dit nærområde — gratis, lokalt, til hvad du end dyrker.
           </p>
-          <Link
-            to="/details"
-            className="glow-button inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl text-base font-medium bg-white text-black"
-          >
-            Opret din profil
-            <ArrowRight size={18} />
-          </Link>
+        </div>
+      </section>
+
+      {/* Story sections with connecting green curve */}
+      <section className="relative bg-[#f5f3ef] overflow-hidden">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative">
+            {/* Section 1: cyclist left, text right */}
+            <div ref={pill1Ref} className="py-12 sm:py-16">
+              <StoryRow side="left" illustration={<CyclistIllustration className="w-full h-auto" />}>
+                Søren elsker <HighlightPill inView={pill1InView}>cykling</HighlightPill> og mangler af og til en makker at køre med
+              </StoryRow>
+            </div>
+
+            <ConnectorCurve className="w-[70%] m-auto" />
+
+            {/* Section 2: tennis right, text left */}
+            <div ref={pill2Ref} className="py-12 sm:py-16">
+              <StoryRow side="right" illustration={<TennisIllustration className="w-full h-auto" />}>
+                Peter kan godt lide at spille <HighlightPill inView={pill2InView}>tennis</HighlightPill> men det er nemmere når man er to
+              </StoryRow>
+            </div>
+
+            <ConnectorCurve flip className="w-[70%] m-auto" />
+
+            {/* Section 3: lifter left, text right */}
+            <div ref={pill3Ref} className="py-12 sm:py-16 pb-24 sm:pb-32">
+              <StoryRow side="left" illustration={<LifterIllustration className="w-full h-auto" />}>
+                Det er bedre at løfte i flok. Mathias synes i hvert fald at <HighlightPill inView={pill3InView}>træning</HighlightPill> er
+                sjovere sammen.
+              </StoryRow>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sådan virker det */}
+      <section className="bg-[#f5f3ef] pt-8 pb-24 sm:pb-32">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-xs font-medium tracking-[0.15em] uppercase text-gray-500 mb-2">Sådan virker det</p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl text-gray-900 leading-tight mb-14 sm:mb-16">
+            Tre skridt til den buddy
+            <br />
+            du har manglet.
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-8">
+            <Step
+              number="01"
+              title="Opret din profil"
+              description="Fortæl hvad du dyrker, hvor ofte og hvor du holder til. Tager to minutter."
+            />
+            <Step
+              number="02"
+              title="Find din buddy"
+              description="Vi viser dig folk i nærheden med samme niveau og interesser. Du bestemmer."
+            />
+            <Step number="03" title="Mødes og træn" description="Skriv en kort besked, find et tidspunkt, og kom afsted. Helt gratis." />
+          </div>
+
+          <div className="mt-16 sm:mt-20 flex justify-center">
+            <Link
+              to="/details"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-lg"
+            >
+              Kom i gang gratis
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-100 py-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <GobuddyLogo className="logo h-7" withText />
-          <p className="text-sm text-gray-400">
-            &copy; {new Date().getFullYear()} GoBuddy — Lavet med kærlighed i Danmark
-          </p>
+      <footer className="bg-gray-950 text-gray-300">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-10">
+            <div className="sm:col-span-1">
+              <p className="text-sm leading-relaxed text-gray-400">Find din perfekte buddy og gør jeres hobby sjovere sammen</p>
+            </div>
+
+            <FooterColumn
+              title="Produktet"
+              links={[
+                { label: "Sådan virker det", href: "#hvordan" },
+                { label: "Aktiviteter", href: "#" },
+                { label: "Priser", href: "#" },
+              ]}
+            />
+
+            <FooterColumn
+              title="Ressourcer"
+              links={[
+                { label: "Blog", href: "#" },
+                { label: "Hjælp", href: "#" },
+                { label: "FAQ", href: "#" },
+              ]}
+            />
+
+            <FooterColumn
+              title="GoBuddy"
+              links={[
+                { label: "Om os", href: "#" },
+                { label: "Kontakt", href: "#" },
+                { label: "Privatlivspolitik", href: "#" },
+              ]}
+            />
+          </div>
+
+          <div className="mt-12 pt-6 border-t border-gray-800 text-center">
+            <p className="text-xs text-gray-500">&copy; {new Date().getFullYear()} GoBuddy. Alle rettigheder forbeholdes.</p>
+          </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function Step({ number, title, description }: { number: string; title: string; description: string }) {
+  return (
+    <div>
+      <p className="text-sm font-semibold text-gray-900 mb-3">{number}</p>
+      <div className="h-px bg-gray-900/20 mb-4" />
+      <h3 className="text-xl text-gray-900 mb-2">{title}</h3>
+      <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
+    </div>
+  );
+}
+
+function FooterColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
+  return (
+    <div>
+      <p className="text-sm font-semibold text-white mb-4">{title}</p>
+      <ul className="space-y-2.5">
+        {links.map((link) => (
+          <li key={link.label}>
+            <a href={link.href} className="text-sm text-gray-400 hover:text-white transition-colors">
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

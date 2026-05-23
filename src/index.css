@@ -215,11 +215,9 @@
 @keyframes heroCardIn {
   from {
     opacity: 0;
-    transform: translateY(24px) scale(0.95) var(--_rotate, rotate(0deg));
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1) var(--_rotate, rotate(0deg));
   }
 }
 
@@ -243,6 +241,21 @@
   animation: cardReveal 0.3s ease-out both;
 }
 
+/* Floating interest tiles — gentle vertical oscillation */
+@keyframes floatTile {
+  0%, 100% {
+    transform: translateY(0) rotate(var(--tile-rotate, 0deg));
+  }
+  50% {
+    transform: translateY(-8px) rotate(var(--tile-rotate, 0deg));
+  }
+}
+
+.float-tile {
+  animation: floatTile 6s ease-in-out infinite both;
+  transform: rotate(var(--tile-rotate, 0deg));
+}
+
 /* Chat message fade-in */
 @keyframes messageFadeIn {
   from {
@@ -262,6 +275,9 @@
   .card-reveal {
     animation: none;
     opacity: 1;
+  }
+  .float-tile {
+    animation: none;
   }
   .message-fade-in {
     animation: none;

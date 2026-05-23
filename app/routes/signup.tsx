@@ -105,7 +105,7 @@ function Signup() {
   };
 
   return (
-    <SplitScreen>
+    <SplitScreen illustration="cyclist" tagline="Sidste skridt — opret din konto og kom afsted.">
       <div>
         <OnboardingStepper step={4} />
         <PageTitle>Opret din konto</PageTitle>
@@ -189,7 +189,12 @@ function Signup() {
               Modtag vores nyhedsbrev
             </Label>
           </div>
-          <Button type="submit" disabled={isLoading} variant={"glow"} size={"xl"} className="w-full">
+          <Button
+            type="submit"
+            disabled={isLoading}
+            size="xl"
+            className="w-full rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-lg"
+          >
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>

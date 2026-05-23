@@ -25,7 +25,7 @@ function ConfirmEmail() {
   }, [navigate]);
 
   return (
-    <SplitScreen>
+    <SplitScreen illustration="tennis" tagline="Vi sendte dig en bekræftelse — så er du klar.">
       <div className="text-center">
         <div className="inline-flex items-center justify-center">
           <div className="h-8 w-8">
