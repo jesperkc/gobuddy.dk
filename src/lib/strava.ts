@@ -79,8 +79,6 @@ export interface StravaConnection {
 // ── OAuth helpers ──────────────────────────────────────────────────
 
 const STRAVA_AUTH_URL = "https://www.strava.com/oauth/authorize";
-const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
-const STRAVA_DEAUTH_URL = "https://www.strava.com/oauth/deauthorize";
 const STRAVA_API_BASE = "https://www.strava.com/api/v3";
 
 /**
@@ -105,78 +103,9 @@ export function buildStravaAuthUrl(profileId: string): string {
   return `${STRAVA_AUTH_URL}?${params.toString()}`;
 }
 
-/**
- * Exchange an authorization code for tokens. SERVER-SIDE ONLY.
- */
-export async function exchangeStravaCode(
-  code: string
-): Promise<StravaTokenResponse> {
-  const clientId = import.meta.env.VITE_STRAVA_CLIENT_ID;
-  const clientSecret = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
-
-  const res = await fetch(STRAVA_TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      client_id: clientId,
-      client_secret: clientSecret,
-      code,
-      grant_type: "authorization_code",
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Strava token exchange failed (${res.status}): ${body}`);
-  }
-
-  return res.json();
-}
-
-/**
- * Refresh an expired access token. SERVER-SIDE ONLY.
- */
-export async function refreshStravaToken(
-  refreshToken: string
-): Promise<StravaTokenResponse> {
-  const clientId = import.meta.env.VITE_STRAVA_CLIENT_ID;
-  const clientSecret = import.meta.env.VITE_STRAVA_CLIENT_SECRET;
-
-  const res = await fetch(STRAVA_TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Strava token refresh failed (${res.status}): ${body}`);
-  }
-
-  return res.json();
-}
-
-/**
- * Deauthorize (revoke) a Strava access token. SERVER-SIDE ONLY.
- */
-export async function deauthorizeStrava(
-  accessToken: string
-): Promise<void> {
-  const res = await fetch(STRAVA_DEAUTH_URL, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${accessToken}` },
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Strava deauthorize failed (${res.status}): ${body}`);
-  }
-}
+// Token-exchange and token-refresh require the Strava client secret and live
+// in the `strava-oauth-exchange` edge function. The callback route calls that
+// function via supabase.functions.invoke().
 
 // ── API calls (use valid access token) ─────────────────────────────
 

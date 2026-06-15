@@ -72,7 +72,7 @@ async function requireAdmin(
   if (!authHeader?.startsWith("Bearer ")) {
     return { ok: false, res: json(401, { error: "Missing Authorization header" }) };
   }
-  const userClient = createClient(env("SUPABASE_URL"), env("SUPABASE_ANON_KEY"), {
+  const userClient = createClient(env("SUPABASE_URL"), env("SB_PUBLISHABLE_KEY"), {
     global: { headers: { Authorization: authHeader } },
   });
   const { data: userData, error: userErr } = await userClient.auth.getUser();
@@ -88,7 +88,7 @@ async function requireAdmin(
   if (!isAdmin) return { ok: false, res: json(403, { error: "Admin role required" }) };
 
   // Use service role for the actual writes so RLS doesn't get in the way.
-  const admin = createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"));
+  const admin = createClient(env("SUPABASE_URL"), env("SB_SECRET_KEY"));
   return { ok: true, admin };
 }
 

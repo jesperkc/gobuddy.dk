@@ -18,8 +18,8 @@ interface GenerateResult {
 async function invokeEdge(body: Record<string, unknown>): Promise<GenerateResult> {
   try {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-    if (!supabaseUrl || !anonKey) {
+    const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+    if (!supabaseUrl || !publishableKey) {
       return { count: 0, error: "Supabase env vars mangler i klienten." };
     }
 
@@ -33,7 +33,7 @@ async function invokeEdge(body: Record<string, unknown>): Promise<GenerateResult
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apikey: anonKey,
+        apikey: publishableKey,
         Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(body),

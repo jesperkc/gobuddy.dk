@@ -5,11 +5,11 @@ import { useUserProfileStore } from "../../../src/store/userProfile";
 import { supabase } from "../../../src/lib/supabase";
 import { useClientEffect } from "../../../src/lib/ssr-utils";
 import { useState } from "react";
-import { Construction, Heart, HeartPulse, ScatterChart, Settings, ShieldUser, UserPlus, Users } from "lucide-react";
+import { BadgeCheck, Heart, Palette, ScatterChart, ShieldUser, UserPlus, Users } from "lucide-react";
 
 interface DashboardStats {
   totalUsers: number;
-  activeUsers: number;
+  verifiedUsers: number;
   totalInterests: number;
   newUsersThisWeek: number;
 }
@@ -19,7 +19,7 @@ const AdminDashboard = () => {
   const { profile } = useUserProfileStore();
   const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
-    activeUsers: 0,
+    verifiedUsers: 0,
     totalInterests: 0,
     newUsersThisWeek: 0,
   });
@@ -43,15 +43,18 @@ const AdminDashboard = () => {
           .select("*", { count: "exact", head: true })
           .gte("created_at", oneWeekAgo.toISOString());
 
+        // Get verified users count
+        const { count: verifiedUsers } = await supabase
+          .from("profiles")
+          .select("*", { count: "exact", head: true })
+          .eq("email_verified", true);
+
         // Get total interests
         const { count: totalInterests } = await supabase.from("interests").select("*", { count: "exact", head: true });
 
-        // For now, set activeUsers to 80% of total (you might have a better metric)
-        const activeUsers = Math.floor((totalUsers || 0) * 0.8);
-
         setStats({
           totalUsers: totalUsers || 0,
-          activeUsers,
+          verifiedUsers: verifiedUsers || 0,
           totalInterests: totalInterests || 0,
           newUsersThisWeek: newUsersThisWeek || 0,
         });
@@ -108,17 +111,17 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Active Users */}
+          {/* Verified Users */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <HeartPulse className="h-6 w-6 text-green-400" />
+                  <BadgeCheck className="h-6 w-6 text-green-400" />
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
-                    <dt className=" font-medium text-gray-500 truncate">Aktive Brugere</dt>
-                    <dd className="text-lg font-medium text-gray-900">{loading ? "..." : stats.activeUsers.toLocaleString("da-DK")}</dd>
+                    <dt className=" font-medium text-gray-500 truncate">Verificerede Brugere</dt>
+                    <dd className="text-lg font-medium text-gray-900">{loading ? "..." : stats.verifiedUsers.toLocaleString("da-DK")}</dd>
                   </dl>
                 </div>
               </div>
@@ -183,22 +186,13 @@ const AdminDashboard = () => {
                 <span className="mt-2 block  font-medium text-gray-900">Se statistikker</span>
               </a>
 
-              <div className="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-6 text-center hover:border-gray-400">
-                <Settings className="mx-auto h-8 w-8 text-gray-400" />
-                <span className="mt-2 block  font-medium text-gray-900">Systemindstillinger</span>
-                <span className="text-xs text-gray-500">(Kommer snart)</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity Placeholder */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Seneste aktivitet</h3>
-            <div className="text-center py-8">
-              <Construction className="h-10 w-10 text-gray-400 mx-auto" />
-              <p className="mt-2  text-gray-500">Aktivitetslog er under udvikling</p>
+              <a
+                href="/godaddy/design-system"
+                className="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-6 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <Palette className="mx-auto h-8 w-8 text-gray-400" />
+                <span className="mt-2 block  font-medium text-gray-900">Designsystem</span>
+              </a>
             </div>
           </div>
         </div>

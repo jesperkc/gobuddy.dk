@@ -876,7 +876,6 @@ export const Route = createFileRoute("/profile-edit")({
     // Fetch profile data
     const profileData = await fetchProfileWithInterests(user.id);
 
-    console.log("Profile data loaded:", profileData);
     return {
       user,
       profileData,

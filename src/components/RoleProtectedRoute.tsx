@@ -1,4 +1,5 @@
 import React, { ReactNode, useState } from "react";
+import { Navigate } from "@tanstack/react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { isBrowser, useClientEffect } from "../lib/ssr-utils";
 import type { Database } from "../../database.types";
@@ -33,7 +34,7 @@ export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Indlæser...</p>
         </div>
       </div>
     );
@@ -45,16 +46,14 @@ export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="text-gray-600">Checking authentication...</p>
+          <p className="text-gray-600">Tjekker login...</p>
         </div>
       </div>
     );
   }
-  console.log("RoleProtectedRoute - isAuthenticated:", isAuthenticated, "userRoles:", userRoles, "user:", user);
-
   // Redirect to login if not authenticated (client-side only)
   if (!isAuthenticated) {
-    // return <Navigate to={redirectTo} replace />;
+    return <Navigate to={redirectTo} replace />;
   }
 
   // Show access denied if authenticated but doesn't have required role

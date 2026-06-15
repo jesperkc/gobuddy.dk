@@ -38,7 +38,7 @@ npm run types        # Regenerate Supabase TypeScript types into database.types.
 
 **State management:** Zustand for global state (`src/store/userProfile.ts`), React Context for auth (`src/contexts/AuthContext.tsx`).
 
-**Backend:** Supabase for auth, database, and admin API. Client initialized in `src/lib/supabase.ts`. Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SUPABASE_SERVICE_ROLE_KEY`.
+**Backend:** Supabase for auth, database, and Edge Functions. Client initialized in `src/lib/supabase.ts`. Client env vars: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`. Server-only secrets (set via `supabase secrets set`): `SUPABASE_SECRET_KEY`, `STRAVA_CLIENT_SECRET`. Admin-only operations (create/delete user, admin avatar edit) and the Strava OAuth code exchange run as Edge Functions in `supabase/functions/`.
 
 **Strava integration:** OAuth 2.0 connection stored in `strava_connections` table. Environment variables: `VITE_STRAVA_CLIENT_ID` (public), `VITE_STRAVA_CLIENT_SECRET` (client secret), `VITE_APP_URL` (base URL for OAuth redirect). Create a Strava API app at https://www.strava.com/settings/api. Set the callback domain to your `VITE_APP_URL`.
 

@@ -8,14 +8,14 @@
 //   https://<project-ref>.supabase.co/functions/v1/strava-webhook
 
 const STRAVA_CLIENT_ID = process.env.VITE_STRAVA_CLIENT_ID;
-const STRAVA_CLIENT_SECRET = process.env.VITE_STRAVA_CLIENT_SECRET;
+const STRAVA_CLIENT_SECRET = process.env.STRAVA_CLIENT_SECRET;
 const CALLBACK_URL = process.env.STRAVA_WEBHOOK_CALLBACK_URL;
 const VERIFY_TOKEN = process.env.STRAVA_WEBHOOK_VERIFY_TOKEN || "gobuddy-strava-verify";
 
 if (!STRAVA_CLIENT_ID || !STRAVA_CLIENT_SECRET || !CALLBACK_URL) {
   console.error("Missing required environment variables:");
   console.error("  VITE_STRAVA_CLIENT_ID");
-  console.error("  VITE_STRAVA_CLIENT_SECRET");
+  console.error("  STRAVA_CLIENT_SECRET");
   console.error("  STRAVA_WEBHOOK_CALLBACK_URL");
   process.exit(1);
 }

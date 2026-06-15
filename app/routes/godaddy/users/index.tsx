@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { RoleProtectedRoute } from "../../../../src/components/RoleProtectedRoute";
 import { AdminShell } from "../../../../src/components/AdminShell";
-import { supabase, supabaseAdmin, adminAuthClient } from "../../../../src/lib/supabase";
+import { supabase } from "../../../../src/lib/supabase";
 import { useClientEffect } from "../../../../src/lib/ssr-utils";
 import { useState } from "react";
 import type { Database } from "../../../../database.types";
@@ -161,36 +161,24 @@ const UserManagement = () => {
       setDeleting(true);
       const ids = Array.from(selectedIds);
 
-      // Delete related data in dependency order, then profiles, then auth users
-      const { error: messagesError } = await supabaseAdmin
-        .from("messages")
-        .delete()
-        .or(ids.map((id) => `sender_id.eq.${id},receiver_id.eq.${id}`).join(","));
-      if (messagesError) console.error("Error deleting messages:", messagesError);
+      const { data, error } = await supabase.functions.invoke<{
+        ok?: boolean;
+        deleted_count?: number;
+        warnings?: string[];
+        error?: string;
+      }>("admin-bulk-delete-users", {
+        body: { user_ids: ids },
+      });
 
-      const { error: interestsError } = await supabaseAdmin.from("user_interests").delete().in("profile_id", ids);
-      if (interestsError) console.error("Error deleting interests:", interestsError);
-
-      const { error: rolesError } = await supabaseAdmin.from("user_roles").delete().in("user_id", ids);
-      if (rolesError) console.error("Error deleting roles:", rolesError);
-
-      const { error: profilesError } = await supabaseAdmin.from("profiles").delete().in("profile_id", ids);
-      if (profilesError) {
-        console.error("Error deleting profiles:", profilesError);
-        alert("Fejl ved sletning af profiler: " + profilesError.message);
+      if (error || !data?.ok) {
+        alert("Fejl ved sletning: " + (data?.error ?? error?.message ?? "Ukendt fejl"));
         return;
       }
-
-      // Delete auth users one by one (no bulk API)
-      for (const id of ids) {
-        const { error } = await adminAuthClient.deleteUser(id);
-        if (error) console.error(`Error deleting auth user ${id}:`, error);
-      }
+      if (data.warnings?.length) console.warn("Bulk delete warnings:", data.warnings);
 
       setUsers((prev) => prev.filter((u) => !selectedIds.has(u.profile_id!)));
       setSelectedIds(new Set());
     } catch (err) {
-      console.error("Bulk delete error:", err);
       alert("Fejl ved sletning: " + (err instanceof Error ? err.message : String(err)));
     } finally {
       setDeleting(false);

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { RoleProtectedRoute } from "../../../../src/components/RoleProtectedRoute";
 import { AdminShell } from "../../../../src/components/AdminShell";
-import { supabase, adminAuthClient } from "../../../../src/lib/supabase";
+import { supabase } from "../../../../src/lib/supabase";
 import { useState } from "react";
 import { Button } from "../../../../src/components/ui/button";
 import { Label } from "../../../../src/components/ui/label";
@@ -88,29 +88,35 @@ const GenerateUsers = () => {
           const email = `${user.first_name.toLowerCase()}${user.age}${Math.floor(Math.random() * 1000)}@gobuddy.com`;
           const tempPassword = `temp${Math.random().toString(36).substring(2, 10)}`;
 
-          // Use admin API to skip email confirmation (avoids rate limits)
-          const { data: authData, error: authError } = await adminAuthClient.createUser({
-            email,
-            password: tempPassword,
-            email_confirm: true,
-            user_metadata: {
-              first_name: user.first_name,
-              age: user.age,
-              coordinates: user.location.latitude ? `POINT(${user.location.latitude} ${user.location.longitude})` : null,
-              postcode: user.location.postcode,
-              city: user.location.city,
-              country: user.location.country,
-              country_code: user.location.country_code,
-              interests: user.interests.map((i) => ({
-                interest_id: i.interest_id,
-                description: i.description,
-              })),
-              newsletter: false,
+          // Use admin-create-user edge function to skip email confirmation (avoids rate limits)
+          const { data: authData, error: authError } = await supabase.functions.invoke<{
+            user_id?: string;
+            error?: string;
+          }>("admin-create-user", {
+            body: {
+              email,
+              password: tempPassword,
+              email_confirm: true,
+              user_metadata: {
+                first_name: user.first_name,
+                age: user.age,
+                coordinates: user.location.latitude ? `POINT(${user.location.latitude} ${user.location.longitude})` : null,
+                postcode: user.location.postcode,
+                city: user.location.city,
+                country: user.location.country,
+                country_code: user.location.country_code,
+                interests: user.interests.map((i) => ({
+                  interest_id: i.interest_id,
+                  description: i.description,
+                })),
+                newsletter: false,
+              },
             },
           });
 
           if (authError) throw authError;
-          if (!authData.user) throw new Error("Failed to create user");
+          if (!authData?.user_id) throw new Error(authData?.error ?? "Failed to create user");
+          const newUserId = authData.user_id;
 
           // 3. Add interests
           if (user.interests.length > 0) {
@@ -148,7 +154,7 @@ const GenerateUsers = () => {
               }
 
               interestInserts.push({
-                profile_id: authData.user.id,
+                profile_id: newUserId,
                 interest_id: interestId,
                 description: userInterest.description,
               });

@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RoleProtectedRoute } from "@/components/RoleProtectedRoute";
 import { AdminShell } from "@/components/AdminShell";
-import { supabase, supabaseAdmin, adminAuthClient } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 import { IAddress } from "@/components/LocationPicker";
 import { fetchProfileWithInterests } from "@/lib/fetchProfileWithInterests";
 import type { Database } from "../../../../../database.types";
@@ -312,30 +312,19 @@ export function EditUser() {
     try {
       setDeleting(true);
 
-      // Step 1: Delete from messages table (FK dependency on profiles)
-      const { error: messagesError } = await supabaseAdmin.from("messages").delete().or(`sender_id.eq.${targetId},receiver_id.eq.${targetId}`);
-      if (messagesError) console.error("Error deleting messages:", messagesError);
+      const { data, error: invokeError } = await supabase.functions.invoke<{
+        ok?: boolean;
+        warnings?: string[];
+        error?: string;
+      }>("admin-delete-user", {
+        body: { user_id: targetId },
+      });
 
-      // Step 2: Delete from user_interests table
-      const { error: interestsError } = await supabaseAdmin.from("user_interests").delete().eq("profile_id", targetId);
-      if (interestsError) console.error("Error deleting interests:", interestsError);
-
-      // Step 3: Delete from user_roles table
-      const { error: rolesError } = await supabaseAdmin.from("user_roles").delete().eq("user_id", targetId);
-      if (rolesError) console.error("Error deleting roles:", rolesError);
-
-      // Step 4: Delete from profiles table
-      const { error: profileError } = await supabaseAdmin.from("profiles").delete().eq("profile_id", targetId);
-      if (profileError) {
-        console.error("Error deleting profile:", profileError);
-        throw new Error("Kunne ikke slette profil: " + profileError.message);
+      if (invokeError || !data?.ok) {
+        throw new Error(data?.error ?? invokeError?.message ?? "Kunne ikke slette bruger");
       }
+      if (data.warnings?.length) console.warn("Delete warnings:", data.warnings);
 
-      // Step 5: Delete from auth.users using adminAuthClient
-      const { error: authError } = await adminAuthClient.deleteUser(targetId);
-      if (authError) console.error("Error deleting auth user:", authError);
-
-      // Navigate back to users list on success
       navigate({ to: "/godaddy/users" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Der opstod en fejl ved sletning af brugeren");
@@ -437,7 +426,7 @@ export function EditUser() {
                     if (profile) setProfile({ ...profile, avatar_url: url });
                   }}
                   profileName={profile.first_name || undefined}
-                  client={supabaseAdmin}
+                  adminMode
                 />
               )}
             </DetailsTabPanel>

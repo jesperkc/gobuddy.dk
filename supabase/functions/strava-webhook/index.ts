@@ -10,12 +10,12 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 // ── Env ────────────────────────────────────────────────────────────
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const SB_SECRET_KEY = Deno.env.get("SB_SECRET_KEY")!;
 const STRAVA_CLIENT_ID = Deno.env.get("VITE_STRAVA_CLIENT_ID")!;
-const STRAVA_CLIENT_SECRET = Deno.env.get("VITE_STRAVA_CLIENT_SECRET")!;
+const STRAVA_CLIENT_SECRET = Deno.env.get("STRAVA_CLIENT_SECRET")!;
 const STRAVA_WEBHOOK_VERIFY_TOKEN = Deno.env.get("STRAVA_WEBHOOK_VERIFY_TOKEN") || "gobuddy-strava-verify";
 
-const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const supabaseAdmin = createClient(SUPABASE_URL, SB_SECRET_KEY);
 
 const STRAVA_TOKEN_URL = "https://www.strava.com/oauth/token";
 const STRAVA_API_BASE = "https://www.strava.com/api/v3";

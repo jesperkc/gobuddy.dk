@@ -105,8 +105,6 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
         )
         .eq("profile_id", user.id)
         .single();
-      console.log("From database:", data, error);
-
       if (error && error.code !== "PGRST116") {
         // PGRST116 is "not found"
         throw error;

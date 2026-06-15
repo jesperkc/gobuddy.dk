@@ -51,7 +51,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError(errorMessage);
       return;
     }
-    console.log("Load user roles if user exists:", userId);
     setLoading(true);
     setError(null);
     try {

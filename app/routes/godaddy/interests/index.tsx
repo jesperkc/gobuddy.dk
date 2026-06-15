@@ -6,7 +6,6 @@ import { useClientEffect } from "../../../../src/lib/ssr-utils";
 import { useState } from "react";
 import type { Database } from "../../../../database.types";
 import { Heart, Plus, Search, Star, Trash, TrendingUp } from "lucide-react";
-import { AIIcon } from "@/components/icons";
 import { Input } from "@/components/ui/input";
 
 type Interest = Database["public"]["Tables"]["interests"]["Row"];
@@ -244,13 +243,6 @@ const InterestManagement = () => {
                   >
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Relationer
-                  </Link>
-                  <Link
-                    to="/godaddy/interests/generate"
-                    className="inline-flex items-center px-4 py-2 border border-transparent  font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    <AIIcon className="w-4 h-4 mr-2" />
-                    Generer interesser
                   </Link>
                   <Link
                     to="/godaddy/interests/create"

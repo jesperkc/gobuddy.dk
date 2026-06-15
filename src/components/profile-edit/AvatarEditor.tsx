@@ -22,15 +22,14 @@ import ReactCrop, {
 import "react-image-crop/dist/ReactCrop.css";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 interface AvatarEditorProps {
   profileId: string;
   avatarUrl: string | null;
   onAvatarChange: (url: string | null) => void;
   profileName?: string;
-  /** Pass supabaseAdmin to bypass RLS when editing another user's avatar */
-  client?: SupabaseClient;
+  /** Route storage + DB writes through the admin-update-avatar edge function. Required when editing another user's avatar. */
+  adminMode?: boolean;
 }
 
 export function AvatarEditor({
@@ -38,7 +37,7 @@ export function AvatarEditor({
   avatarUrl,
   onAvatarChange,
   profileName,
-  client = supabase,
+  adminMode = false,
 }: AvatarEditorProps) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -114,32 +113,44 @@ export function AvatarEditor({
         );
       });
 
-      const filePath = `${profileId}/avatar.webp`;
+      let publicUrl: string;
 
-      const { data: existing } = await client.storage
-        .from("avatars")
-        .list(profileId);
-      if (existing && existing.length > 0) {
-        await client.storage
+      if (adminMode) {
+        const form = new FormData();
+        form.append("profile_id", profileId);
+        form.append("action", "upload");
+        form.append("image", new File([blob], "avatar.webp", { type: "image/webp" }));
+        const { data, error: invokeError } = await supabase.functions.invoke<{
+          avatar_url?: string;
+          error?: string;
+        }>("admin-update-avatar", { body: form });
+        if (invokeError || !data?.avatar_url) {
+          throw new Error(data?.error ?? invokeError?.message ?? "Upload failed");
+        }
+        publicUrl = data.avatar_url;
+      } else {
+        const filePath = `${profileId}/avatar.webp`;
+        const { data: existing } = await supabase.storage.from("avatars").list(profileId);
+        if (existing && existing.length > 0) {
+          await supabase.storage
+            .from("avatars")
+            .remove(existing.map((f) => `${profileId}/${f.name}`));
+        }
+
+        const { error: uploadError } = await supabase.storage
           .from("avatars")
-          .remove(existing.map((f) => `${profileId}/${f.name}`));
+          .upload(filePath, blob, { upsert: true, contentType: "image/webp" });
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+        publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+        const { error: updateError } = await supabase
+          .from("profiles")
+          .update({ avatar_url: publicUrl })
+          .eq("profile_id", profileId);
+        if (updateError) throw updateError;
       }
-
-      const { error: uploadError } = await client.storage
-        .from("avatars")
-        .upload(filePath, blob, { upsert: true, contentType: "image/webp" });
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = client.storage
-        .from("avatars")
-        .getPublicUrl(filePath);
-      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
-
-      const { error: updateError } = await client
-        .from("profiles")
-        .update({ avatar_url: publicUrl })
-        .eq("profile_id", profileId);
-      if (updateError) throw updateError;
 
       onAvatarChange(publicUrl);
       toast.success("Profilbillede opdateret!");
@@ -155,20 +166,31 @@ export function AvatarEditor({
   const handleDelete = async () => {
     setUploading(true);
     try {
-      const { data: existing } = await client.storage
-        .from("avatars")
-        .list(profileId);
-      if (existing && existing.length > 0) {
-        await client.storage
-          .from("avatars")
-          .remove(existing.map((f) => `${profileId}/${f.name}`));
-      }
+      if (adminMode) {
+        const form = new FormData();
+        form.append("profile_id", profileId);
+        form.append("action", "delete");
+        const { data, error: invokeError } = await supabase.functions.invoke<{
+          avatar_url?: string | null;
+          error?: string;
+        }>("admin-update-avatar", { body: form });
+        if (invokeError || data?.error) {
+          throw new Error(data?.error ?? invokeError?.message ?? "Delete failed");
+        }
+      } else {
+        const { data: existing } = await supabase.storage.from("avatars").list(profileId);
+        if (existing && existing.length > 0) {
+          await supabase.storage
+            .from("avatars")
+            .remove(existing.map((f) => `${profileId}/${f.name}`));
+        }
 
-      const { error } = await client
-        .from("profiles")
-        .update({ avatar_url: null })
-        .eq("profile_id", profileId);
-      if (error) throw error;
+        const { error } = await supabase
+          .from("profiles")
+          .update({ avatar_url: null })
+          .eq("profile_id", profileId);
+        if (error) throw error;
+      }
 
       onAvatarChange(null);
       toast.success("Profilbillede fjernet");
