@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { isBrowser, safeWindow } from "../../src/lib/ssr-utils";
 import { OnboardingStepper } from "@/components/OnboardingStepper";
+import { translateAuthError } from "../../src/lib/auth-errors";
 
 export interface SignupRequestData {
   email: string;
@@ -43,7 +44,7 @@ function Signup() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const { age, name, coordinates, interests, address, email, password, newsletter, setEmail, setPassword, setNewsletter } =
+  const { age, name, coordinates, interests, address, email, password, newsletter, setEmail, setPassword, setNewsletter, reset } =
     useOnboardingStore();
 
   const signupObject = useMemo<SignupRequestData>(() => {
@@ -69,8 +70,9 @@ function Signup() {
       },
     };
 
-    // Expose signupObject for testing purposes
-    if (isBrowser && safeWindow) {
+    // Expose signupObject for testing purposes (dev/test builds only — never ship
+    // the plaintext password to window in production).
+    if (import.meta.env.DEV && isBrowser && safeWindow) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (safeWindow as any).__TEST_SIGNUP_OBJECT__ = obj;
     }
@@ -81,6 +83,11 @@ function Signup() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (password.length < 8) {
+      setError("Adgangskoden skal være mindst 8 tegn");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Adgangskoderne matcher ikke");
@@ -95,10 +102,11 @@ function Signup() {
       if (signUpError) throw signUpError;
 
       if (data.user) {
+        reset();
         navigate({ to: "/confirmemail", search: { email } });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? translateAuthError(err.message) : "Der opstod en fejl. Prøv igen.");
     } finally {
       setIsLoading(false);
     }
@@ -108,7 +116,7 @@ function Signup() {
     <SplitScreen illustration="cyclist" tagline="Sidste skridt — opret din konto og kom afsted.">
       <div>
         <OnboardingStepper step={4} />
-        <PageTitle>Opret din konto</PageTitle>
+        <PageTitle className="text-3xl tracking-tight">Opret din konto</PageTitle>
         <ErrorBanner message={error} />
         <form onSubmit={handleSignup} className="space-y-6">
           <div>
@@ -133,14 +141,14 @@ function Signup() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
             />
             {/* Password strength indicator */}
             {password.length > 0 && (
               <div className="mt-2">
                 <div className="flex gap-1">
                   {[1, 2, 3, 4].map((level) => {
-                    const strength = password.length >= 12 ? 4 : password.length >= 8 ? 3 : password.length >= 6 ? 2 : 1;
+                    const strength = password.length >= 12 ? 4 : password.length >= 10 ? 3 : password.length >= 8 ? 2 : 1;
                     const colors = ["bg-red-400", "bg-orange-400", "bg-yellow-400", "bg-green-500"];
                     return (
                       <div
@@ -153,10 +161,10 @@ function Signup() {
                   })}
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  {password.length < 6
-                    ? "For kort — mindst 6 tegn"
-                    : password.length < 8
-                      ? "Svag — prøv mindst 8 tegn"
+                  {password.length < 8
+                    ? "For kort — mindst 8 tegn"
+                    : password.length < 10
+                      ? "Svag — prøv mindst 10 tegn"
                       : password.length < 12
                         ? "God"
                         : "Stærk"}
@@ -175,7 +183,7 @@ function Signup() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
             />
           </div>
 

@@ -11,14 +11,15 @@ type FannedBuddy = {
   initials: string;
   name: string;
   age: number;
+  interest: string;
 };
 
 const HERO_BUDDIES: FannedBuddy[] = [
-  { initials: "SØ", name: "Søren", age: 40 },
-  { initials: "MA", name: "Mathias", age: 40 },
-  { initials: "PE", name: "Peter", age: 53 },
-  { initials: "LA", name: "Lasse", age: 40 },
-  { initials: "JO", name: "John", age: 40 },
+  { initials: "SØ", name: "Søren", age: 21, interest: "Bouldering" },
+  { initials: "MA", name: "Mathias", age: 40, interest: "Cykling" },
+  { initials: "PE", name: "Peter", age: 53, interest: "Tennis" },
+  { initials: "JO", name: "John", age: 49, interest: "Løb" },
+  { initials: "LA", name: "Lasse", age: 33, interest: "Vægtløftning" },
 ];
 
 type FanLayout = {
@@ -73,7 +74,7 @@ function FannedCard({ buddy, index, scrollY }: { buddy: FannedBuddy; index: numb
           >
             <polygon points="12 2 22 22 2 22" />
           </svg>
-          Bouldering
+          {buddy.interest}
         </div>
       </div>
     </div>
@@ -286,7 +287,7 @@ function Index() {
   const [pill3Ref, pill3InView] = useInView<HTMLDivElement>();
 
   return (
-    <div className="min-h-screen bg-[#f5f3ef]">
+    <div className="min-h-screen bg-background">
       {/* Hero — green background */}
       <section className="relative bg-green-500 overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20 sm:pt-8 sm:pb-28">
@@ -329,7 +330,7 @@ function Index() {
       </section>
 
       {/* Story sections with connecting green curve */}
-      <section className="relative bg-[#f5f3ef] overflow-hidden">
+      <section className="relative bg-background overflow-hidden">
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative">
             {/* Section 1: cyclist left, text right */}
@@ -353,7 +354,7 @@ function Index() {
             {/* Section 3: lifter left, text right */}
             <div ref={pill3Ref} className="py-12 sm:py-16 pb-24 sm:pb-32">
               <StoryRow side="left" illustration={<LifterIllustration className="w-full h-auto" />}>
-                Det er bedre at løfte i flok. Mathias synes i hvert fald at <HighlightPill inView={pill3InView}>træning</HighlightPill> er
+                Det er bedre at løfte i flok. Mathias synes i hvert fald at <HighlightPill inView={pill3InView}>fitness</HighlightPill> er
                 sjovere sammen.
               </StoryRow>
             </div>
@@ -362,7 +363,7 @@ function Index() {
       </section>
 
       {/* Sådan virker det */}
-      <section className="bg-[#f5f3ef] pt-8 pb-24 sm:pb-32">
+      <section className="bg-background pt-8 pb-24 sm:pb-32">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-xs font-medium tracking-[0.15em] uppercase text-gray-500 mb-2">Sådan virker det</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl text-gray-900 leading-tight mb-14 sm:mb-16">

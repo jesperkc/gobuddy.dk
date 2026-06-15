@@ -24,7 +24,7 @@ export function OnboardingStepper({ step, total = 4, labels = defaultLabels }: O
                     isCompleted
                       ? "bg-green-500 text-white"
                       : isCurrent
-                        ? "bg-blue-600 text-white ring-4 ring-blue-100"
+                        ? "bg-gray-900 text-white ring-4 ring-gray-200"
                         : "bg-gray-200 text-gray-500"
                   }`}
                 >
@@ -32,7 +32,7 @@ export function OnboardingStepper({ step, total = 4, labels = defaultLabels }: O
                 </div>
                 <span
                   className={`mt-1.5 text-xs font-medium hidden sm:block ${
-                    isCurrent ? "text-blue-700" : isCompleted ? "text-green-600" : "text-gray-400"
+                    isCurrent ? "text-gray-900" : isCompleted ? "text-green-600" : "text-gray-400"
                   }`}
                 >
                   {labels[i]}

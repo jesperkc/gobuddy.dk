@@ -9,18 +9,12 @@ import { supabase } from "../../src/lib/supabase";
 import { Button } from "../../src/components/ui/button";
 import { email, minLength, required, useForm } from "@modular-forms/react";
 import { TextInput } from "../../src/components/form/TextInput";
+import { translateAuthError } from "../../src/lib/auth-errors";
 
 type LoginForm = {
   email: string;
   password: string;
 };
-
-function translateAuthError(message: string): string {
-  if (message.includes("Invalid login credentials")) return "Forkert email eller adgangskode";
-  if (message.includes("Email not confirmed")) return "Din email er ikke bekræftet. Tjek din indbakke.";
-  if (message.includes("Too many requests")) return "For mange forsøg. Prøv igen om lidt.";
-  return "Der opstod en fejl. Prøv igen.";
-}
 
 function Login() {
   const navigate = useNavigate();
@@ -52,7 +46,7 @@ function Login() {
   return (
     <SplitScreen>
       <div>
-        <PageTitle>Velkommen tilbage!</PageTitle>
+        <PageTitle className="text-3xl tracking-tight">Velkommen tilbage!</PageTitle>
         <ErrorBanner message={error} />
 
         <Form className="space-y-4" onSubmit={handleSubmit}>

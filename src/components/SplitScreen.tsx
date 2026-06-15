@@ -23,13 +23,15 @@ export function SplitScreen({ children, illustration = "cyclist", tagline }: Spl
   const Illustration = ILLUSTRATIONS[illustration];
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#f5f3ef]">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-background">
       {/* Form panel */}
       <div className="relative w-full lg:w-1/2 px-6 py-12 sm:px-10 sm:py-16 lg:p-12 flex items-center justify-center order-2 lg:order-1">
         <Link to="/" className="absolute top-6 left-6 sm:top-8 sm:left-8 lg:top-10 lg:left-10" aria-label="GoBuddy">
           <GobuddyLogo className="logo h-8 sm:h-9" withText />
         </Link>
-        <div className="max-w-md w-full">{children}</div>
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">{children}</div>
+        </div>
       </div>
 
       {/* Illustration panel */}

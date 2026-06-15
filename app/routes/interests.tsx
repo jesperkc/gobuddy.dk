@@ -46,7 +46,7 @@ function Interests() {
     <SplitScreen illustration="tennis" tagline="Det er nemmere at finde din buddy, når vi ved hvad du dyrker.">
       <div>
         <OnboardingStepper step={2} />
-        <PageTitle>Hvad er dine interesser?</PageTitle>
+        <PageTitle className="text-3xl tracking-tight">Hvad er dine interesser?</PageTitle>
         <p className="text-gray-600 mb-6">Vælg de ting du godt kan lide at lave</p>
         <div className="flex flex-wrap gap-2 mb-6">
           {availableInterests.map((interest) => (

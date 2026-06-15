@@ -2,7 +2,7 @@
 
 ## 1. Visual Theme & Atmosphere
 
-GoBuddy helps Danes find friends through shared hobbies. The interface is clean and warm — white card surfaces floating on a warm off-white page background (`#f7f6f5`), light gray borders, and standard Tailwind shadows. The overall feel is modern and minimal, leaning on good typography and clear information hierarchy rather than decorative flourishes.
+GoBuddy helps Danes find friends through shared hobbies. The interface is clean and warm — white card surfaces floating on a warm cream page background (`#f5f3ef`), light gray borders, and standard Tailwind shadows. The overall feel is modern and minimal, leaning on good typography and clear information hierarchy rather than decorative flourishes.
 
 The typography pairs two voices: **Baloo 2**, a rounded display typeface from Google Fonts, handles every heading and gives the brand its distinctive personality. **Inter**, a variable-weight workhorse from Google Fonts, handles body copy, labels, navigation, and form fields with quietly excellent legibility. OpenType features (`cv02`, `cv03`, `cv04`, `cv11`) are enabled globally to give Inter subtle character.
 
@@ -10,7 +10,7 @@ The signature interaction is the **glow button** on the landing page — a black
 
 **Key Characteristics:**
 
-- Warm off-white page background (`#f7f6f5`) with white card surfaces and light gray borders (`border-gray-100`)
+- Warm cream page background (`#f5f3ef`) with white card surfaces and light gray borders (`border-gray-100`)
 - Standard Tailwind shadow scale (`shadow-sm`, `shadow-lg`)
 - Baloo 2 for headings, Inter for everything else
 - Card hover: `-translate-y-1` + `shadow-lg`
@@ -23,7 +23,7 @@ The signature interaction is the **glow button** on the landing page — a black
 
 ### Primary Surfaces
 
-- **Warm Off-White** (`#f7f6f5`, HSL `30 11% 96%`): Page background and nav background (at 80% opacity) — a warm, papery off-white
+- **Warm Cream** (`#f5f3ef`, HSL `40 23% 95%`): Page background (`--background` token) and nav background (at 80% opacity) — a warm, papery cream. Used consistently across the landing page, the auth/onboarding flow (`SplitScreen`), and the interior app via the `bg-background` utility — never hardcode the hex.
 - **White** (`#ffffff`): Card surfaces
 - **Near-Black** (`hsl(0 0% 3.9%)`): Foreground text
 - **Dark** (`hsl(0 0% 9%)`): Primary button fill
@@ -221,7 +221,7 @@ The shadow system uses Tailwind's defaults. There are no custom shadow tokens. E
 
 ### Do
 
-- Use `bg-background` (warm off-white `#f7f6f5`) for page backgrounds and `bg-white` for card surfaces
+- Use `bg-background` (warm cream `#f5f3ef`) for page backgrounds and `bg-white` for card surfaces
 - Apply `hover:shadow-lg hover:-translate-y-1 transition-all duration-200` to interactive cards
 - Use `cardReveal` animation with staggered `animationDelay` on card lists
 - Keep Baloo 2 strictly on h1–h6 elements via `font-baloo`
@@ -266,7 +266,7 @@ The shadow system uses Tailwind's defaults. There are no custom shadow tokens. E
 ### Color Cheat Sheet
 
 ```
-Page background:  #f7f6f5  (warm off-white)
+Page background:  #f5f3ef  (warm cream, --background token — landing, auth flow, interior app)
 Card background:  #ffffff  (white)
 Text:             hsl(0 0% 3.9%)  (near-black)
 Muted text:       hsl(0 0% 45.1%) (gray)

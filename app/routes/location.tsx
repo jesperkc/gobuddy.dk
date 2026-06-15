@@ -136,7 +136,7 @@ function Location() {
     <SplitScreen illustration="lifter" tagline="Vi viser dig folk i nærheden — du bestemmer hvor tæt.">
       <div>
         <OnboardingStepper step={3} />
-        <PageTitle>Hvor i verden er du?</PageTitle>
+        <PageTitle className="text-3xl tracking-tight">Hvor i verden er du?</PageTitle>
         <div className="space-y-6">
           <div className="h-[300px] w-full rounded-lg overflow-hidden shadow-md mb-6">
             <ClientOnly

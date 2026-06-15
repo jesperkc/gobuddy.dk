@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { safeLocalStorage } from "../lib/ssr-utils";
 
 interface IAddress {
   postcode: string;
@@ -24,14 +26,15 @@ interface OnboardingState {
   setAddress: (location: IAddress) => void;
   setCoordinates: (coordinates: { lat: number; lng: number }) => void;
   setNewsletter: (newsletter: boolean) => void;
+  reset: () => void;
 }
 
-export const useOnboardingStore = create<OnboardingState>((set) => ({
+const initialState = {
   email: "",
   password: "",
   name: "",
   age: 0,
-  interests: [],
+  interests: [] as string[],
   address: {
     postcode: "",
     city: "",
@@ -40,12 +43,38 @@ export const useOnboardingStore = create<OnboardingState>((set) => ({
   },
   coordinates: undefined,
   newsletter: false,
-  setEmail: (email) => set({ email }),
-  setPassword: (password) => set({ password }),
-  setName: (name) => set({ name }),
-  setAge: (age) => set({ age }),
-  setInterests: (interests) => set({ interests }),
-  setAddress: (address) => set({ address }),
-  setCoordinates: (coordinates) => set({ coordinates }),
-  setNewsletter: (newsletter) => set({ newsletter }),
-}));
+};
+
+export const useOnboardingStore = create<OnboardingState>()(
+  persist(
+    (set) => ({
+      ...initialState,
+      setEmail: (email) => set({ email }),
+      setPassword: (password) => set({ password }),
+      setName: (name) => set({ name }),
+      setAge: (age) => set({ age }),
+      setInterests: (interests) => set({ interests }),
+      setAddress: (address) => set({ address }),
+      setCoordinates: (coordinates) => set({ coordinates }),
+      setNewsletter: (newsletter) => set({ newsletter }),
+      reset: () => set({ ...initialState }),
+    }),
+    {
+      name: "gobuddy-onboarding",
+      storage: createJSONStorage(() => safeLocalStorage),
+      // Don't render persisted state during SSR/first paint — rehydrate on the
+      // client instead (see rehydrateOnboardingStore) to avoid hydration mismatch.
+      skipHydration: true,
+      // Never persist the password to disk; it's only entered on the final step.
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      partialize: ({ password, ...rest }) => rest,
+    }
+  )
+);
+
+/**
+ * Rehydrate the onboarding store from localStorage. Call once on the client
+ * after mount so the server-rendered HTML (default state) matches the first
+ * client render before persisted values are applied.
+ */
+export const rehydrateOnboardingStore = () => useOnboardingStore.persist.rehydrate();
