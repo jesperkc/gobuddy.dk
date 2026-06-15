@@ -46,3 +46,4 @@ dist-ssr
 
 # TypeScript
 *.tsbuildinfo
+app.config.*.js

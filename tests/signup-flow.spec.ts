@@ -1,7 +1,6 @@
-import { test, expect } from "@playwright/test";
-import { SignupRequestData } from "../src/routes/signup";
+import { test, expect, Page } from "@playwright/test";
 
-// Define the actual structure of the captured Supabase request
+// Shape of the request body the Supabase auth client POSTs to /auth/v1/signup.
 interface SupabaseSignupRequest {
   email: string;
   password: string;
@@ -15,164 +14,203 @@ interface SupabaseSignupRequest {
     country_code: string;
     longitude?: number;
     latitude?: number;
-    interests: string[];
+    interests: { interest_id: string; description: string }[];
     newsletter: boolean;
   };
-  code_challenge?: string | null;
-  code_challenge_method?: string | null;
-  gotrue_meta_security?: Record<string, unknown>;
 }
 
-// Extend the Window interface
 interface CustomWindow extends Window {
-  __TEST_SIGNUP_OBJECT__?: SignupRequestData;
   __CAPTURED_SIGNUP_ARGS__?: SupabaseSignupRequest;
-  supabase?: {
-    auth: {
-      signUp: (data: SignupRequestData) => Promise<{
-        data: { user: { id: string }; session: null };
-        error: null;
-      }>;
-    };
-  };
 }
+
+// Fixed interest list returned in place of the live Supabase query, so the flow
+// is deterministic and doesn't depend on DB contents.
+const INTERESTS = [
+  { interest_id: "11111111-1111-1111-1111-111111111111", interest_da: "Løb", interest_en: "Running", category: "sport", icon: "run", onboarding: true, custom: false, custom_added_by: null, slug: "loeb", created_at: "2024-01-01T00:00:00Z" },
+  { interest_id: "22222222-2222-2222-2222-222222222222", interest_da: "Cykling", interest_en: "Cycling", category: "sport", icon: "bike", onboarding: true, custom: false, custom_added_by: null, slug: "cykling", created_at: "2024-01-01T00:00:00Z" },
+  { interest_id: "33333333-3333-3333-3333-333333333333", interest_da: "Tennis", interest_en: "Tennis", category: "sport", icon: "tennis", onboarding: true, custom: false, custom_added_by: null, slug: "tennis", created_at: "2024-01-01T00:00:00Z" },
+];
+
+const CORS = { "access-control-allow-origin": "*", "content-type": "application/json" };
+
+/**
+ * Stub the two external reads the onboarding flow makes — the Supabase
+ * `interests` query and Nominatim geocoding — so the suite is hermetic and
+ * never flaky in CI. The real calls are exercised by the separate
+ * signup-create-account spec.
+ */
+async function mockExternalReads(page: Page) {
+  await page.route("**/rest/v1/interests**", (route) =>
+    route.fulfill({ status: 200, headers: CORS, body: JSON.stringify(INTERESTS) })
+  );
+  await page.route("**nominatim.openstreetmap.org/search**", (route) =>
+    route.fulfill({
+      status: 200,
+      headers: CORS,
+      body: JSON.stringify([
+        {
+          display_name: "København, Danmark",
+          lat: "55.6867243",
+          lon: "12.5700724",
+          address: { city: "København", postcode: "1000", country: "Danmark", country_code: "dk" },
+        },
+      ]),
+    })
+  );
+}
+
+test.beforeEach(async ({ page }) => {
+  await mockExternalReads(page);
+});
 
 test.describe("GoBuddy Signup Flow", () => {
-  test("should navigate through the entire signup process", async ({ page }) => {
-    // Set up route interception for the Supabase auth API
+  test("should complete the full signup flow", async ({ page }) => {
+    // Mock the auth signup so no real account is created; capture the payload.
     await page.route("**/auth/v1/signup**", async (route) => {
-      // Get the request data
       const requestData = route.request().postDataJSON();
-
-      // Store the request data for later verification
       await page.evaluate((data) => {
-        (window as CustomWindow).__CAPTURED_SIGNUP_ARGS__ = data;
+        (window as unknown as CustomWindow).__CAPTURED_SIGNUP_ARGS__ = data;
       }, requestData);
-
-      // Mock a successful response
       await route.fulfill({
         status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          data: {
-            user: { id: "mock-user-id" },
-            session: null,
-          },
-          error: null,
-        }),
+        headers: CORS,
+        body: JSON.stringify({ user: { id: "mock-user-id" }, session: null }),
       });
     });
 
     // Step 1: Landing page
     await page.goto("/");
     await expect(page).toHaveTitle(/GoBuddy/);
+    await expect(page.locator("h1")).toContainText("Mød dine nye");
+    // Two links read "Kom i gang" / "Kom i gang gratis"; target the nav one exactly.
+    await page.getByRole("link", { name: "Kom i gang", exact: true }).click();
 
-    // Verify landing page content
-    await expect(page.locator("h1")).toContainText("Mød dine nye bedste venner");
-
-    // Click "Start nu" button to begin the signup process
-    await page.getByText("Start nu").click();
-
-    // Step 2: Details page
+    // Step 2: Details
     await expect(page.locator("h1")).toContainText("Fortæl os mere om dig");
-
-    // Fill in name and age
     const testName = "Test Bruger";
     const testAge = "30";
     await page.getByLabel("Hvad er dit navn?").fill(testName);
     await page.getByLabel("Hvad er din alder?").fill(testAge);
-
-    // Click "Videre" button
     await page.getByRole("button", { name: "Videre" }).click();
 
-    // Step 3: Interests page
+    // Step 3: Interests (stubbed list)
     await expect(page.locator("h1")).toContainText("Hvad er dine interesser?");
-
-    // Select at least one interest
-    const testInterests = ["Technology", "Music"];
-    await page.getByText(testInterests[0]).click();
-    await page.getByText(testInterests[1]).click();
-
-    // Click "Videre" button
+    await expect(page.getByRole("button", { name: "Videre" })).toBeDisabled();
+    // Radix Toggle renders a <button data-state="on|off">.
+    await page.waitForSelector("button[data-state]");
+    const toggles = page.locator("button[data-state]");
+    await toggles.nth(0).click();
+    await toggles.nth(1).click();
+    await expect(page.getByRole("button", { name: "Videre" })).toBeEnabled();
     await page.getByRole("button", { name: "Videre" }).click();
 
-    // Step 4: Location page
+    // Step 4: Location (stubbed geocoding)
     await expect(page.locator("h1")).toContainText("Hvor i verden er du?");
-
-    // Search for a location
+    await expect(page.getByRole("button", { name: "Videre" })).toBeDisabled();
     await page.getByPlaceholder("Søg efter din by").fill("Copenhagen");
-
-    // Wait for search results and select the first one
     await page.waitForSelector(".search-container button");
     await page.locator(".search-container button").first().click();
-
-    // Click "Videre" button
+    await expect(page.getByRole("button", { name: "Videre" })).toBeEnabled();
     await page.getByRole("button", { name: "Videre" }).click();
 
-    // Step 5: Signup page
+    // Step 5: Signup
     await expect(page.locator("h1")).toContainText("Opret din konto");
-
-    // Generate a random email to avoid conflicts
-    const randomEmail = `test${Math.floor(Math.random() * 10000)}@example.com`;
+    const randomEmail = `test${Math.floor(Math.random() * 100000)}@example.com`;
     const testPassword = "Password123!";
-
-    // Fill in email and password
     await page.getByLabel("Email").fill(randomEmail);
-    await page.getByLabel("Adgangskode").fill(testPassword);
-
-    // Check newsletter checkbox
+    await page.getByLabel("Adgangskode", { exact: true }).fill(testPassword);
+    await page.getByLabel("Bekræft adgangskode").fill(testPassword);
     await page.getByLabel("Modtag vores nyhedsbrev").check();
 
-    // Verify that all required fields are filled
-    await expect(page.getByLabel("Email")).toHaveValue(randomEmail);
-    await expect(page.getByLabel("Adgangskode")).toHaveValue(testPassword);
-
-    // Click the "Opret konto" button to submit the form
     await Promise.all([
-      // Wait for the request to be sent
-      page.waitForRequest("**/auth/v1/signup**"),
-      // Click the button
+      page.waitForResponse("**/auth/v1/signup**"),
       page.getByRole("button", { name: "Opret konto" }).click(),
     ]);
 
-    // Wait for the navigation or state change
-    await page.waitForTimeout(1000);
+    // Verify the actual POST body the app sent to Supabase matches what we
+    // entered. (Don't read __TEST_SIGNUP_OBJECT__ here — a successful signup
+    // calls reset(), which clears the store and the window object.)
+    const capturedArgs = await page.evaluate(
+      () => (window as unknown as CustomWindow).__CAPTURED_SIGNUP_ARGS__
+    );
 
-    // Verify that the signupObject contains the correct values
-    const signupObject = await page.evaluate(() => (window as CustomWindow).__TEST_SIGNUP_OBJECT__);
-
-    // Ensure signupObject exists
-    expect(signupObject).toBeDefined();
-
-    // Get the captured arguments passed to the mocked supabase.auth.signUp function
-    const capturedArgs = await page.evaluate(() => (window as CustomWindow).__CAPTURED_SIGNUP_ARGS__);
-
-    // Verify that supabase.auth.signUp was called with the correct arguments
     expect(capturedArgs).toBeDefined();
-    expect(signupObject).toBeDefined();
-
-    if (capturedArgs && signupObject) {
-      // Instead of comparing the entire objects, check specific fields
-      expect(capturedArgs.email).toBe(signupObject.email);
-      expect(capturedArgs.password).toBe(signupObject.password);
-
-      // Check the data fields
-      const capturedData = capturedArgs.data;
-      const expectedData = signupObject.options.data;
-
-      expect(capturedData.first_name).toBe(expectedData.first_name);
-      expect(capturedData.age).toBe(expectedData.age);
-      expect(capturedData.interests).toEqual(expectedData.interests);
-      expect(capturedData.newsletter).toBe(expectedData.newsletter);
-      expect(capturedData.city).toBe(expectedData.city);
-      expect(capturedData.country).toBe(expectedData.country);
-      expect(capturedData.country_code).toBe(expectedData.country_code);
-      expect(capturedData.postcode).toBe(expectedData.postcode);
-      expect(capturedData.latitude).toBe(expectedData.latitude);
-      expect(capturedData.longitude).toBe(expectedData.longitude);
-      expect(capturedData.coordinates).toBe(expectedData.coordinates);
+    if (capturedArgs) {
+      const captured = capturedArgs.data;
+      expect(capturedArgs.email).toBe(randomEmail);
+      expect(capturedArgs.password).toBe(testPassword);
+      expect(captured.first_name).toBe(testName);
+      expect(captured.age).toBe(Number(testAge));
+      expect(captured.newsletter).toBe(true);
+      expect(captured.interests).toEqual([
+        { interest_id: INTERESTS[0].interest_id, description: "" },
+        { interest_id: INTERESTS[1].interest_id, description: "" },
+      ]);
+      expect(captured.city).toBe("København");
+      expect(captured.country).toBe("Danmark");
+      expect(captured.country_code).toBe("dk");
+      expect(captured.coordinates).toBe("POINT(55.6867243 12.5700724)");
     }
+  });
 
-    // We've already verified the data above, so we don't need this block anymore
+  test("should block account creation with a password under 8 characters", async ({ page }) => {
+    let signupRequested = false;
+    await page.route("**/auth/v1/signup**", async (route) => {
+      signupRequested = true;
+      await route.abort();
+    });
+
+    await page.goto("/signup");
+    await expect(page.locator("h1")).toContainText("Opret din konto");
+
+    await page.getByLabel("Email").fill("short@example.com");
+    const password = page.getByLabel("Adgangskode", { exact: true });
+    await password.fill("short");
+    await page.getByLabel("Bekræft adgangskode").fill("short");
+    await page.getByRole("button", { name: "Opret konto" }).click();
+
+    // The password Input has minLength=8, so the browser's native constraint
+    // validation blocks the submit: no signup request fires and we stay on /signup.
+    await expect(password).toHaveJSProperty("validity.valid", false);
+    expect(signupRequested).toBe(false);
+    expect(new URL(page.url()).pathname).toBe("/signup");
+  });
+
+  test("should reject mismatched passwords", async ({ page }) => {
+    let signupRequested = false;
+    await page.route("**/auth/v1/signup**", async (route) => {
+      signupRequested = true;
+      await route.abort();
+    });
+
+    await page.goto("/signup");
+    await expect(page.locator("h1")).toContainText("Opret din konto");
+
+    await page.getByLabel("Email").fill("mismatch@example.com");
+    await page.getByLabel("Adgangskode", { exact: true }).fill("Password123!");
+    await page.getByLabel("Bekræft adgangskode").fill("Different123!");
+    await page.getByRole("button", { name: "Opret konto" }).click();
+
+    await expect(page.getByText("Adgangskoderne matcher ikke")).toBeVisible();
+    expect(signupRequested).toBe(false);
+  });
+
+  test("should keep Videre disabled until required input is given", async ({ page }) => {
+    // Interests: disabled until at least one interest is selected.
+    await page.goto("/details");
+    await page.getByLabel("Hvad er dit navn?").fill("Guard Test");
+    await page.getByLabel("Hvad er din alder?").fill("25");
+    await page.getByRole("button", { name: "Videre" }).click();
+
+    await expect(page.locator("h1")).toContainText("Hvad er dine interesser?");
+    await expect(page.getByRole("button", { name: "Videre" })).toBeDisabled();
+    await page.waitForSelector("button[data-state]");
+    await page.locator("button[data-state]").first().click();
+    await expect(page.getByRole("button", { name: "Videre" })).toBeEnabled();
+    await page.getByRole("button", { name: "Videre" }).click();
+
+    // Location: disabled until coordinates are set (no search result selected).
+    await expect(page.locator("h1")).toContainText("Hvor i verden er du?");
+    await expect(page.getByRole("button", { name: "Videre" })).toBeDisabled();
   });
 });
