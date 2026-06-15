@@ -1,0 +1,18 @@
+# Netlify build configuration.
+#
+# Vite inlines every VITE_-prefixed env var into the client bundle, so their
+# values are public by design and also appear in source (e.g. the localhost URL
+# in playwright.config.ts). Netlify's secret scanner must not treat these as
+# leaked secrets, or the build fails.
+#
+# Only list keys that are genuinely safe to ship to the browser:
+#   - VITE_APP_URL                    public base URL (OAuth redirect target)
+#   - VITE_SUPABASE_URL               public project URL
+#   - VITE_SUPABASE_PUBLISHABLE_KEY   browser-safe publishable key (RLS-protected)
+#   - VITE_STRAVA_CLIENT_ID           public OAuth client id
+#
+# Do NOT add VITE_CLAUDE_KEY here. It is a sensitive API key (shipped to the
+# browser via dangerouslyAllowBrowser) and should keep tripping the scanner as a
+# standing warning that it is exposed.
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "VITE_APP_URL,VITE_SUPABASE_URL,VITE_SUPABASE_PUBLISHABLE_KEY,VITE_STRAVA_CLIENT_ID"
