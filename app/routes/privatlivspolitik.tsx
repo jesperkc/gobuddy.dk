@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { GobuddyLogo } from "@/components/GobuddyLogo";
+import { MIN_AGE } from "@/lib/age";
 
 // Data controller details. GoBuddy is run by a private person; keep these in
 // sync with reality — GDPR art. 13 requires the controller's identity and contact.
 const CONTROLLER_NAME = "Jesper Klitgaard";
+const CONTROLLER_ADDRESS = "Theodore Roosevelts Vej 1, 2450 København SV";
 const CONTACT_EMAIL = "hej@gobuddy.dk";
 const LAST_UPDATED = "29. september 2026";
 
@@ -16,6 +18,7 @@ const SECTIONS = [
   { id: "opbevaring", title: "Hvor længe vi gemmer" },
   { id: "lokal-lagring", title: "Cookies og lokal lagring" },
   { id: "rettigheder", title: "Dine rettigheder" },
+  { id: "alder", title: "Aldersgrænse" },
   { id: "aendringer", title: "Ændringer" },
 ];
 
@@ -126,6 +129,13 @@ function PrivacyPolicy() {
               spørgsmål til, hvordan vi behandler dine data, kan du skrive til{" "}
               <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
             </p>
+            <address className="mt-4 not-italic leading-relaxed text-gray-700">
+              {CONTROLLER_NAME}
+              <br />
+              {CONTROLLER_ADDRESS}
+              <br />
+              <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+            </address>
           </Section>
 
           <Section id="oplysninger" title="Hvad vi indsamler og hvorfor">
@@ -232,6 +242,13 @@ function PrivacyPolicy() {
                 datatilsynet.dk
               </a>
               .
+            </p>
+          </Section>
+
+          <Section id="alder" title="Aldersgrænse">
+            <p>
+              GoBuddy er kun for voksne. Du skal være mindst {MIN_AGE} år for at oprette en profil. Opdager vi en profil, der tilhører en
+              person under {MIN_AGE} år, sletter vi den.
             </p>
           </Section>
 

@@ -15,6 +15,7 @@ import { LocationPicker, IAddress } from "../../../../src/components/LocationPic
 import type { Database } from "../../../../database.types";
 import { ErrorCard } from "@/components/form/ErrorCard";
 import { SuccessCard } from "@/components/form/SuccessCard";
+import { ageValidators, MAX_AGE, MIN_AGE } from "@/lib/age";
 
 type UserRole = Database["public"]["Enums"]["app_role"];
 
@@ -239,9 +240,9 @@ const CreateUser = () => {
                   )}
                 </Field>
 
-                <Field name="age" type="number">
+                <Field name="age" type="number" validate={ageValidators}>
                   {(field, props) => (
-                    <TextInput {...props} value={field.value} error={field.error} type="number" label="Alder" placeholder="Indtast alder" />
+                    <TextInput {...props} value={field.value} error={field.error} type="number" min={MIN_AGE} max={MAX_AGE} label="Alder" placeholder="Indtast alder" />
                   )}
                 </Field>
               </div>

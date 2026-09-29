@@ -10,6 +10,7 @@ import { TextInput } from "../../src/components/form/TextInput";
 import { UnauthedRoute } from "@/components/UnauthedRoute";
 import { OnboardingStepper } from "@/components/OnboardingStepper";
 import { useClientEffect } from "../../src/lib/ssr-utils";
+import { ageValidators, MAX_AGE, MIN_AGE } from "@/lib/age";
 
 type DetailsForm = {
   name: string;
@@ -64,13 +65,15 @@ function Details() {
             )}
           </Field>
 
-          <Field name="age" type="number" validate={[required("Indtast venligst din alder")]}>
+          <Field name="age" type="number" validate={[required("Indtast venligst din alder"), ...ageValidators]}>
             {(field, props) => (
               <TextInput
                 {...props}
                 value={field.value}
                 error={field.error}
                 type="number"
+                min={MIN_AGE}
+                max={MAX_AGE}
                 label="Hvad er din alder?"
                 placeholder="Indtast din alder"
                 required

@@ -2,6 +2,7 @@ import { required, useForm } from "@modular-forms/react";
 import { TextInput } from "@/components/form/TextInput";
 import { SaveButton } from "./SaveButton";
 import type { DetailsFormValues } from "./types";
+import { ageValidators, MAX_AGE, MIN_AGE } from "@/lib/age";
 
 interface DetailsTabPanelProps {
   initialValues: {
@@ -81,7 +82,7 @@ export function DetailsTabPanel({
           <Field
             name="age"
             type="number"
-            validate={[required("Indtast venligst din alder")]}
+            validate={[required("Indtast venligst din alder"), ...ageValidators]}
           >
             {(field, props) => (
               <TextInput
@@ -89,6 +90,8 @@ export function DetailsTabPanel({
                 value={field.value}
                 error={field.error}
                 type="number"
+                min={MIN_AGE}
+                max={MAX_AGE}
                 label={showLastName ? "Alder" : "Hvad er din alder?"}
                 placeholder="Indtast din alder"
                 required
