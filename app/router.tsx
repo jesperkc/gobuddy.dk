@@ -2,6 +2,7 @@ import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
 // Import CSS for server-side rendering
+import "../src/vendor-styles";
 import "../src/index.css";
 
 export function createRouter() {

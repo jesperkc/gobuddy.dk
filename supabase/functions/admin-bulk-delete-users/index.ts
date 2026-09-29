@@ -4,6 +4,7 @@
 // Deploy: supabase functions deploy admin-bulk-delete-users
 
 import { corsHeaders, json, requireAdmin } from "../_shared/admin-auth.ts";
+import { deleteUserCompletely } from "../_shared/delete-user.ts";
 
 interface BulkDeleteBody {
   user_ids: string[];
@@ -30,32 +31,15 @@ Deno.serve(async (req) => {
     const ids = body.user_ids;
 
     const warnings: string[] = [];
-
-    const messagesErr = (
-      await admin
-        .from("messages")
-        .delete()
-        .or(ids.map((id) => `sender_id.eq.${id},receiver_id.eq.${id}`).join(","))
-    ).error;
-    if (messagesErr) warnings.push(`messages: ${messagesErr.message}`);
-
-    const interestsErr = (await admin.from("user_interests").delete().in("profile_id", ids)).error;
-    if (interestsErr) warnings.push(`user_interests: ${interestsErr.message}`);
-
-    const rolesErr = (await admin.from("user_roles").delete().in("user_id", ids)).error;
-    if (rolesErr) warnings.push(`user_roles: ${rolesErr.message}`);
-
-    const profilesErr = (await admin.from("profiles").delete().in("profile_id", ids)).error;
-    if (profilesErr) return json(500, { error: `profiles delete failed: ${profilesErr.message}`, warnings });
-
-    const authFailures: string[] = [];
+    let deleted = 0;
     for (const id of ids) {
-      const { error } = await admin.auth.admin.deleteUser(id);
-      if (error) authFailures.push(`${id}: ${error.message}`);
+      const result = await deleteUserCompletely(admin, id);
+      warnings.push(...result.warnings.map((w) => `${id}: ${w}`));
+      if (result.ok) deleted++;
+      else warnings.push(`${id}: ${result.error}`);
     }
-    if (authFailures.length) warnings.push(`auth.users: ${authFailures.join("; ")}`);
 
-    return json(200, { ok: true, deleted_count: ids.length, warnings });
+    return json(200, { ok: true, deleted_count: deleted, warnings });
   } catch (e) {
     console.error("admin-bulk-delete-users fatal:", e);
     return json(500, { error: e instanceof Error ? e.message : "Unknown error" });

@@ -29,6 +29,7 @@ import {
   DetailsTabPanel,
   InterestsTabPanel,
   LocationTabPanel,
+  DeleteAccountSection,
   type UserProfile,
   type DetailsFormValues,
 } from "@/components/profile-edit";
@@ -576,6 +577,11 @@ export function ProfileEdit() {
               />
             )}
           </DetailsTabPanel>
+        )}
+        {activeTab === "details" && (
+          <div className="mt-10">
+            <DeleteAccountSection />
+          </div>
         )}
 
         {activeTab === "interests" && (

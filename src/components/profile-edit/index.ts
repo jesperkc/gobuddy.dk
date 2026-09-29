@@ -4,4 +4,5 @@ export { AvatarEditor } from "./AvatarEditor";
 export { DetailsTabPanel } from "./DetailsTabPanel";
 export { InterestsTabPanel } from "./InterestsTabPanel";
 export { LocationTabPanel } from "./LocationTabPanel";
+export { DeleteAccountSection } from "./DeleteAccountSection";
 export type { UserProfile, DetailsFormValues, ProfileTab } from "./types";

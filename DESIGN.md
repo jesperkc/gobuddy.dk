@@ -4,7 +4,7 @@
 
 GoBuddy helps Danes find friends through shared hobbies. The interface is clean and warm — white card surfaces floating on a warm cream page background (`#f5f3ef`), light gray borders, and standard Tailwind shadows. The overall feel is modern and minimal, leaning on good typography and clear information hierarchy rather than decorative flourishes.
 
-The typography pairs two voices: **Baloo 2**, a rounded display typeface from Google Fonts, handles every heading and gives the brand its distinctive personality. **Inter**, a variable-weight workhorse from Google Fonts, handles body copy, labels, navigation, and form fields with quietly excellent legibility. OpenType features (`cv02`, `cv03`, `cv04`, `cv11`) are enabled globally to give Inter subtle character.
+The typography pairs two voices: **Baloo 2**, a rounded display typeface, handles every heading and gives the brand its distinctive personality. **Inter**, a variable-weight workhorse, handles body copy, labels, navigation, and form fields with quietly excellent legibility. OpenType features (`cv02`, `cv03`, `cv04`, `cv11`) are enabled globally to give Inter subtle character.
 
 The signature interaction is the **glow button** on the landing page — a black CTA with an animated gradient border that pulses and blurs on hover, lifting upward with `translateY(-5px)`. Cards throughout the app use a gentler hover: a slight upward lift (`-translate-y-1`) and a larger shadow (`shadow-lg`). A staggered `cardReveal` entrance animation (fade in + slide up) gives lists a polished feel.
 
@@ -86,8 +86,8 @@ Preview all colors at `/godaddy/design-system` (admin-only).
 
 ### Font Stack
 
-- **Display**: `Baloo 2` (weight 400–800) from Google Fonts, fallback `system-ui`, `sans-serif`
-- **Body/UI**: `Inter` via Google Fonts (variable, weight 100–900, optical sizing 14–32), fallback `system-ui, sans-serif`
+- **Display**: `Baloo 2 Variable` (weight 400–800), self-hosted via `@fontsource-variable/baloo-2`, fallback `system-ui`, `sans-serif`
+- **Body/UI**: `Inter Variable` (weight 100–900, optical sizing 14–32), self-hosted via `@fontsource-variable/inter`, fallback `system-ui, sans-serif`
 - **OpenType on body**: `"cv02", "cv03", "cv04", "cv11"` enabled globally
 
 ### Scale

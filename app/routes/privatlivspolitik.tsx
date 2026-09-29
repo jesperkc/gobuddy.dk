@@ -71,7 +71,6 @@ const RECIPIENTS: Recipient[] = [
   { name: "Netlify", role: "Hosting af hjemmesiden", where: "USA, med EU-standardkontrakter" },
   { name: "OpenStreetMap Foundation (Nominatim)", role: "Opslag af adresser, når du søger efter din by", where: "EU / Storbritannien" },
   { name: "Stadia Maps", role: "Kortbilleder, når et kort vises", where: "EU / USA" },
-  { name: "Google Fonts", role: "Skrifttyper, der hentes, når siden indlæses", where: "USA, med EU-standardkontrakter" },
   { name: "Strava", role: "Kun hvis du selv forbinder din Strava-konto", where: "USA" },
 ];
 
@@ -112,7 +111,7 @@ function PrivacyPolicy() {
               <li>Vi sælger aldrig dine data og viser ingen annoncer.</li>
               <li>Vi bruger ingen sporings- eller reklamecookies.</li>
               <li>
-                Du kan altid få indsigt i eller slette dine data ved at skrive til{" "}
+                Du kan altid slette din konto under Rediger profil, og få indsigt i dine data ved at skrive til{" "}
                 <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium underline underline-offset-4 decoration-green-600/50 hover:decoration-green-700">
                   {CONTACT_EMAIL}
                 </a>
@@ -187,15 +186,16 @@ function PrivacyPolicy() {
               ))}
             </dl>
             <p>
-              Når kort, skrifttyper og adresseopslag hentes fra disse leverandører, modtager de teknisk set din IP-adresse, sådan som det sker ved
+              Når kort og adresseopslag hentes fra disse leverandører, modtager de teknisk set din IP-adresse, sådan som det sker ved
               ethvert besøg på en hjemmeside.
             </p>
           </Section>
 
           <Section id="opbevaring" title="Hvor længe vi gemmer">
             <p>
-              Vi gemmer dine oplysninger, så længe du har en profil. Beder du os om at slette din konto, sletter vi din profil, dine interesser og
-              dine beskeder senest 30 dage efter. Forbinder du Strava fra, sletter vi din Strava-forbindelse med det samme. Framelder du
+              Vi gemmer dine oplysninger, så længe du har en profil. Sletter du din konto under Rediger profil, sletter vi med det samme din
+              profil, dine interesser, beskeder, opslag, aktiviteter og dit profilbillede, og vi fjerner GoBuddys adgang til en eventuel
+              Strava-konto. Beder du os om det på e-mail, sker det senest 30 dage efter. Forbinder du Strava fra, sletter vi din Strava-forbindelse med det samme. Framelder du
               nyhedsbrevet, stopper vi med at sende det med det samme.
             </p>
           </Section>

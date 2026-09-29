@@ -6,8 +6,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        baloo: ['"Baloo 2"', "system-ui", "sans-serif"],
-        sans: ['"Inter"', "system-ui", "sans-serif"],
+        baloo: ['"Baloo 2 Variable"', '"Baloo 2"', "system-ui", "sans-serif"],
+        sans: ['"Inter Variable"', '"Inter"', "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
