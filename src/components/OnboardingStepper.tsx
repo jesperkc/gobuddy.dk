@@ -4,7 +4,7 @@ interface OnboardingStepperProps {
   labels?: string[];
 }
 
-const defaultLabels = ["Detaljer", "Interesser", "Placering", "Opret konto"];
+const defaultLabels = ["Interesser", "Placering", "Detaljer", "Opret konto"];
 
 export function OnboardingStepper({ step, total = 4, labels = defaultLabels }: OnboardingStepperProps) {
   return (

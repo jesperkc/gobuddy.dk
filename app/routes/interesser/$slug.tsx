@@ -1,10 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Users, MapPin } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { supabase } from "../../../src/lib/supabase";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
 import { InterestIcon } from "@/components/InterestIcon";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { seedOnboardingInterests } from "@/store/onboarding";
 
 interface InterestDetail {
   interest_id: string;
@@ -23,6 +26,8 @@ interface BuddyPreview {
 
 function InterestPage() {
   const { slug } = Route.useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [interest, setInterest] = useState<InterestDetail | null>(null);
   const [buddies, setBuddies] = useState<BuddyPreview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,26 +46,34 @@ function InterestPage() {
         if (intError) throw intError;
         setInterest(interestData);
 
-        // Fetch users with this interest
-        const { data: userInterests, error: uiError } = await supabase
-          .from("user_interests")
-          .select(
-            `
-            description,
-            profiles (
-              profile_id,
-              first_name,
-              city
-            )
-          `,
-          )
-          .eq("interest_id", interestData.interest_id)
-          .limit(50);
-
-        if (uiError) throw uiError;
-
+        // Fetch every user with this interest, paging past PostgREST's per-request row cap.
+        const PAGE_SIZE = 1000;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mapped: BuddyPreview[] = (userInterests || [])
+        const userInterests: any[] = [];
+        for (let from = 0; ; from += PAGE_SIZE) {
+          const { data: page, error: uiError } = await supabase
+            .from("user_interests")
+            .select(
+              `
+              description,
+              profiles (
+                profile_id,
+                first_name,
+                city
+              )
+            `,
+            )
+            .eq("interest_id", interestData.interest_id)
+            .eq("is_non_interest", false)
+            .order("profile_id")
+            .range(from, from + PAGE_SIZE - 1);
+
+          if (uiError) throw uiError;
+          userInterests.push(...(page || []));
+          if (!page || page.length < PAGE_SIZE) break;
+        }
+
+        const mapped: BuddyPreview[] = userInterests
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .filter((ui: any) => ui.profiles)
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,6 +94,12 @@ function InterestPage() {
 
     fetchData();
   }, [slug]);
+
+  // Carry this interest into signup so the interests step opens with it selected.
+  const startSignup = () => {
+    if (interest) seedOnboardingInterests([interest.interest_id]);
+    navigate({ to: "/interests" });
+  };
 
   return (
     <DefaultLayout
@@ -149,23 +168,28 @@ function InterestPage() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-xl border border-dashed border-gray-300 p-8 text-center">
-                <p className="text-gray-500 mb-2">Ingen buddies endnu med denne interesse.</p>
-                <p className="text-gray-400 text-sm">Bliv den første!</p>
+              <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-50 text-green-700">
+                  <InterestIcon icon={interest.icon} size={28} />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900">Ingen buddies med {interest.interest_da.toLowerCase()} endnu</h2>
+                <p className="mx-auto mt-2 max-w-sm text-gray-600">
+                  Opret en profil med {interest.interest_da.toLowerCase()} som interesse, så er du den første, andre finder her.
+                </p>
               </div>
             )}
 
             {/* CTA */}
-            <div className="text-center border-t pt-8">
-              <p className="text-gray-600 mb-3">Interesseret i {interest.interest_da.toLowerCase()}?</p>
-              <Link
-                to="/signup"
-                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-800 transition-colors no-underline"
-              >
-                Opret gratis profil
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+            {!isAuthenticated && (
+              <div className="text-center border-t pt-8">
+                <p className="text-gray-600 mb-3">Interesseret i {interest.interest_da.toLowerCase()}?</p>
+                <Button onClick={startSignup} size="lg" className="rounded-full h-12 px-6 text-base bg-blue-600 hover:bg-blue-800">
+                  Opret gratis profil
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+                <p className="mt-3 text-sm text-gray-500">{interest.interest_da} er allerede valgt for dig.</p>
+              </div>
+            )}
           </>
         )}
 

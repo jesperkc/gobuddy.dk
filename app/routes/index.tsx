@@ -6,6 +6,9 @@ import CyclistIllustration from "@/assets/illustrations/cyclist.svg?react";
 import TennisIllustration from "@/assets/illustrations/tennisplayer.svg?react";
 import LifterIllustration from "@/assets/illustrations/lifter.svg?react";
 import { useClientEffect } from "@/lib/ssr-utils";
+import { HeroInterestPicker } from "@/components/HeroInterestPicker";
+import { getOnboardingResume, useOnboardingStore } from "@/store/onboarding";
+import { ArrowRight } from "lucide-react";
 
 type FannedBuddy = {
   initials: string;
@@ -15,8 +18,8 @@ type FannedBuddy = {
 };
 
 const HERO_BUDDIES: FannedBuddy[] = [
-  { initials: "SØ", name: "Søren", age: 21, interest: "Bouldering" },
-  { initials: "MA", name: "Mathias", age: 40, interest: "Cykling" },
+  { initials: "SØ", name: "Søren", age: 21, interest: "Cykling" },
+  { initials: "MA", name: "Mathias", age: 40, interest: "Fitness" },
   { initials: "PE", name: "Peter", age: 53, interest: "Tennis" },
   { initials: "JO", name: "John", age: 49, interest: "Løb" },
   { initials: "LA", name: "Lasse", age: 33, interest: "Vægtløftning" },
@@ -301,13 +304,15 @@ function Index() {
                 Log ind
               </Link>
               <Link
-                to="/details"
+                to="/interests"
                 className="text-sm font-medium bg-gray-900 text-white rounded-full px-4 py-2 hover:bg-gray-800 transition-colors shadow-sm"
               >
                 Kom i gang
               </Link>
             </div>
           </div>
+
+          <ResumeBanner />
 
           {/* Headline */}
           <h1 className="text-center text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight mb-12 sm:mb-16">
@@ -323,9 +328,11 @@ function Index() {
           </div>
 
           {/* Subtitle */}
-          <p className="text-center text-sm sm:text-base text-gray-900/80 max-w-md mx-auto leading-relaxed">
+          <p className="text-center text-sm sm:text-base text-gray-900/80 max-w-md mx-auto leading-relaxed mb-12 sm:mb-14">
             Find ligesindede i dit nærområde — gratis, lokalt, til hvad du end dyrker.
           </p>
+
+          <HeroInterestPicker />
         </div>
       </section>
 
@@ -363,9 +370,8 @@ function Index() {
       </section>
 
       {/* Sådan virker det */}
-      <section className="bg-background pt-8 pb-24 sm:pb-32">
+      <section id="hvordan" className="bg-background pt-8 pb-24 sm:pb-32 scroll-mt-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-xs font-medium tracking-[0.15em] uppercase text-gray-500 mb-2">Sådan virker det</p>
           <h2 className="text-3xl sm:text-4xl md:text-5xl text-gray-900 leading-tight mb-14 sm:mb-16">
             Tre skridt til den buddy
             <br />
@@ -388,7 +394,7 @@ function Index() {
 
           <div className="mt-16 sm:mt-20 flex justify-center">
             <Link
-              to="/details"
+              to="/interests"
               className="inline-flex items-center justify-center px-8 py-4 rounded-full text-base font-medium bg-gray-900 text-white hover:bg-gray-800 transition-colors shadow-lg"
             >
               Kom i gang gratis
@@ -401,44 +407,57 @@ function Index() {
       <footer className="bg-gray-950 text-gray-300">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-10">
-            <div className="sm:col-span-1">
-              <p className="text-sm leading-relaxed text-gray-400">Find din perfekte buddy og gør jeres hobby sjovere sammen</p>
+            <div className="sm:col-span-2">
+              <p className="text-sm leading-relaxed text-gray-400 max-w-xs">Find din perfekte buddy og gør jeres hobby sjovere sammen</p>
             </div>
 
             <FooterColumn
               title="Produktet"
               links={[
                 { label: "Sådan virker det", href: "#hvordan" },
-                { label: "Aktiviteter", href: "#" },
-                { label: "Priser", href: "#" },
+                { label: "Interesser", to: "/interesser" },
               ]}
             />
 
             <FooterColumn
-              title="Ressourcer"
+              title="Kom i gang"
               links={[
-                { label: "Blog", href: "#" },
-                { label: "Hjælp", href: "#" },
-                { label: "FAQ", href: "#" },
-              ]}
-            />
-
-            <FooterColumn
-              title="GoBuddy"
-              links={[
-                { label: "Om os", href: "#" },
-                { label: "Kontakt", href: "#" },
-                { label: "Privatlivspolitik", href: "#" },
+                { label: "Opret gratis profil", to: "/interests" },
+                { label: "Log ind", to: "/login" },
               ]}
             />
           </div>
 
-          <div className="mt-12 pt-6 border-t border-gray-800 text-center">
+          <div className="mt-12 pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-xs text-gray-500">&copy; {new Date().getFullYear()} GoBuddy. Alle rettigheder forbeholdes.</p>
+            <Link to="/privatlivspolitik" className="text-xs text-gray-400 hover:text-white transition-colors">
+              Privatlivspolitik
+            </Link>
           </div>
         </div>
       </footer>
     </div>
+  );
+}
+
+function ResumeBanner() {
+  const { name, age, interests, coordinates } = useOnboardingStore();
+  const resume = getOnboardingResume({ name, age, interests, coordinates });
+  if (!resume) return null;
+
+  return (
+    <Link
+      to={resume.to}
+      className="group mx-auto -mt-4 mb-8 sm:mb-10 flex w-fit max-w-full items-center gap-3 rounded-full bg-white/85 py-2 pl-4 pr-2 text-sm text-gray-900 shadow-sm hover:bg-white transition-colors"
+    >
+      <span className="truncate">
+        {name ? `Velkommen tilbage, ${name}.` : "Velkommen tilbage."} <span className="hidden sm:inline text-gray-600">Din profil er på trin {resume.step} af 4.</span>
+      </span>
+      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gray-900 px-3 py-1 font-medium text-white">
+        Fortsæt
+        <ArrowRight className="h-3.5 w-3.5 motion-safe:transition-transform motion-safe:group-hover:translate-x-0.5" />
+      </span>
+    </Link>
   );
 }
 
@@ -453,16 +472,25 @@ function Step({ number, title, description }: { number: string; title: string; d
   );
 }
 
-function FooterColumn({ title, links }: { title: string; links: { label: string; href: string }[] }) {
+type FooterLink = { label: string } & ({ to: "/interesser" | "/interests" | "/login"; href?: never } | { href: `#${string}`; to?: never });
+
+function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
+  const className = "text-sm text-gray-400 hover:text-white transition-colors";
   return (
     <div>
       <p className="text-sm font-semibold text-white mb-4">{title}</p>
       <ul className="space-y-2.5">
         {links.map((link) => (
           <li key={link.label}>
-            <a href={link.href} className="text-sm text-gray-400 hover:text-white transition-colors">
-              {link.label}
-            </a>
+            {link.to ? (
+              <Link to={link.to} className={className}>
+                {link.label}
+              </Link>
+            ) : (
+              <a href={link.href} className={className}>
+                {link.label}
+              </a>
+            )}
           </li>
         ))}
       </ul>

@@ -73,6 +73,30 @@ export const useOnboardingStore = create<OnboardingState>()(
 );
 
 /**
+ * Add interests picked outside the flow (landing page, interest pages) to the
+ * onboarding selection, keeping anything the visitor already chose.
+ */
+export const seedOnboardingInterests = (interestIds: string[]) => {
+  const { interests, setInterests } = useOnboardingStore.getState();
+  setInterests(Array.from(new Set([...interests, ...interestIds])));
+};
+
+export type OnboardingResume = { to: "/interests" | "/location" | "/details" | "/signup"; step: number };
+
+/**
+ * Where a returning visitor should pick up the signup flow, or null when
+ * they haven't started it. Mirrors the step order in OnboardingStepper.
+ */
+export const getOnboardingResume = (state: Pick<OnboardingState, "name" | "age" | "interests" | "coordinates">): OnboardingResume | null => {
+  const started = Boolean(state.name || state.age || state.interests.length || state.coordinates);
+  if (!started) return null;
+  if (state.interests.length === 0) return { to: "/interests", step: 1 };
+  if (!state.coordinates) return { to: "/location", step: 2 };
+  if (!state.name || !state.age) return { to: "/details", step: 3 };
+  return { to: "/signup", step: 4 };
+};
+
+/**
  * Rehydrate the onboarding store from localStorage. Call once on the client
  * after mount so the server-rendered HTML (default state) matches the first
  * client render before persisted values are applied.

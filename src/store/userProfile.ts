@@ -85,8 +85,9 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
       // }
 
       // If no user_metadata, try to fetch from a profiles table (if it exists)
+      // Full row (email, exact position) is only readable by the owner, via RPC.
       const { data, error } = await supabase
-        .from("profiles")
+        .rpc("get_full_profile", { p_id: user.id })
         .select(
           `
         *,
@@ -103,7 +104,6 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
         )
         `
         )
-        .eq("profile_id", user.id)
         .single();
       if (error && error.code !== "PGRST116") {
         // PGRST116 is "not found"

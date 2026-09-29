@@ -85,15 +85,7 @@ test.describe("GoBuddy Signup Flow", () => {
     // Two links read "Kom i gang" / "Kom i gang gratis"; target the nav one exactly.
     await page.getByRole("link", { name: "Kom i gang", exact: true }).click();
 
-    // Step 2: Details
-    await expect(page.locator("h1")).toContainText("Fortæl os mere om dig");
-    const testName = "Test Bruger";
-    const testAge = "30";
-    await page.getByLabel("Hvad er dit navn?").fill(testName);
-    await page.getByLabel("Hvad er din alder?").fill(testAge);
-    await page.getByRole("button", { name: "Videre" }).click();
-
-    // Step 3: Interests (stubbed list)
+    // Step 2: Interests (stubbed list)
     await expect(page.locator("h1")).toContainText("Hvad er dine interesser?");
     await expect(page.getByRole("button", { name: "Videre" })).toBeDisabled();
     // Radix Toggle renders a <button data-state="on|off">.
@@ -104,13 +96,21 @@ test.describe("GoBuddy Signup Flow", () => {
     await expect(page.getByRole("button", { name: "Videre" })).toBeEnabled();
     await page.getByRole("button", { name: "Videre" }).click();
 
-    // Step 4: Location (stubbed geocoding)
+    // Step 3: Location (stubbed geocoding)
     await expect(page.locator("h1")).toContainText("Hvor i verden er du?");
     await expect(page.getByRole("button", { name: "Videre" })).toBeDisabled();
     await page.getByPlaceholder("Søg efter din by").fill("Copenhagen");
     await page.waitForSelector(".search-container button");
     await page.locator(".search-container button").first().click();
     await expect(page.getByRole("button", { name: "Videre" })).toBeEnabled();
+    await page.getByRole("button", { name: "Videre" }).click();
+
+    // Step 4: Details
+    await expect(page.locator("h1")).toContainText("Fortæl os mere om dig");
+    const testName = "Test Bruger";
+    const testAge = "30";
+    await page.getByLabel("Hvad er dit navn?").fill(testName);
+    await page.getByLabel("Hvad er din alder?").fill(testAge);
     await page.getByRole("button", { name: "Videre" }).click();
 
     // Step 5: Signup
@@ -197,11 +197,7 @@ test.describe("GoBuddy Signup Flow", () => {
 
   test("should keep Videre disabled until required input is given", async ({ page }) => {
     // Interests: disabled until at least one interest is selected.
-    await page.goto("/details");
-    await page.getByLabel("Hvad er dit navn?").fill("Guard Test");
-    await page.getByLabel("Hvad er din alder?").fill("25");
-    await page.getByRole("button", { name: "Videre" }).click();
-
+    await page.goto("/interests");
     await expect(page.locator("h1")).toContainText("Hvad er dine interesser?");
     await expect(page.getByRole("button", { name: "Videre" })).toBeDisabled();
     await page.waitForSelector("button[data-state]");

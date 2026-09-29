@@ -33,11 +33,7 @@ async function deleteUser(id: string) {
 
 /** Walk the onboarding flow up to (but not including) the signup submit. */
 async function walkToSignup(page: Page, email: string, password: string) {
-  await page.goto("/details");
-  await page.getByLabel("Hvad er dit navn?").fill("E2E Bruger");
-  await page.getByLabel("Hvad er din alder?").fill("30");
-  await page.getByRole("button", { name: "Videre" }).click();
-
+  await page.goto("/interests");
   await expect(page.locator("h1")).toContainText("Hvad er dine interesser?");
   await page.waitForSelector("button[data-state]");
   await page.locator("button[data-state]").first().click();
@@ -47,6 +43,11 @@ async function walkToSignup(page: Page, email: string, password: string) {
   await page.getByPlaceholder("Søg efter din by").fill("Copenhagen");
   await page.waitForSelector(".search-container button");
   await page.locator(".search-container button").first().click();
+  await page.getByRole("button", { name: "Videre" }).click();
+
+  await expect(page.locator("h1")).toContainText("Fortæl os mere om dig");
+  await page.getByLabel("Hvad er dit navn?").fill("E2E Bruger");
+  await page.getByLabel("Hvad er din alder?").fill("30");
   await page.getByRole("button", { name: "Videre" }).click();
 
   await expect(page.locator("h1")).toContainText("Opret din konto");

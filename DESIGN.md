@@ -140,6 +140,17 @@ White surfaces with very light borders:
 
 **Event Cards** are content-stacked: title in `text-gray-900`, date/location/participants in `text-gray-500` with lucide icons, interest badges in `bg-blue-50 text-blue-700` pills, creator name in `text-gray-400`. Grid: `grid-cols-1 sm:grid-cols-2`.
 
+### Hero Interest Picker (landing page)
+
+`HeroInterestPicker` is the landing page's primary entry into signup. It asks "Hvad dyrker du?" before anything else.
+
+- Up to 10 `onboarding` interests, most popular first, rendered as shadcn `Toggle` chips: `h-10 rounded-full bg-white/75`, pressed `bg-gray-900 text-white`, with a 16px `InterestIcon`
+- CTA: `h-14 rounded-full bg-gray-900`, and its label follows the selection ("Kom i gang gratis" → "Find buddies til løb" → "Find buddies til 3 interesser")
+- Picks go into the onboarding store (`seedOnboardingInterests`), so the interests step opens with them already selected
+- Loading: pulsing `bg-white/40` pill skeletons at a fixed height. On fetch failure the chips are hidden and only the CTA remains
+
+**Resume pill**: when the onboarding store holds progress, a `bg-white/85` pill above the hero headline links to the next unfinished step (`getOnboardingResume`).
+
 ### Interest Badges
 
 Pill-shaped (`rounded-full`), 12px text, medium weight. Three color variants:

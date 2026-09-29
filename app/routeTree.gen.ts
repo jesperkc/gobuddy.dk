@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ProfileEditRouteImport } from './routes/profile-edit'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivatlivspolitikRouteImport } from './routes/privatlivspolitik'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LocationRouteImport } from './routes/location'
 import { Route as InterestsRouteImport } from './routes/interests'
@@ -60,6 +61,11 @@ const ProfileEditRoute = ProfileEditRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivatlivspolitikRoute = PrivatlivspolitikRouteImport.update({
+  id: '/privatlivspolitik',
+  path: '/privatlivspolitik',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
+  '/privatlivspolitik': typeof PrivatlivspolitikRoute
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
@@ -285,6 +292,7 @@ export interface FileRoutesByTo {
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
+  '/privatlivspolitik': typeof PrivatlivspolitikRoute
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
@@ -325,6 +333,7 @@ export interface FileRoutesById {
   '/interests': typeof InterestsRoute
   '/location': typeof LocationRoute
   '/login': typeof LoginRoute
+  '/privatlivspolitik': typeof PrivatlivspolitikRoute
   '/profile': typeof ProfileRoute
   '/profile-edit': typeof ProfileEditRoute
   '/signup': typeof SignupRoute
@@ -366,6 +375,7 @@ export interface FileRouteTypes {
     | '/interests'
     | '/location'
     | '/login'
+    | '/privatlivspolitik'
     | '/profile'
     | '/profile-edit'
     | '/signup'
@@ -404,6 +414,7 @@ export interface FileRouteTypes {
     | '/interests'
     | '/location'
     | '/login'
+    | '/privatlivspolitik'
     | '/profile'
     | '/profile-edit'
     | '/signup'
@@ -443,6 +454,7 @@ export interface FileRouteTypes {
     | '/interests'
     | '/location'
     | '/login'
+    | '/privatlivspolitik'
     | '/profile'
     | '/profile-edit'
     | '/signup'
@@ -483,6 +495,7 @@ export interface RootRouteChildren {
   InterestsRoute: typeof InterestsRoute
   LocationRoute: typeof LocationRoute
   LoginRoute: typeof LoginRoute
+  PrivatlivspolitikRoute: typeof PrivatlivspolitikRoute
   ProfileRoute: typeof ProfileRoute
   ProfileEditRoute: typeof ProfileEditRoute
   SignupRoute: typeof SignupRoute
@@ -521,6 +534,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privatlivspolitik': {
+      id: '/privatlivspolitik'
+      path: '/privatlivspolitik'
+      fullPath: '/privatlivspolitik'
+      preLoaderRoute: typeof PrivatlivspolitikRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -807,6 +827,7 @@ const rootRouteChildren: RootRouteChildren = {
   InterestsRoute: InterestsRoute,
   LocationRoute: LocationRoute,
   LoginRoute: LoginRoute,
+  PrivatlivspolitikRoute: PrivatlivspolitikRoute,
   ProfileRoute: ProfileRoute,
   ProfileEditRoute: ProfileEditRoute,
   SignupRoute: SignupRoute,

@@ -32,21 +32,19 @@ const AdminDashboard = () => {
         setLoading(true);
 
         // Get total users count
-        const { count: totalUsers } = await supabase.from("profiles").select("*", { count: "exact", head: true });
+        const { count: totalUsers } = await supabase.rpc("admin_list_profiles", undefined, { count: "exact", head: true });
 
         // Get users from last week
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
         const { count: newUsersThisWeek } = await supabase
-          .from("profiles")
-          .select("*", { count: "exact", head: true })
+          .rpc("admin_list_profiles", undefined, { count: "exact", head: true })
           .gte("created_at", oneWeekAgo.toISOString());
 
         // Get verified users count
         const { count: verifiedUsers } = await supabase
-          .from("profiles")
-          .select("*", { count: "exact", head: true })
+          .rpc("admin_list_profiles", undefined, { count: "exact", head: true })
           .eq("email_verified", true);
 
         // Get total interests

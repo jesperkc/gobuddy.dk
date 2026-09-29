@@ -35,7 +35,7 @@ const UserManagement = () => {
         setLoading(true);
 
         const { data, error } = await supabase
-          .from("profiles")
+          .rpc("admin_list_profiles")
           .select(
             `
             *,

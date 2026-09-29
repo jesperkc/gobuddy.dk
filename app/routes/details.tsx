@@ -40,13 +40,13 @@ function Details() {
   const handleSubmit = (values: DetailsForm) => {
     setName(values.name);
     setAge(values.age);
-    navigate({ to: "/interests" });
+    navigate({ to: "/signup" });
   };
 
   return (
-    <SplitScreen illustration="cyclist" tagline="Lad os lære dig at kende — det tager kun et par minutter.">
+    <SplitScreen illustration="lifter" tagline="Lad os lære dig at kende — det tager kun et par minutter.">
       <div>
-        <OnboardingStepper step={1} />
+        <OnboardingStepper step={3} />
         <PageTitle className="text-3xl tracking-tight">Fortæl os mere om dig</PageTitle>
         <Form onSubmit={handleSubmit} className="space-y-6">
           <Field name="name" validate={[required("Indtast venligst et navn")]}>
@@ -79,7 +79,7 @@ function Details() {
           </Field>
 
           <div className="flex items-center justify-between">
-            <Button type="button" variant="ghost" className="rounded-full" onClick={() => navigate({ to: "/" })}>
+            <Button type="button" variant="ghost" className="rounded-full" onClick={() => navigate({ to: "/location" })}>
               Tilbage
             </Button>
             <Button type="submit" className="rounded-full bg-gray-900 hover:bg-gray-800 px-6">

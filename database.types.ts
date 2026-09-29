@@ -529,6 +529,8 @@ export type Database = {
       profiles: {
         Row: {
           age: number | null
+          approx_latitude: number | null
+          approx_longitude: number | null
           avatar_url: string | null
           bio: string | null
           city: string | null
@@ -551,6 +553,8 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          approx_latitude?: number | null
+          approx_longitude?: number | null
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -573,6 +577,8 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          approx_latitude?: number | null
+          approx_longitude?: number | null
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
@@ -730,7 +736,73 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_profiles: {
+        Args: never
+        Returns: {
+          age: number | null
+          approx_latitude: number | null
+          approx_longitude: number | null
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          coordinates: unknown
+          country: string | null
+          country_code: string | null
+          created_at: string | null
+          email: string | null
+          email_verified: boolean
+          first_name: string | null
+          house_number: string | null
+          last_name: string | null
+          latitude: number | null
+          longitude: number | null
+          newsletter: boolean
+          postcode: string | null
+          profile_id: string
+          road: string | null
+          slug: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       delete_unused_custom_interests_delete: { Args: never; Returns: undefined }
+      get_full_profile: {
+        Args: { p_id: string }
+        Returns: {
+          age: number | null
+          approx_latitude: number | null
+          approx_longitude: number | null
+          avatar_url: string | null
+          bio: string | null
+          city: string | null
+          coordinates: unknown
+          country: string | null
+          country_code: string | null
+          created_at: string | null
+          email: string | null
+          email_verified: boolean
+          first_name: string | null
+          house_number: string | null
+          last_name: string | null
+          latitude: number | null
+          longitude: number | null
+          newsletter: boolean
+          postcode: string | null
+          profile_id: string
+          road: string | null
+          slug: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_related_interests: {
         Args: { min_score?: number; my_ids: string[] }
         Returns: {
@@ -739,6 +811,7 @@ export type Database = {
           score: number
         }[]
       }
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       app_permission: "channels.delete" | "messages.delete"

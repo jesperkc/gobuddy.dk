@@ -87,8 +87,8 @@ function DiscoverPage() {
               first_name,
               age,
               city,
-              latitude,
-              longitude,
+              latitude:approx_latitude,
+              longitude:approx_longitude,
               avatar_url,
               created_at,
               user_interests (

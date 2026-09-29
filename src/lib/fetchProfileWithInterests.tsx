@@ -43,8 +43,9 @@ export async function fetchProfileWithInterests(profileId: string): Promise<{
   interests: UserInterest[];
 }> {
   try {
+    // Full row (email, exact position) is only readable by the owner or an admin, via RPC.
     const { data, error } = await supabase
-      .from("profiles")
+      .rpc("get_full_profile", { p_id: profileId })
       .select(
         `
         *,
@@ -60,7 +61,6 @@ export async function fetchProfileWithInterests(profileId: string): Promise<{
         )
       `
       )
-      .eq("profile_id", profileId)
       .single();
 
     if (error) {

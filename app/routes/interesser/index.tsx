@@ -5,6 +5,7 @@ import { DefaultLayout } from "../../../src/components/AppShell";
 import { supabase } from "../../../src/lib/supabase";
 import { Input } from "@/components/ui/input";
 import { InterestIcon } from "@/components/InterestIcon";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface InterestWithCount {
   interest_id: string;
@@ -20,6 +21,7 @@ function InteresserPage() {
   const [interests, setInterests] = useState<InterestWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     async function fetchInterests() {
@@ -39,6 +41,8 @@ function InteresserPage() {
           `,
           )
           .eq("custom", false)
+          // Don't count people who marked this as something they don't want.
+          .eq("user_interests.is_non_interest", false)
           .order("category")
           .order("interest_da");
 
@@ -149,16 +153,18 @@ function InteresserPage() {
           ))}
 
         {/* CTA */}
-        <div className="text-center border-t pt-8">
-          <p className="text-gray-600 mb-3">Klar til at finde din buddy?</p>
-          <Link
-            to="/signup"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-800 transition-colors no-underline"
-          >
-            Opret gratis profil
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
+        {!isAuthenticated && (
+          <div className="text-center border-t pt-8">
+            <p className="text-gray-600 mb-3">Klar til at finde din buddy?</p>
+            <Link
+              to="/interests"
+              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-800 transition-colors no-underline"
+            >
+              Opret gratis profil
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
       </div>
     </DefaultLayout>
   );

@@ -133,7 +133,7 @@ const CreateUser = () => {
         newsletter: newsletter,
       };
 
-      const { data: profile, error: profileError } = await supabase.from("profiles").insert(profileData).select().single();
+      const { data: profile, error: profileError } = await supabase.from("profiles").insert(profileData).select("profile_id").single();
 
       if (profileError) throw profileError;
 

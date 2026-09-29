@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageTitle } from "@/components/PageTitle";
 import { useNavigate } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
@@ -215,6 +215,13 @@ function Signup() {
               </>
             )}
           </Button>
+          <p className="text-center text-xs text-gray-500 leading-relaxed">
+            Se hvordan vi behandler dine oplysninger i vores{" "}
+            <Link to="/privatlivspolitik" target="_blank" className="underline underline-offset-4 hover:text-gray-900">
+              privatlivspolitik
+            </Link>
+            .
+          </p>
         </form>
       </div>
     </SplitScreen>
