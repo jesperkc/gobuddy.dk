@@ -107,16 +107,6 @@ async function resolveInterestId(sportType: string): Promise<string | null> {
   return data?.interest_id ?? null;
 }
 
-function formatDistance(metres: number): string {
-  return metres >= 1000 ? `${(metres / 1000).toFixed(1)} km` : `${Math.round(metres)} m`;
-}
-
-function formatDuration(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return h > 0 ? `${h}t ${m}m` : `${m} min`;
-}
-
 // ── Activity import ────────────────────────────────────────────────
 
 async function importActivity(
@@ -133,11 +123,6 @@ async function importActivity(
 
   const interestId = await resolveInterestId(activity.sport_type);
 
-  const descParts: string[] = [];
-  if (activity.distance > 0) descParts.push(formatDistance(activity.distance));
-  if (activity.moving_time > 0) descParts.push(formatDuration(activity.moving_time));
-  if (activity.total_elevation_gain > 0) descParts.push(`↑ ${Math.round(activity.total_elevation_gain)} m`);
-
   const isPrivate = activity.visibility !== "everyone";
 
   const { data: post, error } = await supabaseAdmin
@@ -147,7 +132,11 @@ async function importActivity(
         profile_id: profileId,
         interest_id: interestId,
         title: activity.name,
-        description: descParts.join(" · "),
+        // Strava's own text for the activity (empty for most); stats live in the numeric columns.
+        description: typeof activity.description === "string" && activity.description.trim() ? activity.description.trim() : null,
+        distance_m: activity.distance > 0 ? activity.distance : null,
+        duration_s: activity.moving_time > 0 ? Math.round(activity.moving_time) : null,
+        elevation_m: activity.total_elevation_gain > 0 ? activity.total_elevation_gain : null,
         source: "strava",
         source_id: String(activity.id),
         source_url: `https://www.strava.com/activities/${activity.id}`,

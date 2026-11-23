@@ -1,19 +1,43 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { useClientEffect } from "../../src/lib/ssr-utils";
+import { supabase } from "../../src/lib/supabase";
+import { track } from "../../src/lib/track";
+import { useEmailVerificationStore } from "../../src/store/emailVerification";
 
 function Complete() {
   const navigate = useNavigate();
 
   useClientEffect(() => {
-    // User lands here after clicking the email confirmation link.
-    // Supabase handles the token exchange automatically via the URL hash.
-    // Redirect to home after a short delay to let the auth state update.
-    const timeout = setTimeout(() => {
-      navigate({ to: "/home" });
-    }, 1000);
+    // The user lands here after clicking the link in a verification email.
+    // getSession() waits for Supabase to exchange the token in the URL, then we
+    // record that this email has been proven (the database checks the session
+    // really came from an email link before accepting it).
+    let cancelled = false;
+    (async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    return () => clearTimeout(timeout);
+      if (session) {
+        const { error } = await supabase.rpc("mark_email_verified");
+        if (error) {
+          console.error("mark_email_verified failed:", error);
+          toast.error("Vi kunne ikke bekræfte din email. Prøv igen fra forsiden.");
+        } else {
+          useEmailVerificationStore.getState().setVerified(true);
+          track("email_confirmed", { method: "link" });
+          toast.success("Din email er bekræftet");
+        }
+      }
+
+      if (!cancelled) navigate({ to: "/home" });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   return (

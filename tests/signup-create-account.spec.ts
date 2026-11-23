@@ -45,15 +45,11 @@ async function walkToSignup(page: Page, email: string, password: string) {
   await page.locator(".search-container button").first().click();
   await page.getByRole("button", { name: "Videre" }).click();
 
-  await expect(page.locator("h1")).toContainText("Fortæl os mere om dig");
-  await page.getByLabel("Hvad er dit navn?").fill("E2E Bruger");
-  await page.getByLabel("Hvad er din alder?").fill("30");
-  await page.getByRole("button", { name: "Videre" }).click();
-
   await expect(page.locator("h1")).toContainText("Opret din konto");
+  await page.getByLabel("Fornavn").fill("E2E Bruger");
+  await page.getByLabel("Alder").fill("30");
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Adgangskode", { exact: true }).fill(password);
-  await page.getByLabel("Bekræft adgangskode").fill(password);
 }
 
 test.describe("GoBuddy real account creation", () => {

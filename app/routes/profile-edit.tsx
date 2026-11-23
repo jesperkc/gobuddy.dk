@@ -3,6 +3,7 @@ import { PageTitle } from "@/components/PageTitle";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Check, ExternalLink, Link2, Link2Off, Loader2, Lock, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { BioForm } from "@/components/BioForm";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
@@ -577,6 +578,12 @@ export function ProfileEdit() {
               />
             )}
           </DetailsTabPanel>
+        )}
+        {activeTab === "details" && (
+          <section className="mt-10">
+            <h2 className="text-2xl font-bold mb-6">Om dig</h2>
+            <BioForm id="profile-bio" label="Fortæl lidt om dig selv" allowEmpty />
+          </section>
         )}
         {activeTab === "details" && (
           <div className="mt-10">

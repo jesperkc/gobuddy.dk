@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { ArrowLeft, Send, Hand } from "lucide-react";
+import { ArrowLeft, Send, Hand, CalendarPlus } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
 import { useAuth } from "../../../src/contexts/AuthContext";
@@ -9,6 +9,10 @@ import { Button } from "../../../src/components/ui/button";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import type { Message } from "../../../src/lib/chat-types";
+import { parseProposal } from "@/lib/proposals";
+import { ProposalMessage } from "@/components/ProposalMessage";
+import { ProposalDialog } from "@/components/ProposalDialog";
+import { requireVerifiedEmail } from "@/store/emailVerification";
 
 function ChatPage() {
   const { buddyId } = Route.useParams();
@@ -19,6 +23,7 @@ function ChatPage() {
   const [buddyName, setBuddyName] = useState<string | null>(null);
   const [buddySlug, setBuddySlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [proposalOpen, setProposalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -194,6 +199,7 @@ function ChatPage() {
           {messages.map((msg, index) => {
             const isMe = msg.sender_id === user?.id;
             const isHighfive = msg.content.trim() === "👋";
+            const proposal = parseProposal(msg.content);
 
             return (
               <div key={msg.id}>
@@ -201,7 +207,9 @@ function ChatPage() {
                   <div className="text-center text-xs text-gray-400 py-3">{formatDateSeparator(msg.created_at)}</div>
                 )}
                 <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-1`}>
-                  {isHighfive ? (
+                  {proposal ? (
+                    <ProposalMessage text={proposal.text} slug={proposal.slug} isMe={isMe} time={formatTime(msg.created_at)} />
+                  ) : isHighfive ? (
                     <div
                       className={`flex flex-col items-center justify-center w-20 h-20 rounded-2xl ${
                         isMe ? "bg-blue-600 rounded-br-md" : "bg-gray-100 rounded-bl-md"
@@ -229,6 +237,19 @@ function ChatPage() {
 
         {/* Input */}
         <form onSubmit={handleSend} className="flex items-center gap-2 pt-3 border-t">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-full h-10 w-10 shrink-0 text-blue-700 hover:bg-blue-50"
+            title="Foreslå en tur"
+            aria-label="Foreslå en tur"
+            onClick={() => {
+              if (requireVerifiedEmail()) setProposalOpen(true);
+            }}
+          >
+            <CalendarPlus className="w-4 h-4" />
+          </Button>
           <Input
             ref={inputRef}
             type="text"
@@ -243,6 +264,8 @@ function ChatPage() {
           </Button>
         </form>
       </div>
+
+      <ProposalDialog open={proposalOpen} onOpenChange={setProposalOpen} buddyId={buddyId} buddyName={buddyName} onSent={() => inputRef.current?.focus()} />
     </DefaultLayout>
   );
 }

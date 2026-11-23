@@ -6,6 +6,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { useClientEffect, isBrowser } from "../lib/ssr-utils";
 import { GobuddyLogo } from "./GobuddyLogo";
+import { User2 } from "lucide-react";
 // import { useUserProfileStore } from "@/store/userProfile";
 
 export function Navbar() {
@@ -83,7 +84,9 @@ export function Navbar() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-hidden"
                 >
-                  <span className="hidden md:block">{user?.email}</span>
+                  <span className="hidden md:block">
+                    <User2 />
+                  </span>
                   <svg
                     className={`h-5 w-5 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
                     xmlns="http://www.w3.org/2000/svg"

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { InterestIcon } from "@/components/InterestIcon";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "../../src/lib/supabase";
+import { RequireVerifiedEmail } from "../../src/components/EmailVerification";
 import { toast } from "sonner";
 
 // ── Create post form ───────────────────────────────────────────────
@@ -22,6 +23,7 @@ interface InterestOption {
   interest_id: string;
   interest_da: string;
   icon: string;
+  category?: string;
 }
 
 function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPost) => void; onCancel: () => void }) {
@@ -30,6 +32,8 @@ function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPos
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [interestId, setInterestId] = useState("");
+  const [distanceKm, setDistanceKm] = useState("");
+  const [durationMin, setDurationMin] = useState("");
   const [interests, setInterests] = useState<InterestOption[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -37,7 +41,7 @@ function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPos
     if (!user) return;
     supabase
       .from("user_interests")
-      .select("interest_id, is_non_interest, interests (interest_id, interest_da, icon)")
+      .select("interest_id, is_non_interest, interests (interest_id, interest_da, icon, category)")
       .eq("profile_id", user.id)
       .eq("is_non_interest", false)
       .then(({ data }) => {
@@ -49,6 +53,8 @@ function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPos
       });
   }, [user]);
 
+  const isSport = interests.find((i) => i.interest_id === interestId)?.category === "sport";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
@@ -58,6 +64,8 @@ function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPos
       title: title.trim(),
       description: description.trim() || undefined,
       interestId: interestId || undefined,
+      distanceM: isSport && Number(distanceKm) > 0 ? Math.round(Number(distanceKm.replace(",", ".")) * 1000) : undefined,
+      durationS: isSport && Number(durationMin) > 0 ? Math.round(Number(durationMin) * 60) : undefined,
     });
 
     if (post) {
@@ -114,6 +122,23 @@ function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPos
               ))}
             </SelectContent>
           </Select>
+        </div>
+      )}
+
+      {isSport && (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="post-distance" className="block text-sm font-medium text-gray-700 mb-1">
+              Distance (km)
+            </label>
+            <Input id="post-distance" type="number" inputMode="decimal" min="0" step="0.1" value={distanceKm} onChange={(e) => setDistanceKm(e.target.value)} />
+          </div>
+          <div>
+            <label htmlFor="post-duration" className="block text-sm font-medium text-gray-700 mb-1">
+              Varighed (min)
+            </label>
+            <Input id="post-duration" type="number" inputMode="numeric" min="0" step="1" value={durationMin} onChange={(e) => setDurationMin(e.target.value)} />
+          </div>
         </div>
       )}
 
@@ -218,7 +243,9 @@ function FeedPage() {
 function ProtectedFeedPage() {
   return (
     <ProtectedRoute redirectTo="/login">
-      <FeedPage />
+      <RequireVerifiedEmail title="Bekræft din email for at se feedet">
+        <FeedPage />
+      </RequireVerifiedEmail>
     </ProtectedRoute>
   );
 }

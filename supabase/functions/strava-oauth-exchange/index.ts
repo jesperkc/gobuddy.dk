@@ -38,16 +38,6 @@ interface ExchangeBody {
   profile_id: string;
 }
 
-function formatDistance(metres: number): string {
-  return metres >= 1000 ? `${(metres / 1000).toFixed(1)} km` : `${Math.round(metres)} m`;
-}
-
-function formatDuration(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  return h > 0 ? `${h}t ${m}m` : `${m} min`;
-}
-
 Deno.serve(async (req) => {
   try {
     if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -162,18 +152,16 @@ Deno.serve(async (req) => {
           try {
             const danish = STRAVA_SPORT_MAP[activity.sport_type];
             const interestId = danish ? interestCache.get(danish.toLowerCase()) ?? null : null;
-            const descParts: string[] = [];
-            if (activity.distance > 0) descParts.push(formatDistance(activity.distance));
-            if (activity.moving_time > 0) descParts.push(formatDuration(activity.moving_time));
-            if (activity.total_elevation_gain > 0)
-              descParts.push(`↑ ${Math.round(activity.total_elevation_gain)} m`);
-
             const { error } = await admin.from("activity_posts").upsert(
               {
                 profile_id: body.profile_id,
                 interest_id: interestId,
                 title: activity.name,
-                description: descParts.join(" · "),
+                // The activity list has no description text; stats live in the numeric columns.
+                description: null,
+                distance_m: activity.distance > 0 ? activity.distance : null,
+                duration_s: activity.moving_time > 0 ? Math.round(activity.moving_time) : null,
+                elevation_m: activity.total_elevation_gain > 0 ? activity.total_elevation_gain : null,
                 source: "strava",
                 source_id: String(activity.id),
                 source_url: `https://www.strava.com/activities/${activity.id}`,

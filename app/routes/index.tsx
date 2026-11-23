@@ -329,7 +329,7 @@ function Index() {
 
           {/* Subtitle */}
           <p className="text-center text-sm sm:text-base text-gray-900/80 max-w-md mx-auto leading-relaxed mb-12 sm:mb-14">
-            Find ligesindede i dit nærområde — gratis, lokalt, til hvad du end dyrker.
+            Find ligesindede i dit nærområde, uanset hvad du dyrker. Det er gratis.
           </p>
 
           <HeroInterestPicker />
@@ -389,7 +389,7 @@ function Index() {
               title="Find din buddy"
               description="Vi viser dig folk i nærheden med samme niveau og interesser. Du bestemmer."
             />
-            <Step number="03" title="Mødes og træn" description="Skriv en kort besked, find et tidspunkt, og kom afsted. Helt gratis." />
+            <Step number="03" title="Mødes og træn" description="Skriv en kort besked, find et tidspunkt, og kom afsted." />
           </div>
 
           <div className="mt-16 sm:mt-20 flex justify-center">
@@ -408,7 +408,7 @@ function Index() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-10">
             <div className="sm:col-span-2">
-              <p className="text-sm leading-relaxed text-gray-400 max-w-xs">Find din perfekte buddy og gør jeres hobby sjovere sammen</p>
+              <p className="text-sm leading-relaxed text-gray-400 max-w-xs">Find en buddy, så din hobby bliver sjovere.</p>
             </div>
 
             <FooterColumn
@@ -451,7 +451,7 @@ function ResumeBanner() {
       className="group mx-auto -mt-4 mb-8 sm:mb-10 flex w-fit max-w-full items-center gap-3 rounded-full bg-white/85 py-2 pl-4 pr-2 text-sm text-gray-900 shadow-sm hover:bg-white transition-colors"
     >
       <span className="truncate">
-        {name ? `Velkommen tilbage, ${name}.` : "Velkommen tilbage."} <span className="hidden sm:inline text-gray-600">Din profil er på trin {resume.step} af 4.</span>
+        {name ? `Velkommen tilbage, ${name}.` : "Velkommen tilbage."} <span className="hidden sm:inline text-gray-600">Din profil er på trin {resume.step} af 3.</span>
       </span>
       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gray-900 px-3 py-1 font-medium text-white">
         Fortsæt

@@ -9,108 +9,48 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as ProfileEditRouteImport } from './routes/profile-edit'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as PrivatlivspolitikRouteImport } from './routes/privatlivspolitik'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as LocationRouteImport } from './routes/location'
-import { Route as InterestsRouteImport } from './routes/interests'
-import { Route as HomeRouteImport } from './routes/home'
-import { Route as FeedRouteImport } from './routes/feed'
-import { Route as DetailsRouteImport } from './routes/details'
-import { Route as ConfirmemailRouteImport } from './routes/confirmemail'
-import { Route as CompletedRouteImport } from './routes/completed'
-import { Route as CompleteRouteImport } from './routes/complete'
-import { Route as BuddiesRouteImport } from './routes/buddies'
-import { Route as GodaddyRouteRouteImport } from './routes/godaddy/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as InteresserIndexRouteImport } from './routes/interesser/index'
-import { Route as GodaddyIndexRouteImport } from './routes/godaddy/index'
-import { Route as ChatIndexRouteImport } from './routes/chat/index'
+import { Route as BuddiesRouteImport } from './routes/buddies'
+import { Route as CompleteRouteImport } from './routes/complete'
+import { Route as CompletedRouteImport } from './routes/completed'
+import { Route as ConfirmemailRouteImport } from './routes/confirmemail'
+import { Route as DetailsRouteImport } from './routes/details'
+import { Route as FeedRouteImport } from './routes/feed'
+import { Route as GodaddyRouteRouteImport } from './routes/godaddy/route'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as InterestsRouteImport } from './routes/interests'
+import { Route as LocationRouteImport } from './routes/location'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivatlivspolitikRouteImport } from './routes/privatlivspolitik'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProfileEditRouteImport } from './routes/profile-edit'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ActivitiesIndexRouteImport } from './routes/activities/index'
-import { Route as StravaCallbackRouteImport } from './routes/strava/callback'
-import { Route as InteresserSlugRouteImport } from './routes/interesser/$slug'
-import { Route as GodaddyDesignSystemRouteImport } from './routes/godaddy/design-system'
-import { Route as GodaddyAnalyticsRouteImport } from './routes/godaddy/analytics'
-import { Route as ChatBuddyIdRouteImport } from './routes/chat/$buddyId'
-import { Route as BuddySlugRouteImport } from './routes/buddy/$slug'
-import { Route as ApiGenerateUsersRouteImport } from './routes/api/generate-users'
-import { Route as ApiGenerateRelationsRouteImport } from './routes/api/generate-relations'
 import { Route as ActivitiesOpretRouteImport } from './routes/activities/opret'
-import { Route as GodaddyUsersIndexRouteImport } from './routes/godaddy/users/index'
-import { Route as GodaddyInterestsIndexRouteImport } from './routes/godaddy/interests/index'
+import { Route as ApiGenerateRelationsRouteImport } from './routes/api/generate-relations'
+import { Route as ApiGenerateUsersRouteImport } from './routes/api/generate-users'
+import { Route as BuddySlugRouteImport } from './routes/buddy/$slug'
+import { Route as ChatIndexRouteImport } from './routes/chat/index'
+import { Route as ChatBuddyIdRouteImport } from './routes/chat/$buddyId'
+import { Route as GodaddyIndexRouteImport } from './routes/godaddy/index'
+import { Route as GodaddyAnalyticsRouteImport } from './routes/godaddy/analytics'
+import { Route as GodaddyDesignSystemRouteImport } from './routes/godaddy/design-system'
+import { Route as InteresserIndexRouteImport } from './routes/interesser/index'
+import { Route as InteresserSlugRouteImport } from './routes/interesser/$slug'
+import { Route as StravaCallbackRouteImport } from './routes/strava/callback'
 import { Route as ActivitiesSlugIndexRouteImport } from './routes/activities/$slug/index'
-import { Route as GodaddyUsersGenerateRouteImport } from './routes/godaddy/users/generate'
-import { Route as GodaddyUsersCreateRouteImport } from './routes/godaddy/users/create'
-import { Route as GodaddyInterestsRelationsRouteImport } from './routes/godaddy/interests/relations'
-import { Route as GodaddyInterestsCreateRouteImport } from './routes/godaddy/interests/create'
 import { Route as ActivitiesSlugRedigerRouteImport } from './routes/activities/$slug/rediger'
+import { Route as GodaddyInterestsIndexRouteImport } from './routes/godaddy/interests/index'
+import { Route as GodaddyInterestsCreateRouteImport } from './routes/godaddy/interests/create'
+import { Route as GodaddyInterestsRelationsRouteImport } from './routes/godaddy/interests/relations'
+import { Route as GodaddyUsersIndexRouteImport } from './routes/godaddy/users/index'
+import { Route as GodaddyUsersCreateRouteImport } from './routes/godaddy/users/create'
+import { Route as GodaddyUsersGenerateRouteImport } from './routes/godaddy/users/generate'
 import { Route as GodaddyUsersUserIdEditRouteImport } from './routes/godaddy/users/$userId/edit'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileEditRoute = ProfileEditRouteImport.update({
-  id: '/profile-edit',
-  path: '/profile-edit',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivatlivspolitikRoute = PrivatlivspolitikRouteImport.update({
-  id: '/privatlivspolitik',
-  path: '/privatlivspolitik',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LocationRoute = LocationRouteImport.update({
-  id: '/location',
-  path: '/location',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InterestsRoute = InterestsRouteImport.update({
-  id: '/interests',
-  path: '/interests',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HomeRoute = HomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedRoute = FeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DetailsRoute = DetailsRouteImport.update({
-  id: '/details',
-  path: '/details',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConfirmemailRoute = ConfirmemailRouteImport.update({
-  id: '/confirmemail',
-  path: '/confirmemail',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CompletedRoute = CompletedRouteImport.update({
-  id: '/completed',
-  path: '/completed',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CompleteRoute = CompleteRouteImport.update({
-  id: '/complete',
-  path: '/complete',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BuddiesRoute = BuddiesRouteImport.update({
@@ -118,29 +58,74 @@ const BuddiesRoute = BuddiesRouteImport.update({
   path: '/buddies',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompleteRoute = CompleteRouteImport.update({
+  id: '/complete',
+  path: '/complete',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompletedRoute = CompletedRouteImport.update({
+  id: '/completed',
+  path: '/completed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfirmemailRoute = ConfirmemailRouteImport.update({
+  id: '/confirmemail',
+  path: '/confirmemail',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DetailsRoute = DetailsRouteImport.update({
+  id: '/details',
+  path: '/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedRoute = FeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GodaddyRouteRoute = GodaddyRouteRouteImport.update({
   id: '/godaddy',
   path: '/godaddy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => rootRouteImport,
 } as any)
-const InteresserIndexRoute = InteresserIndexRouteImport.update({
-  id: '/interesser/',
-  path: '/interesser/',
+const InterestsRoute = InterestsRouteImport.update({
+  id: '/interests',
+  path: '/interests',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GodaddyIndexRoute = GodaddyIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => GodaddyRouteRoute,
+const LocationRoute = LocationRouteImport.update({
+  id: '/location',
+  path: '/location',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const ChatIndexRoute = ChatIndexRouteImport.update({
-  id: '/chat/',
-  path: '/chat/',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivatlivspolitikRoute = PrivatlivspolitikRouteImport.update({
+  id: '/privatlivspolitik',
+  path: '/privatlivspolitik',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileEditRoute = ProfileEditRouteImport.update({
+  id: '/profile-edit',
+  path: '/profile-edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ActivitiesIndexRoute = ActivitiesIndexRouteImport.update({
@@ -148,39 +133,9 @@ const ActivitiesIndexRoute = ActivitiesIndexRouteImport.update({
   path: '/activities/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StravaCallbackRoute = StravaCallbackRouteImport.update({
-  id: '/strava/callback',
-  path: '/strava/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const InteresserSlugRoute = InteresserSlugRouteImport.update({
-  id: '/interesser/$slug',
-  path: '/interesser/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GodaddyDesignSystemRoute = GodaddyDesignSystemRouteImport.update({
-  id: '/design-system',
-  path: '/design-system',
-  getParentRoute: () => GodaddyRouteRoute,
-} as any)
-const GodaddyAnalyticsRoute = GodaddyAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => GodaddyRouteRoute,
-} as any)
-const ChatBuddyIdRoute = ChatBuddyIdRouteImport.update({
-  id: '/chat/$buddyId',
-  path: '/chat/$buddyId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BuddySlugRoute = BuddySlugRouteImport.update({
-  id: '/buddy/$slug',
-  path: '/buddy/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiGenerateUsersRoute = ApiGenerateUsersRouteImport.update({
-  id: '/api/generate-users',
-  path: '/api/generate-users',
+const ActivitiesOpretRoute = ActivitiesOpretRouteImport.update({
+  id: '/activities/opret',
+  path: '/activities/opret',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGenerateRelationsRoute = ApiGenerateRelationsRouteImport.update({
@@ -188,34 +143,74 @@ const ApiGenerateRelationsRoute = ApiGenerateRelationsRouteImport.update({
   path: '/api/generate-relations',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ActivitiesOpretRoute = ActivitiesOpretRouteImport.update({
-  id: '/activities/opret',
-  path: '/activities/opret',
+const ApiGenerateUsersRoute = ApiGenerateUsersRouteImport.update({
+  id: '/api/generate-users',
+  path: '/api/generate-users',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GodaddyUsersIndexRoute = GodaddyUsersIndexRouteImport.update({
-  id: '/users/',
-  path: '/users/',
+const BuddySlugRoute = BuddySlugRouteImport.update({
+  id: '/buddy/$slug',
+  path: '/buddy/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIndexRoute = ChatIndexRouteImport.update({
+  id: '/chat/',
+  path: '/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatBuddyIdRoute = ChatBuddyIdRouteImport.update({
+  id: '/chat/$buddyId',
+  path: '/chat/$buddyId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GodaddyIndexRoute = GodaddyIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => GodaddyRouteRoute,
 } as any)
-const GodaddyInterestsIndexRoute = GodaddyInterestsIndexRouteImport.update({
-  id: '/interests/',
-  path: '/interests/',
+const GodaddyAnalyticsRoute = GodaddyAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const GodaddyDesignSystemRoute = GodaddyDesignSystemRouteImport.update({
+  id: '/design-system',
+  path: '/design-system',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const InteresserIndexRoute = InteresserIndexRouteImport.update({
+  id: '/interesser/',
+  path: '/interesser/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InteresserSlugRoute = InteresserSlugRouteImport.update({
+  id: '/interesser/$slug',
+  path: '/interesser/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StravaCallbackRoute = StravaCallbackRouteImport.update({
+  id: '/strava/callback',
+  path: '/strava/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ActivitiesSlugIndexRoute = ActivitiesSlugIndexRouteImport.update({
   id: '/activities/$slug/',
   path: '/activities/$slug/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GodaddyUsersGenerateRoute = GodaddyUsersGenerateRouteImport.update({
-  id: '/users/generate',
-  path: '/users/generate',
+const ActivitiesSlugRedigerRoute = ActivitiesSlugRedigerRouteImport.update({
+  id: '/activities/$slug/rediger',
+  path: '/activities/$slug/rediger',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GodaddyInterestsIndexRoute = GodaddyInterestsIndexRouteImport.update({
+  id: '/interests/',
+  path: '/interests/',
   getParentRoute: () => GodaddyRouteRoute,
 } as any)
-const GodaddyUsersCreateRoute = GodaddyUsersCreateRouteImport.update({
-  id: '/users/create',
-  path: '/users/create',
+const GodaddyInterestsCreateRoute = GodaddyInterestsCreateRouteImport.update({
+  id: '/interests/create',
+  path: '/interests/create',
   getParentRoute: () => GodaddyRouteRoute,
 } as any)
 const GodaddyInterestsRelationsRoute =
@@ -224,15 +219,20 @@ const GodaddyInterestsRelationsRoute =
     path: '/interests/relations',
     getParentRoute: () => GodaddyRouteRoute,
   } as any)
-const GodaddyInterestsCreateRoute = GodaddyInterestsCreateRouteImport.update({
-  id: '/interests/create',
-  path: '/interests/create',
+const GodaddyUsersIndexRoute = GodaddyUsersIndexRouteImport.update({
+  id: '/users/',
+  path: '/users/',
   getParentRoute: () => GodaddyRouteRoute,
 } as any)
-const ActivitiesSlugRedigerRoute = ActivitiesSlugRedigerRouteImport.update({
-  id: '/activities/$slug/rediger',
-  path: '/activities/$slug/rediger',
-  getParentRoute: () => rootRouteImport,
+const GodaddyUsersCreateRoute = GodaddyUsersCreateRouteImport.update({
+  id: '/users/create',
+  path: '/users/create',
+  getParentRoute: () => GodaddyRouteRoute,
+} as any)
+const GodaddyUsersGenerateRoute = GodaddyUsersGenerateRouteImport.update({
+  id: '/users/generate',
+  path: '/users/generate',
+  getParentRoute: () => GodaddyRouteRoute,
 } as any)
 const GodaddyUsersUserIdEditRoute = GodaddyUsersUserIdEditRouteImport.update({
   id: '/users/$userId/edit',
@@ -266,18 +266,18 @@ export interface FileRoutesByFullPath {
   '/godaddy/design-system': typeof GodaddyDesignSystemRoute
   '/interesser/$slug': typeof InteresserSlugRoute
   '/strava/callback': typeof StravaCallbackRoute
-  '/activities': typeof ActivitiesIndexRoute
-  '/chat': typeof ChatIndexRoute
+  '/activities/': typeof ActivitiesIndexRoute
+  '/chat/': typeof ChatIndexRoute
   '/godaddy/': typeof GodaddyIndexRoute
-  '/interesser': typeof InteresserIndexRoute
+  '/interesser/': typeof InteresserIndexRoute
   '/activities/$slug/rediger': typeof ActivitiesSlugRedigerRoute
   '/godaddy/interests/create': typeof GodaddyInterestsCreateRoute
   '/godaddy/interests/relations': typeof GodaddyInterestsRelationsRoute
   '/godaddy/users/create': typeof GodaddyUsersCreateRoute
   '/godaddy/users/generate': typeof GodaddyUsersGenerateRoute
-  '/activities/$slug': typeof ActivitiesSlugIndexRoute
-  '/godaddy/interests': typeof GodaddyInterestsIndexRoute
-  '/godaddy/users': typeof GodaddyUsersIndexRoute
+  '/activities/$slug/': typeof ActivitiesSlugIndexRoute
+  '/godaddy/interests/': typeof GodaddyInterestsIndexRoute
+  '/godaddy/users/': typeof GodaddyUsersIndexRoute
   '/godaddy/users/$userId/edit': typeof GodaddyUsersUserIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -388,18 +388,18 @@ export interface FileRouteTypes {
     | '/godaddy/design-system'
     | '/interesser/$slug'
     | '/strava/callback'
-    | '/activities'
-    | '/chat'
+    | '/activities/'
+    | '/chat/'
     | '/godaddy/'
-    | '/interesser'
+    | '/interesser/'
     | '/activities/$slug/rediger'
     | '/godaddy/interests/create'
     | '/godaddy/interests/relations'
     | '/godaddy/users/create'
     | '/godaddy/users/generate'
-    | '/activities/$slug'
-    | '/godaddy/interests'
-    | '/godaddy/users'
+    | '/activities/$slug/'
+    | '/godaddy/interests/'
+    | '/godaddy/users/'
     | '/godaddy/users/$userId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -515,95 +515,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile-edit': {
-      id: '/profile-edit'
-      path: '/profile-edit'
-      fullPath: '/profile-edit'
-      preLoaderRoute: typeof ProfileEditRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privatlivspolitik': {
-      id: '/privatlivspolitik'
-      path: '/privatlivspolitik'
-      fullPath: '/privatlivspolitik'
-      preLoaderRoute: typeof PrivatlivspolitikRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/location': {
-      id: '/location'
-      path: '/location'
-      fullPath: '/location'
-      preLoaderRoute: typeof LocationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/interests': {
-      id: '/interests'
-      path: '/interests'
-      fullPath: '/interests'
-      preLoaderRoute: typeof InterestsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/home': {
-      id: '/home'
-      path: '/home'
-      fullPath: '/home'
-      preLoaderRoute: typeof HomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feed': {
-      id: '/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof FeedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/details': {
-      id: '/details'
-      path: '/details'
-      fullPath: '/details'
-      preLoaderRoute: typeof DetailsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/confirmemail': {
-      id: '/confirmemail'
-      path: '/confirmemail'
-      fullPath: '/confirmemail'
-      preLoaderRoute: typeof ConfirmemailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/completed': {
-      id: '/completed'
-      path: '/completed'
-      fullPath: '/completed'
-      preLoaderRoute: typeof CompletedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/complete': {
-      id: '/complete'
-      path: '/complete'
-      fullPath: '/complete'
-      preLoaderRoute: typeof CompleteRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/buddies': {
@@ -613,6 +529,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BuddiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/complete': {
+      id: '/complete'
+      path: '/complete'
+      fullPath: '/complete'
+      preLoaderRoute: typeof CompleteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/completed': {
+      id: '/completed'
+      path: '/completed'
+      fullPath: '/completed'
+      preLoaderRoute: typeof CompletedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confirmemail': {
+      id: '/confirmemail'
+      path: '/confirmemail'
+      fullPath: '/confirmemail'
+      preLoaderRoute: typeof ConfirmemailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/details': {
+      id: '/details'
+      path: '/details'
+      fullPath: '/details'
+      preLoaderRoute: typeof DetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feed': {
+      id: '/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof FeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/godaddy': {
       id: '/godaddy'
       path: '/godaddy'
@@ -620,95 +571,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GodaddyRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/interesser/': {
-      id: '/interesser/'
-      path: '/interesser'
-      fullPath: '/interesser'
-      preLoaderRoute: typeof InteresserIndexRouteImport
+    '/interests': {
+      id: '/interests'
+      path: '/interests'
+      fullPath: '/interests'
+      preLoaderRoute: typeof InterestsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/godaddy/': {
-      id: '/godaddy/'
-      path: '/'
-      fullPath: '/godaddy/'
-      preLoaderRoute: typeof GodaddyIndexRouteImport
-      parentRoute: typeof GodaddyRouteRoute
+    '/location': {
+      id: '/location'
+      path: '/location'
+      fullPath: '/location'
+      preLoaderRoute: typeof LocationRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/chat/': {
-      id: '/chat/'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatIndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privatlivspolitik': {
+      id: '/privatlivspolitik'
+      path: '/privatlivspolitik'
+      fullPath: '/privatlivspolitik'
+      preLoaderRoute: typeof PrivatlivspolitikRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile-edit': {
+      id: '/profile-edit'
+      path: '/profile-edit'
+      fullPath: '/profile-edit'
+      preLoaderRoute: typeof ProfileEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/activities/': {
       id: '/activities/'
       path: '/activities'
-      fullPath: '/activities'
+      fullPath: '/activities/'
       preLoaderRoute: typeof ActivitiesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/strava/callback': {
-      id: '/strava/callback'
-      path: '/strava/callback'
-      fullPath: '/strava/callback'
-      preLoaderRoute: typeof StravaCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/interesser/$slug': {
-      id: '/interesser/$slug'
-      path: '/interesser/$slug'
-      fullPath: '/interesser/$slug'
-      preLoaderRoute: typeof InteresserSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/godaddy/design-system': {
-      id: '/godaddy/design-system'
-      path: '/design-system'
-      fullPath: '/godaddy/design-system'
-      preLoaderRoute: typeof GodaddyDesignSystemRouteImport
-      parentRoute: typeof GodaddyRouteRoute
-    }
-    '/godaddy/analytics': {
-      id: '/godaddy/analytics'
-      path: '/analytics'
-      fullPath: '/godaddy/analytics'
-      preLoaderRoute: typeof GodaddyAnalyticsRouteImport
-      parentRoute: typeof GodaddyRouteRoute
-    }
-    '/chat/$buddyId': {
-      id: '/chat/$buddyId'
-      path: '/chat/$buddyId'
-      fullPath: '/chat/$buddyId'
-      preLoaderRoute: typeof ChatBuddyIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/buddy/$slug': {
-      id: '/buddy/$slug'
-      path: '/buddy/$slug'
-      fullPath: '/buddy/$slug'
-      preLoaderRoute: typeof BuddySlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/generate-users': {
-      id: '/api/generate-users'
-      path: '/api/generate-users'
-      fullPath: '/api/generate-users'
-      preLoaderRoute: typeof ApiGenerateUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/generate-relations': {
-      id: '/api/generate-relations'
-      path: '/api/generate-relations'
-      fullPath: '/api/generate-relations'
-      preLoaderRoute: typeof ApiGenerateRelationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/activities/opret': {
@@ -718,46 +641,102 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ActivitiesOpretRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/godaddy/users/': {
-      id: '/godaddy/users/'
-      path: '/users'
-      fullPath: '/godaddy/users'
-      preLoaderRoute: typeof GodaddyUsersIndexRouteImport
+    '/api/generate-relations': {
+      id: '/api/generate-relations'
+      path: '/api/generate-relations'
+      fullPath: '/api/generate-relations'
+      preLoaderRoute: typeof ApiGenerateRelationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate-users': {
+      id: '/api/generate-users'
+      path: '/api/generate-users'
+      fullPath: '/api/generate-users'
+      preLoaderRoute: typeof ApiGenerateUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buddy/$slug': {
+      id: '/buddy/$slug'
+      path: '/buddy/$slug'
+      fullPath: '/buddy/$slug'
+      preLoaderRoute: typeof BuddySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/': {
+      id: '/chat/'
+      path: '/chat'
+      fullPath: '/chat/'
+      preLoaderRoute: typeof ChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$buddyId': {
+      id: '/chat/$buddyId'
+      path: '/chat/$buddyId'
+      fullPath: '/chat/$buddyId'
+      preLoaderRoute: typeof ChatBuddyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/godaddy/': {
+      id: '/godaddy/'
+      path: '/'
+      fullPath: '/godaddy/'
+      preLoaderRoute: typeof GodaddyIndexRouteImport
       parentRoute: typeof GodaddyRouteRoute
     }
-    '/godaddy/interests/': {
-      id: '/godaddy/interests/'
-      path: '/interests'
-      fullPath: '/godaddy/interests'
-      preLoaderRoute: typeof GodaddyInterestsIndexRouteImport
+    '/godaddy/analytics': {
+      id: '/godaddy/analytics'
+      path: '/analytics'
+      fullPath: '/godaddy/analytics'
+      preLoaderRoute: typeof GodaddyAnalyticsRouteImport
       parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/design-system': {
+      id: '/godaddy/design-system'
+      path: '/design-system'
+      fullPath: '/godaddy/design-system'
+      preLoaderRoute: typeof GodaddyDesignSystemRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/interesser/': {
+      id: '/interesser/'
+      path: '/interesser'
+      fullPath: '/interesser/'
+      preLoaderRoute: typeof InteresserIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/interesser/$slug': {
+      id: '/interesser/$slug'
+      path: '/interesser/$slug'
+      fullPath: '/interesser/$slug'
+      preLoaderRoute: typeof InteresserSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/strava/callback': {
+      id: '/strava/callback'
+      path: '/strava/callback'
+      fullPath: '/strava/callback'
+      preLoaderRoute: typeof StravaCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/activities/$slug/': {
       id: '/activities/$slug/'
       path: '/activities/$slug'
-      fullPath: '/activities/$slug'
+      fullPath: '/activities/$slug/'
       preLoaderRoute: typeof ActivitiesSlugIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/godaddy/users/generate': {
-      id: '/godaddy/users/generate'
-      path: '/users/generate'
-      fullPath: '/godaddy/users/generate'
-      preLoaderRoute: typeof GodaddyUsersGenerateRouteImport
-      parentRoute: typeof GodaddyRouteRoute
+    '/activities/$slug/rediger': {
+      id: '/activities/$slug/rediger'
+      path: '/activities/$slug/rediger'
+      fullPath: '/activities/$slug/rediger'
+      preLoaderRoute: typeof ActivitiesSlugRedigerRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/godaddy/users/create': {
-      id: '/godaddy/users/create'
-      path: '/users/create'
-      fullPath: '/godaddy/users/create'
-      preLoaderRoute: typeof GodaddyUsersCreateRouteImport
-      parentRoute: typeof GodaddyRouteRoute
-    }
-    '/godaddy/interests/relations': {
-      id: '/godaddy/interests/relations'
-      path: '/interests/relations'
-      fullPath: '/godaddy/interests/relations'
-      preLoaderRoute: typeof GodaddyInterestsRelationsRouteImport
+    '/godaddy/interests/': {
+      id: '/godaddy/interests/'
+      path: '/interests'
+      fullPath: '/godaddy/interests/'
+      preLoaderRoute: typeof GodaddyInterestsIndexRouteImport
       parentRoute: typeof GodaddyRouteRoute
     }
     '/godaddy/interests/create': {
@@ -767,12 +746,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GodaddyInterestsCreateRouteImport
       parentRoute: typeof GodaddyRouteRoute
     }
-    '/activities/$slug/rediger': {
-      id: '/activities/$slug/rediger'
-      path: '/activities/$slug/rediger'
-      fullPath: '/activities/$slug/rediger'
-      preLoaderRoute: typeof ActivitiesSlugRedigerRouteImport
-      parentRoute: typeof rootRouteImport
+    '/godaddy/interests/relations': {
+      id: '/godaddy/interests/relations'
+      path: '/interests/relations'
+      fullPath: '/godaddy/interests/relations'
+      preLoaderRoute: typeof GodaddyInterestsRelationsRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/users/': {
+      id: '/godaddy/users/'
+      path: '/users'
+      fullPath: '/godaddy/users/'
+      preLoaderRoute: typeof GodaddyUsersIndexRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/users/create': {
+      id: '/godaddy/users/create'
+      path: '/users/create'
+      fullPath: '/godaddy/users/create'
+      preLoaderRoute: typeof GodaddyUsersCreateRouteImport
+      parentRoute: typeof GodaddyRouteRoute
+    }
+    '/godaddy/users/generate': {
+      id: '/godaddy/users/generate'
+      path: '/users/generate'
+      fullPath: '/godaddy/users/generate'
+      preLoaderRoute: typeof GodaddyUsersGenerateRouteImport
+      parentRoute: typeof GodaddyRouteRoute
     }
     '/godaddy/users/$userId/edit': {
       id: '/godaddy/users/$userId/edit'

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/home prompts – flows</title>
+<style>
+  :root{color-scheme:light dark;--bg:#fff;--fg:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#2e7cc5;--on:#166534;--onbg:#dcfce7;--off:#6b7280;--offbg:#f3f4f6;--bad:#991b1b;--badbg:#fee2e2;--warn:#78350f;--warnbg:#fef3c7}
+  @media (prefers-color-scheme:dark){:root{--bg:#0b0f14;--fg:#e5e7eb;--muted:#9ca3af;--line:#1f2937;--accent:#60a5fa;--on:#86efac;--onbg:#14532d;--off:#9ca3af;--offbg:#1f2937;--bad:#fecaca;--badbg:#7f1d1d;--warn:#fde68a;--warnbg:#451a03}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif}
+  header{padding:20px 16px 0;max-width:1500px;margin:0 auto}
+  h1{margin:0 0 2px;font-size:22px}.sub{color:var(--muted);margin:0}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:20px;max-width:1500px;margin:0 auto;padding:16px}
+  @media (max-width:1000px){.layout{grid-template-columns:1fr}}
+  .tree{border:1px solid var(--line);border-radius:12px;padding:12px;overflow:auto}
+  .tree svg{max-width:100%;height:auto;display:block;margin:0 auto}
+  /* highlight: once a scenario is chosen, everything off its path fades */
+  .tree.has-path g.node,.tree.has-path path.flowchart-link{opacity:.18;transition:opacity .15s}
+  .tree.has-path g.node.on,.tree.has-path path.flowchart-link.on{opacity:1}
+  .tree.has-path path.flowchart-link.on{stroke:var(--accent)!important;stroke-width:3.5px!important}
+  .tree.has-path g.node.on:is(.on) rect,.tree.has-path g.node.on polygon,.tree.has-path g.node.on path{stroke-width:3px}
+  g.node.leaf{cursor:pointer}
+  aside{display:flex;flex-direction:column;gap:12px;min-width:0}
+  .picker{display:flex;flex-direction:column;gap:2px;max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:6px}
+  .picker button{all:unset;cursor:pointer;padding:5px 8px;border-radius:8px;font-size:13px;display:flex;gap:8px}
+  .picker button:hover{background:var(--offbg)}
+  .picker button[aria-pressed=true]{background:var(--accent);color:#fff}
+  .picker .n{font-variant-numeric:tabular-nums;opacity:.7}.picker .flag{margin-left:auto}
+  .detail{border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .detail h2{margin:0;font-size:16px}.why{margin:0;color:var(--muted);font-size:13px}
+  .note{background:var(--warnbg);color:var(--warn);padding:6px 10px;border-radius:8px;font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:12px;padding:2px 8px;border-radius:999px}
+  .chip.on{background:var(--onbg);color:var(--on)}.chip.off{background:var(--offbg);color:var(--off)}
+  .chip.bad{background:var(--badbg);color:var(--bad);font-weight:600}
+  .state{margin:0;padding-left:18px;color:var(--muted);font-size:12px}
+  .detail img{width:100%;border:1px solid var(--line);border-radius:8px;display:block}
+  .hint{color:var(--muted);font-size:12px;margin:0}
+  pre.mermaid{visibility:hidden;margin:0}
+</style></head><body>
+<header>
+  <h1>/home prompts</h1>
+  <p class="sub">17 scenarios · all match what we expected · generated 2026-11-12 09:51 · pick a scenario to see its path, or click an end point of the tree</p>
+</header>
+<div class="layout">
+  <div class="tree" id="tree"><pre class="mermaid" id="src">flowchart TD
+  START([&quot;/home loads&quot;]) --&gt; V{&quot;Email verified?&quot;}
+
+  V --&gt;|&quot;no&quot;| BANNER[&quot;Always: VerifyEmailBanner&lt;br/&gt;Feed shows LockedNote&quot;]
+  BANNER --&gt; UBIO{&quot;Bio pending?&lt;br/&gt;(empty and not skipped)&quot;}
+  UBIO --&gt;|&quot;yes&quot;| U_BIO[&quot;BioPrompt&lt;br/&gt;#01 #05&quot;]
+  UBIO --&gt;|&quot;no&quot;| UFP{&quot;Interest left&lt;br/&gt;to post about?&quot;}
+  UFP --&gt;|&quot;yes&quot;| U_FP[&quot;FirstPostPrompt&lt;br/&gt;saved as draft until verified&lt;br/&gt;#02 #03&quot;]
+  UFP --&gt;|&quot;no&quot;| U_NONE[&quot;No prompt&lt;br/&gt;#04&quot;]
+
+  V --&gt;|&quot;yes&quot;| INT{&quot;Has interests?&quot;}
+  INT --&gt;|&quot;no&quot;| V_NONE[&quot;No match block, no prompt&lt;br/&gt;only the checklist&lt;br/&gt;#16⚠&quot;]
+  INT --&gt;|&quot;yes&quot;| TM{&quot;Top match?&lt;br/&gt;shares an interest AND&lt;br/&gt;(within 50 km OR distance unknown)&quot;}
+
+  TM --&gt;|&quot;yes&quot;| BM[&quot;BestMatchCard&quot;]
+  TM --&gt;|&quot;no&quot;| NN[&quot;NoNearbyBuddies&quot;]
+
+  BM --&gt; HI{&quot;Hi5 sent?&quot;}
+  HI --&gt;|&quot;no&quot;| HOLD[&quot;askVisible = false&lt;br/&gt;no bio or post prompt&lt;br/&gt;#06⚠ #11⚠ #17⚠&quot;]
+  HI --&gt;|&quot;yes&quot;| ASK
+  NN --&gt; ASK[&quot;askVisible = true&quot;]
+
+  ASK --&gt; VBIO{&quot;Bio pending?&quot;}
+  VBIO --&gt;|&quot;yes&quot;| V_BIO[&quot;BioPrompt&lt;br/&gt;#07 #12&quot;]
+  VBIO --&gt;|&quot;no&quot;| VFP{&quot;Interest left&lt;br/&gt;to post about?&quot;}
+  VFP --&gt;|&quot;yes&quot;| V_FP[&quot;FirstPostPrompt&lt;br/&gt;#08 #09 #13 #14 #15&quot;]
+  VFP --&gt;|&quot;no&quot;| V_DONE[&quot;No prompt&lt;br/&gt;#10&quot;]
+
+  classDef prompt fill:#dbeafe,stroke:#2e7cc5,color:#0b2a4a
+  classDef empty fill:#f3f4f6,stroke:#9ca3af,color:#374151
+  classDef warn fill:#fef3c7,stroke:#d97706,color:#78350f
+  classDef bad fill:#fee2e2,stroke:#dc2626,color:#7f1d1d
+  class BM,NN prompt
+  class U_BIO prompt
+  class U_FP prompt
+  class U_NONE empty
+  class V_NONE warn
+  class HOLD warn
+  class V_BIO prompt
+  class V_FP prompt
+  class V_DONE empty</pre></div>
+  <aside>
+    <div class="picker" id="picker" role="group" aria-label="Scenarios"></div>
+    <div class="detail" id="detail"></div>
+  </aside>
+</div>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const scenarios = [{"id":"01-unverified-no-bio","num":"01","title":"Unverified, no bio yet","why":"A brand-new signup that hasn't clicked the email link.","surprising":null,"leaf":"U_BIO","path":["START","V","BANNER","UBIO","U_BIO"],"state":["Email: not verified","Bio: none","Interests: run, bike","Own location: Copenhagen","Other users: none","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":true,"bad":false,"expected":true},{"label":"BioPrompt","on":true,"bad":false,"expected":true},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"02-unverified-bio-written","num":"02","title":"Unverified, bio written","why":"The bio is done, so the first-post prompt takes over.","surprising":null,"leaf":"U_FP","path":["START","V","BANNER","UBIO","UFP","U_FP"],"state":["Email: not verified","Bio: written","Interests: run, bike","Own location: Copenhagen","Other users: none","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":true,"bad":false,"expected":true},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":true,"bad":false,"expected":true},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"03-unverified-bio-skipped","num":"03","title":"Unverified, bio skipped","why":"Skipping the bio counts as answered.","surprising":null,"leaf":"U_FP","path":["START","V","BANNER","UBIO","UFP","U_FP"],"state":["Email: not verified","Bio: skipped","Interests: run, bike","Own location: Copenhagen","Other users: none","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":true,"bad":false,"expected":true},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":true,"bad":false,"expected":true},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"04-unverified-all-posted","num":"04","title":"Unverified, already posted about every interest","why":"Nothing left to ask.","surprising":null,"leaf":"U_NONE","path":["START","V","BANNER","UBIO","UFP","U_NONE"],"state":["Email: not verified","Bio: written","Interests: run, bike","Own location: Copenhagen","Other users: none","Hi5 sent: no","Already posted about: run, bike"],"blocks":[{"label":"Bekræft-email banner","on":true,"bad":false,"expected":true},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"05-unverified-no-interests","num":"05","title":"Unverified, no interests","why":"Bio is still asked; the first-post prompt needs an interest to ask about.","surprising":null,"leaf":"U_BIO","path":["START","V","BANNER","UBIO","U_BIO"],"state":["Email: not verified","Bio: none","Interests: none","Own location: Copenhagen","Other users: none","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":true,"bad":false,"expected":true},{"label":"BioPrompt","on":true,"bad":false,"expected":true},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"06-match-no-hi5-no-bio","num":"06","title":"Verified, match nearby, no Hi5 yet, no bio","why":"Is the bio asked before the user has done anything with the match?","surprising":"the bio is never asked until a Hi5 is sent","leaf":"HOLD","path":["START","V","INT","TM","BM","HI","HOLD"],"state":["Email: verified","Bio: none","Interests: run, bike","Own location: Copenhagen","Other users: Jonas (30 km, run+tennis)","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":true,"bad":false,"expected":true},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"07-match-hi5-no-bio","num":"07","title":"Verified, match nearby, Hi5 sent, no bio","why":"Saying hi unlocks the next ask, and the bio comes first.","surprising":null,"leaf":"V_BIO","path":["START","V","INT","TM","BM","HI","ASK","VBIO","V_BIO"],"state":["Email: verified","Bio: none","Interests: run, bike","Own location: Copenhagen","Other users: Jonas (30 km, run+tennis)","Hi5 sent: yes","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":true,"bad":false,"expected":true},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":true,"bad":false,"expected":true},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"08-match-hi5-bio","num":"08","title":"Verified, match nearby, Hi5 sent, bio written","why":"Bio done, so the first post is asked.","surprising":null,"leaf":"V_FP","path":["START","V","INT","TM","BM","HI","ASK","VBIO","VFP","V_FP"],"state":["Email: verified","Bio: written","Interests: run, bike","Own location: Copenhagen","Other users: Jonas (30 km, run+tennis)","Hi5 sent: yes","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":true,"bad":false,"expected":true},{"label":"BestMatchCard","on":true,"bad":false,"expected":true},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"09-match-hi5-bio-skipped","num":"09","title":"Verified, match nearby, Hi5 sent, bio skipped","why":"A skipped bio must not block the first post.","surprising":null,"leaf":"V_FP","path":["START","V","INT","TM","BM","HI","ASK","VBIO","VFP","V_FP"],"state":["Email: verified","Bio: skipped","Interests: run, bike","Own location: Copenhagen","Other users: Jonas (30 km, run+tennis)","Hi5 sent: yes","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":true,"bad":false,"expected":true},{"label":"BestMatchCard","on":true,"bad":false,"expected":true},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"10-match-hi5-all-posted","num":"10","title":"Verified, match nearby, Hi5 sent, all interests posted","why":"Nothing left to ask once every interest has a post.","surprising":null,"leaf":"V_DONE","path":["START","V","INT","TM","BM","HI","ASK","VBIO","VFP","V_DONE"],"state":["Email: verified","Bio: written","Interests: run, bike","Own location: Copenhagen","Other users: Jonas (30 km, run+tennis)","Hi5 sent: yes","Already posted about: run, bike"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":true,"bad":false,"expected":true},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"11-match-no-hi5-bio","num":"11","title":"Verified, match nearby, no Hi5, bio written","why":"Without a Hi5 the first-post prompt stays hidden.","surprising":"the first-post prompt stays hidden until a Hi5 is sent","leaf":"HOLD","path":["START","V","INT","TM","BM","HI","HOLD"],"state":["Email: verified","Bio: written","Interests: run, bike","Own location: Copenhagen","Other users: Jonas (30 km, run+tennis)","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":true,"bad":false,"expected":true},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"12-nobody-no-bio","num":"12","title":"Verified, no buddies at all, no bio","why":"The empty state is the ask: bio first.","surprising":null,"leaf":"V_BIO","path":["START","V","INT","TM","NN","ASK","VBIO","V_BIO"],"state":["Email: verified","Bio: none","Interests: run, bike","Own location: Copenhagen","Other users: none","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":true,"bad":false,"expected":true},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":true,"bad":false,"expected":true},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"13-nobody-bio","num":"13","title":"Verified, no buddies at all, bio written","why":"Empty state plus first-post prompt.","surprising":null,"leaf":"V_FP","path":["START","V","INT","TM","NN","ASK","VBIO","VFP","V_FP"],"state":["Email: verified","Bio: written","Interests: run, bike","Own location: Copenhagen","Other users: none","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":true,"bad":false,"expected":true},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":true,"bad":false,"expected":true},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"14-only-far-away","num":"14","title":"Verified, only a shared-interest buddy 155 km away","why":"Outside the 50 km radius: the empty state names the nearest distance.","surprising":null,"leaf":"V_FP","path":["START","V","INT","TM","NN","ASK","VBIO","VFP","V_FP"],"state":["Email: verified","Bio: written","Interests: run, bike","Own location: Copenhagen","Other users: Signe (155 km, run)","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":true,"bad":false,"expected":true},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":true,"bad":false,"expected":true},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"15-nearby-no-shared-interest","num":"15","title":"Verified, buddy nearby but no shared interest","why":"Nearby people without a shared interest don't count.","surprising":null,"leaf":"V_FP","path":["START","V","INT","TM","NN","ASK","VBIO","VFP","V_FP"],"state":["Email: verified","Bio: written","Interests: run, bike","Own location: Copenhagen","Other users: Mads (30 km, tennis)","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":true,"bad":false,"expected":true},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":true,"bad":false,"expected":true},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"16-verified-no-interests","num":"16","title":"Verified, no interests chosen","why":"No interests means no match search at all. Does anything prompt?","surprising":"no interests means no prompt at all, only the checklist","leaf":"V_NONE","path":["START","V","INT","V_NONE"],"state":["Email: verified","Bio: none","Interests: none","Own location: Copenhagen","Other users: none","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":false,"bad":false,"expected":false},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]},{"id":"17-no-location-far-buddy","num":"17","title":"Verified, no location set, buddy far away","why":"Unknown own position: is a distant buddy treated as 'nearby'?","surprising":"without an own location, a buddy 155 km away is shown as the best match nearby","leaf":"HOLD","path":["START","V","INT","TM","BM","HI","HOLD"],"state":["Email: verified","Bio: written","Interests: run, bike","Own location: not set","Other users: Signe (155 km, run)","Hi5 sent: no","Already posted about: nothing"],"blocks":[{"label":"Bekræft-email banner","on":false,"bad":false,"expected":false},{"label":"BioPrompt","on":false,"bad":false,"expected":false},{"label":"FirstPostPrompt","on":false,"bad":false,"expected":false},{"label":"BestMatchCard","on":true,"bad":false,"expected":true},{"label":"NoNearbyBuddies","on":false,"bad":false,"expected":false},{"label":"Profil-tjekliste","on":true,"bad":false,"expected":true}]}];
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default", flowchart: { htmlLabels: true, useMaxWidth: true } });
+  await mermaid.run({ nodes: [document.getElementById("src")] });
+  document.getElementById("src").style.visibility = "visible";
+
+  const tree = document.getElementById("tree");
+  const nodeEl = (id) => tree.querySelector('g.node[id*="flowchart-' + id + '-"]');
+  const edgeEl = (a, b) => tree.querySelector('path[id*="L_' + a + '_' + b + '_"], path[id*="L-' + a + '-' + b + '-"]');
+  const leaves = [...new Set(scenarios.map((s) => s.leaf))];
+  for (const leaf of leaves) {
+    const el = nodeEl(leaf);
+    if (!el) continue;
+    el.classList.add("leaf");
+    el.addEventListener("click", () => {
+      const here = scenarios.filter((s) => s.leaf === leaf);
+      const i = here.findIndex((s) => s.id === current);
+      select(here[(i + 1) % here.length].id);
+    });
+  }
+
+  const picker = document.getElementById("picker");
+  const detail = document.getElementById("detail");
+  let current = null;
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+  function select(id) {
+    current = id;
+    const s = scenarios.find((x) => x.id === id);
+    tree.classList.add("has-path");
+    tree.querySelectorAll(".on").forEach((e) => e.classList.remove("on"));
+    s.path.forEach((n, i) => {
+      nodeEl(n)?.classList.add("on");
+      if (i > 0) edgeEl(s.path[i - 1], n)?.classList.add("on");
+    });
+    picker.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.id === id)));
+    detail.innerHTML =
+      "<h2>" + esc(s.num + " · " + s.title) + "</h2><p class='why'>" + esc(s.why) + "</p>" +
+      (s.surprising ? "<div class='note'>⚠ " + esc(s.surprising) + "</div>" : "") +
+      "<div class='chips'>" + s.blocks.map((b) =>
+        "<span class='chip " + (b.on ? "on" : "off") + (b.bad ? " bad" : "") + "'>" + (b.on ? "●" : "○") + " " + esc(b.label) + (b.bad ? " (expected " + (b.expected ? "visible" : "hidden") + ")" : "") + "</span>").join("") + "</div>" +
+      "<ul class='state'>" + s.state.map((l) => "<li>" + esc(l) + "</li>").join("") + "</ul>" +
+      "<a href='" + s.id + ".png'><img src='" + s.id + ".png' alt='" + esc(s.title) + "'></a>";
+    history.replaceState(null, "", "#" + id);
+  }
+
+  for (const s of scenarios) {
+    const b = document.createElement("button");
+    b.dataset.id = s.id;
+    b.setAttribute("aria-pressed", "false");
+    b.innerHTML = "<span class='n'>" + s.num + "</span><span>" + esc(s.title) + "</span>" + (s.surprising ? "<span class='flag'>⚠</span>" : "");
+    b.addEventListener("click", () => select(s.id));
+    picker.appendChild(b);
+  }
+
+  select((scenarios.find((s) => "#" + s.id === location.hash) ?? scenarios[0]).id);
+</script>
+</body></html>

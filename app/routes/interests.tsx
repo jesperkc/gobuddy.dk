@@ -11,11 +11,17 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Tables } from "database.types";
 import { OnboardingStepper } from "@/components/OnboardingStepper";
+import { useClientEffect } from "@/lib/ssr-utils";
+import { track } from "@/lib/track";
 
 function Interests() {
   const navigate = useNavigate();
   const { interests, setInterests } = useOnboardingStore();
   const [availableInterests, setAvailableInterests] = useState<Tables<"interests">[]>([]);
+
+  useClientEffect(() => {
+    track("interests_viewed");
+  }, []);
 
   useEffect(() => {
     const fetchInterests = async () => {

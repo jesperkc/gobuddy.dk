@@ -81,7 +81,7 @@ export const seedOnboardingInterests = (interestIds: string[]) => {
   setInterests(Array.from(new Set([...interests, ...interestIds])));
 };
 
-export type OnboardingResume = { to: "/interests" | "/location" | "/details" | "/signup"; step: number };
+export type OnboardingResume = { to: "/interests" | "/location" | "/signup"; step: number };
 
 /**
  * Where a returning visitor should pick up the signup flow, or null when
@@ -92,8 +92,7 @@ export const getOnboardingResume = (state: Pick<OnboardingState, "name" | "age" 
   if (!started) return null;
   if (state.interests.length === 0) return { to: "/interests", step: 1 };
   if (!state.coordinates) return { to: "/location", step: 2 };
-  if (!state.name || !state.age) return { to: "/details", step: 3 };
-  return { to: "/signup", step: 4 };
+  return { to: "/signup", step: 3 };
 };
 
 /**

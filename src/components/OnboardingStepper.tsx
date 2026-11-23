@@ -4,9 +4,9 @@ interface OnboardingStepperProps {
   labels?: string[];
 }
 
-const defaultLabels = ["Interesser", "Placering", "Detaljer", "Opret konto"];
+const defaultLabels = ["Interesser", "Placering", "Opret konto"];
 
-export function OnboardingStepper({ step, total = 4, labels = defaultLabels }: OnboardingStepperProps) {
+export function OnboardingStepper({ step, total = 3, labels = defaultLabels }: OnboardingStepperProps) {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between">

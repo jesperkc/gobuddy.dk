@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { X, Send, Hand, Minimize2, Maximize2 } from "lucide-react";
+import { X, Send, Hand, Minimize2, Maximize2, CalendarPlus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
@@ -9,6 +9,10 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import type { Message } from "../lib/chat-types";
 import { toast } from "sonner";
+import { requireVerifiedEmail } from "../store/emailVerification";
+import { parseProposal } from "../lib/proposals";
+import { ProposalMessage } from "./ProposalMessage";
+import { ProposalDialog } from "./ProposalDialog";
 
 function formatTime(dateStr: string) {
   return new Date(dateStr).toLocaleTimeString("da-DK", {
@@ -41,6 +45,7 @@ export function ChatPopup() {
   const [loading, setLoading] = useState(true);
   const [buddySlug, setBuddySlug] = useState<string | null>(null);
   const [minimized, setMinimized] = useState(false);
+  const [proposalOpen, setProposalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const prevBuddyIdRef = useRef<string | null>(null);
@@ -61,15 +66,15 @@ export function ChatPopup() {
     }
   }, [buddyId]);
 
-  // Escape key closes chat
+  // Escape key closes chat (the proposal dialog handles its own Escape)
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || proposalOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeChat();
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, closeChat]);
+  }, [isOpen, proposalOpen, closeChat]);
 
   // Load buddy slug for profile link
   useEffect(() => {
@@ -154,6 +159,7 @@ export function ChatPopup() {
     e.preventDefault();
     const content = newMessage.trim();
     if (!content || !user || !buddyId || sending) return;
+    if (!requireVerifiedEmail()) return;
 
     setSending(true);
     setNewMessage("");
@@ -282,6 +288,7 @@ export function ChatPopup() {
         {messages.map((msg, index) => {
           const isMe = msg.sender_id === user?.id;
           const isHighfive = msg.content.trim() === "👋";
+          const proposal = parseProposal(msg.content);
 
           return (
             <div key={msg.id}>
@@ -289,7 +296,9 @@ export function ChatPopup() {
                 <div className="text-center text-xs text-gray-400 py-2">{formatDateSeparator(msg.created_at)}</div>
               )}
               <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-1`}>
-                {isHighfive ? (
+                {proposal ? (
+                  <ProposalMessage text={proposal.text} slug={proposal.slug} isMe={isMe} time={formatTime(msg.created_at)} onNavigate={closeChat} />
+                ) : isHighfive ? (
                   <div
                     className={`message-fade-in flex flex-col items-center justify-center w-14 h-14 rounded-2xl ${
                       isMe ? "bg-blue-600 rounded-br-md" : "bg-gray-100 rounded-bl-md"
@@ -317,6 +326,19 @@ export function ChatPopup() {
 
       {/* Input */}
       <form onSubmit={handleSend} className="flex items-center gap-2 px-3 py-2.5 border-t bg-gray-50 rounded-b-none">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="rounded-full h-9 w-9 shrink-0 text-blue-700 hover:bg-blue-50"
+          title="Foreslå en tur"
+          aria-label="Foreslå en tur"
+          onClick={() => {
+            if (requireVerifiedEmail()) setProposalOpen(true);
+          }}
+        >
+          <CalendarPlus className="w-4 h-4" />
+        </Button>
         <Input
           ref={inputRef}
           type="text"
@@ -329,6 +351,8 @@ export function ChatPopup() {
           <Send className="w-4 h-4" />
         </Button>
       </form>
+
+      <ProposalDialog open={proposalOpen} onOpenChange={setProposalOpen} buddyId={buddyId} buddyName={buddyName} />
     </div>
   );
 }

@@ -16,6 +16,7 @@ The signature interaction is the **glow button** on the landing page — a black
 - Card hover: `-translate-y-1` + `shadow-lg`
 - Glow button CTA with animated gradient border
 - `cardReveal` staggered entrance animation on cards
+- Looping line-art illustrations (cyclist, tennis player, lifter) with subtle motion
 - Portrait-oriented buddy cards in a 4-column grid on desktop
 - Blue/violet/gray interest badge palette
 
@@ -138,6 +139,16 @@ White surfaces with very light borders:
 
 **Buddy Cards** are portrait-oriented: avatar centered on top (64px circle, `bg-blue-100 text-blue-700` initials), name and age below, location in `text-gray-500`, then interest badges in a centered flex wrap. Grid: `grid-cols-2 lg:grid-cols-4`.
 
+**Section headers** (`SectionHeader`): every content section on interior pages uses the same row — `h2 text-lg font-medium` (Baloo) left, an optional quiet `text-sm text-gray-500` "Se alle" link with a 12px `ArrowRight` on the right, `mb-4`. No icons in section headings.
+
+**Panel vs card.** Two surface recipes only. *Cards* (content that stands on its own: buddy, event, post, prompt forms, best match) are `rounded-2xl border border-gray-100 bg-white p-5` (+ `sm:p-6 shadow-sm` for prompt-style cards). *Panels* (soft context: profile nudge, "nobody nearby", banners) are `rounded-2xl bg-gray-50 p-5 sm:p-6` with an `h2 text-base font-medium` title; rows inside a panel are `rounded-xl border border-gray-200 bg-white`. Nothing on `/home` uses `rounded-lg` or `rounded-xl` as an outer surface.
+
+**Best Match Card** (`BestMatchCard`, under a "Din bedste match i nærheden" `SectionHeader` on `/home`): a flat `rounded-2xl border-gray-100 bg-white shadow-sm` card with the `card-reveal` entrance — no hover lift — with a 64px avatar, name/age, city · distance, shared-interest badges and one pill CTA ("Sig hej til …", `bg-gray-900`) that sends a hi5 and opens the chat. Once sent, the CTA becomes an outline "Åbn chat". When nobody is within range, `NoNearbyBuddies` replaces it: `rounded-2xl bg-gray-50` with invite / activities actions.
+
+**First-post form** (`FirstPostForm`, on `/home`): a flat `rounded-2xl border-gray-100 bg-white shadow-sm` card with the `card-reveal` entrance. Top row: `InterestBadge` (default) left, step progress right — thin 20×6px segments (green done, `bg-gray-900` current, `bg-gray-200` upcoming) for up to 8 interests, a plain "4 af 12" beyond that. Then a `text-xl font-semibold` question, a `text-sm text-gray-500` hint, and fields spaced `space-y-5` with `text-sm font-medium text-gray-700` labels. The date is a row of `Toggle` pills ("I dag", "I går", "I forgårs", "Tidligere…"; pressed = `bg-gray-900 text-white`, tightened to `px-3` / `gap-1.5` below `sm` so all four fit a 390px phone). Inputs use `h-11 text-base`. Actions: full-width pill primary (`size="lg"`, `bg-gray-900`) with a ghost "Spring over" below on mobile, side by side from `sm`.
+
+**Verify-email banner** (`VerifyEmailBanner`, top of `/home` while unverified): `rounded-xl border-blue-100 bg-blue-50`, one sentence naming what is locked, and the page's single verify CTA (`bg-blue-700` pill). Locked sections below it use `LockedNote` — a quiet `text-sm text-gray-500` line with a 16px `Lock` icon and no button — never a second card or CTA. The full-page lock (`LockedUntilVerified`) is only for routes that are entirely off-limits (`/buddies`, `/buddy/:slug`, `/feed`).
+
 **Event Cards** are content-stacked: title in `text-gray-900`, date/location/participants in `text-gray-500` with lucide icons, interest badges in `bg-blue-50 text-blue-700` pills, creator name in `text-gray-400`. Grid: `grid-cols-1 sm:grid-cols-2`.
 
 ### Hero Interest Picker (landing page)
@@ -161,10 +172,12 @@ Pill-shaped (`rounded-full`), 12px text, medium weight. Three color variants:
 
 ### Inputs
 
+- Password fields carry an inline show/hide toggle (`Eye`/`EyeOff`, `text-gray-500`) instead of a confirmation field. The onboarding stepper has three steps: Interesser, Placering, Opret konto.
+
 - Border: `border-input` (dark gray, `hsl(0 0% 20%)`)
 - Radius: `rounded-md`
 - Focus: `ring-1 ring-ring`
-- Background: transparent
+- Background: `bg-white` (Input, Textarea, SelectTrigger) — stays white on both cream pages and white cards
 - Placeholder: `text-muted-foreground`
 
 ### Navigation
@@ -317,3 +330,6 @@ Portrait grid item. `rounded-2xl border border-gray-100 bg-white p-5`. Avatar: `
 
 **Glow CTA button:**
 `glow-button` class. Black background, white text, animated gradient border. Hover: lifts 5px, glow blurs and fades.
+
+**Animated illustrations:**
+`src/assets/illustrations/*.svg`, imported with `?react`. The traced line art is split into hook groups whose classes are animated in `src/index.css`: `illo-spokes-front`/`illo-spokes-rear` (cyclist spokes spin, clipped to each wheel), `illo-ball-flight`/`illo-ball-spin`/`illo-ball-trail` (tennis ball flies in towards the racket) and `illo-lift` (lifter snaps between held poses with `steps(1)` — anticipation squash, staged lift, trembling hold, drop with impact squash). `transform-origin` values are in viewBox units, so update them if an SVG is re-exported. All loops are disabled under `prefers-reduced-motion`.

@@ -6,6 +6,7 @@ export type TimeOfDay = "morgen" | "formiddag" | "eftermiddag" | "aften";
 
 export interface EventWithDetails {
   event_id: string;
+  creator_id: string;
   slug: string;
   title: string;
   description: string | null;
@@ -20,11 +21,12 @@ export interface EventWithDetails {
   max_participants: number | null;
   cancelled_at: string | null;
   created_at: string;
+  /** null when the viewer may not see profiles (unverified email). */
   creator: {
     profile_id: string;
     first_name: string | null;
     slug: string;
-  };
+  } | null;
   event_interests: {
     interests: {
       interest_id: string;
@@ -38,7 +40,7 @@ export interface EventWithDetails {
       profile_id: string;
       first_name: string | null;
       slug: string;
-    };
+    } | null;
   }[];
 }
 
@@ -63,6 +65,13 @@ interface EventsState {
   joinEvent: (eventId: string, profileId: string) => Promise<boolean>;
   leaveEvent: (eventId: string, profileId: string) => Promise<boolean>;
   cancelEvent: (eventId: string) => Promise<boolean>;
+  /** Turn a fluid event into a specific-time one in place (same slug, attendees, links). Creator only (RLS). */
+  lockEventTime: (eventId: string, date: string, time?: string | null) => Promise<boolean>;
+}
+
+/** Only specific-date events expire. Fluid ones ("Weekender", "Når som helst") are standing invitations. */
+export function isEventExpired(event: EventWithDetails, today: string): boolean {
+  return event.date_type === "specific" && !!event.event_date && event.event_date < today;
 }
 
 export const useEventsStore = create<EventsState>((set, get) => ({
@@ -81,11 +90,8 @@ export const useEventsStore = create<EventsState>((set, get) => ({
 
       if (error) throw error;
 
-      // Filter out past specific-date events
       const today = new Date().toISOString().split("T")[0];
-      const filtered = (data as EventWithDetails[]).filter(
-        (e) => e.date_type !== "specific" || !e.event_date || e.event_date >= today,
-      );
+      const filtered = (data as EventWithDetails[]).filter((e) => !isEventExpired(e, today));
 
       set({ events: filtered, loading: false });
     } catch (err: any) {
@@ -140,6 +146,25 @@ export const useEventsStore = create<EventsState>((set, get) => ({
     get().fetchEvents();
     return true;
   },
+
+  lockEventTime: async (eventId: string, date: string, time?: string | null) => {
+    const { error } = await supabase
+      .from("events")
+      .update({
+        date_type: "specific",
+        event_date: date,
+        event_time: time || null,
+        event_weekdays: null,
+        time_of_day: null,
+      })
+      .eq("event_id", eventId);
+
+    if (error) return false;
+
+    get().fetchEvents();
+    return true;
+  },
+
 }));
 
 const WEEKDAY_NAMES_DA = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag", "Søndag"];

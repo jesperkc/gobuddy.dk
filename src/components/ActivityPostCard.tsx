@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { ActivityPost } from "@/store/activityPosts";
 import { InterestBadge } from "@/components/InterestBadge";
 import { ActivityPostInteractions } from "@/components/ActivityPostInteractions";
+import { formatDistance, formatDuration, formatElevation } from "@/lib/activityStats";
 
 interface ActivityPostCardProps {
   post: ActivityPost;
@@ -33,6 +34,10 @@ const SOURCE_LABELS: Record<string, { label: string; color: string }> = {
   strava: { label: "Strava", color: "bg-[#FC4C02] text-white" },
   manual: { label: "Manuel", color: "bg-gray-100 text-gray-600" },
 };
+
+function StatChip({ children }: { children: React.ReactNode }) {
+  return <li className="rounded-full bg-gray-50 px-2.5 py-0.5 text-xs font-medium text-gray-700 ring-1 ring-gray-100">{children}</li>;
+}
 
 export function ActivityPostCard({ post, showAuthor = true, onDelete, index = 0 }: ActivityPostCardProps) {
   const sourceInfo = SOURCE_LABELS[post.source] || SOURCE_LABELS.manual;
@@ -91,7 +96,16 @@ export function ActivityPostCard({ post, showAuthor = true, onDelete, index = 0 
       </div>
 
       {/* Description */}
-      {post.description && <p className="text-sm text-gray-600 mb-3">{post.description}</p>}
+      {post.description && <p className="text-sm text-gray-600 mb-3 whitespace-pre-line">{post.description}</p>}
+
+      {/* Stats */}
+      {(post.distance_m || post.duration_s || post.elevation_m) && (
+        <ul className="flex flex-wrap gap-1.5 mb-3" aria-label="Aktivitetsdata">
+          {post.distance_m ? <StatChip>{formatDistance(post.distance_m)}</StatChip> : null}
+          {post.duration_s ? <StatChip>{formatDuration(post.duration_s)}</StatChip> : null}
+          {post.elevation_m ? <StatChip>{formatElevation(post.elevation_m)}</StatChip> : null}
+        </ul>
+      )}
 
       {/* Media */}
       {post.media && post.media.length > 0 && (

@@ -8,7 +8,7 @@ import { MIN_AGE } from "@/lib/age";
 const CONTROLLER_NAME = "Jesper Klitgaard";
 const CONTROLLER_ADDRESS = "Theodore Roosevelts Vej 1, 2450 København SV";
 const CONTACT_EMAIL = "hej@gobuddy.dk";
-const LAST_UPDATED = "29. september 2026";
+const LAST_UPDATED = "10. november 2026";
 
 const SECTIONS = [
   { id: "ansvarlig", title: "Hvem er ansvarlig" },
@@ -74,6 +74,7 @@ const RECIPIENTS: Recipient[] = [
   { name: "Netlify", role: "Hosting af hjemmesiden", where: "USA, med EU-standardkontrakter" },
   { name: "OpenStreetMap Foundation (Nominatim)", role: "Opslag af adresser, når du søger efter din by", where: "EU / Storbritannien" },
   { name: "Stadia Maps", role: "Kortbilleder, når et kort vises", where: "EU / USA" },
+  { name: "Anthropic", role: "Skriver et forslag til din profiltekst ud fra dine interesser, din by og din omtrentlige placering (afrundet til ca. 10 km). Dit navn, din e-mail og din alder sendes ikke", where: "USA" },
   { name: "Strava", role: "Kun hvis du selv forbinder din Strava-konto", where: "USA" },
 ];
 

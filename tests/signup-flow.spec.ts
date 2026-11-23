@@ -105,21 +105,16 @@ test.describe("GoBuddy Signup Flow", () => {
     await expect(page.getByRole("button", { name: "Videre" })).toBeEnabled();
     await page.getByRole("button", { name: "Videre" }).click();
 
-    // Step 4: Details
-    await expect(page.locator("h1")).toContainText("Fortæl os mere om dig");
+    // Step 4: Signup (name + age + credentials on one page)
+    await expect(page.locator("h1")).toContainText("Opret din konto");
     const testName = "Test Bruger";
     const testAge = "30";
-    await page.getByLabel("Hvad er dit navn?").fill(testName);
-    await page.getByLabel("Hvad er din alder?").fill(testAge);
-    await page.getByRole("button", { name: "Videre" }).click();
-
-    // Step 5: Signup
-    await expect(page.locator("h1")).toContainText("Opret din konto");
+    await page.getByLabel("Fornavn").fill(testName);
+    await page.getByLabel("Alder").fill(testAge);
     const randomEmail = `test${Math.floor(Math.random() * 100000)}@example.com`;
     const testPassword = "Password123!";
     await page.getByLabel("Email").fill(randomEmail);
     await page.getByLabel("Adgangskode", { exact: true }).fill(testPassword);
-    await page.getByLabel("Bekræft adgangskode").fill(testPassword);
     await page.getByLabel("Modtag vores nyhedsbrev").check();
 
     await Promise.all([
@@ -163,10 +158,11 @@ test.describe("GoBuddy Signup Flow", () => {
     await page.goto("/signup");
     await expect(page.locator("h1")).toContainText("Opret din konto");
 
+    await page.getByLabel("Fornavn").fill("Test");
+    await page.getByLabel("Alder").fill("30");
     await page.getByLabel("Email").fill("short@example.com");
     const password = page.getByLabel("Adgangskode", { exact: true });
     await password.fill("short");
-    await page.getByLabel("Bekræft adgangskode").fill("short");
     await page.getByRole("button", { name: "Opret konto" }).click();
 
     // The password Input has minLength=8, so the browser's native constraint
@@ -176,7 +172,7 @@ test.describe("GoBuddy Signup Flow", () => {
     expect(new URL(page.url()).pathname).toBe("/signup");
   });
 
-  test("should reject mismatched passwords", async ({ page }) => {
+  test("should reject users under 18", async ({ page }) => {
     let signupRequested = false;
     await page.route("**/auth/v1/signup**", async (route) => {
       signupRequested = true;
@@ -186,13 +182,24 @@ test.describe("GoBuddy Signup Flow", () => {
     await page.goto("/signup");
     await expect(page.locator("h1")).toContainText("Opret din konto");
 
-    await page.getByLabel("Email").fill("mismatch@example.com");
+    // Alder has min=18, so native validation blocks the submit.
+    await page.getByLabel("Fornavn").fill("Ung");
+    const age = page.getByLabel("Alder");
+    await age.fill("16");
+    await page.getByLabel("Email").fill("young@example.com");
     await page.getByLabel("Adgangskode", { exact: true }).fill("Password123!");
-    await page.getByLabel("Bekræft adgangskode").fill("Different123!");
     await page.getByRole("button", { name: "Opret konto" }).click();
 
-    await expect(page.getByText("Adgangskoderne matcher ikke")).toBeVisible();
+    await expect(age).toHaveJSProperty("validity.valid", false);
     expect(signupRequested).toBe(false);
+  });
+
+  test("should toggle password visibility", async ({ page }) => {
+    await page.goto("/signup");
+    const password = page.getByLabel("Adgangskode", { exact: true });
+    await expect(password).toHaveAttribute("type", "password");
+    await page.getByRole("button", { name: "Vis adgangskode" }).click();
+    await expect(password).toHaveAttribute("type", "text");
   });
 
   test("should keep Videre disabled until required input is given", async ({ page }) => {

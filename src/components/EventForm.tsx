@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { ActivityLocationPicker } from "./ActivityLocationPicker";
 import { ActivityInterestsPicker } from "./ActivityInterestsPicker";
+import { joinPlace, splitPlace } from "@/lib/places";
 import type { DateType, TimeOfDay } from "@/store/events";
 
 export interface EventFormData {
@@ -53,8 +54,8 @@ interface EventFormProps {
 }
 
 const DATE_TYPE_OPTIONS: { value: DateType; label: string }[] = [
-  { value: "any", label: "Når som helst" },
   { value: "specific", label: "Bestemt dato" },
+  { value: "any", label: "Når som helst" },
   { value: "weekday", label: "Hverdage" },
   { value: "weekend", label: "Weekend" },
   { value: "weekdays_custom", label: "Bestemte ugedage" },
@@ -81,7 +82,10 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | undefined>(
     initialData ? { lat: initialData.latitude, lng: initialData.longitude } : undefined,
   );
-  const [placeName, setPlaceName] = useState(initialData?.placeName ?? "");
+  // A saved place_name may carry the meeting point ("Søerne – ved broen"); edit the two separately.
+  const initialPlace = splitPlace(initialData?.placeName ?? "");
+  const [placeName, setPlaceName] = useState(initialPlace.placeName);
+  const [meetingPoint, setMeetingPoint] = useState(initialPlace.meetingPoint);
 
   // Interests state
   const [selectedInterestIds, setSelectedInterestIds] = useState<Record<string, boolean>>(
@@ -89,7 +93,7 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
   );
 
   // Date/time state
-  const [dateType, setDateType] = useState<DateType>(initialData?.dateType ?? "any");
+  const [dateType, setDateType] = useState<DateType>(initialData?.dateType ?? "specific");
   const [eventDate, setEventDate] = useState(initialData?.eventDate ?? "");
   const [eventWeekdays, setEventWeekdays] = useState<number[]>(initialData?.eventWeekdays ?? []);
   const [timeMode, setTimeMode] = useState<"none" | "specific" | "timeofday">(initialData?.timeMode ?? "none");
@@ -130,7 +134,7 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
     await onSubmit({
       title: finalTitle,
       description: description.trim(),
-      placeName: placeName.trim(),
+      placeName: joinPlace(placeName, meetingPoint),
       latitude: coordinates.lat,
       longitude: coordinates.lng,
       dateType,
@@ -168,6 +172,18 @@ export function EventForm({ onSubmit, submitting, myInterests, initialData, subm
           placeName={placeName}
           setPlaceName={setPlaceName}
           setCoordinates={setCoordinates}
+        />
+      </div>
+
+      {/* Meeting point */}
+      <div>
+        <label htmlFor="event-meeting-point" className="block text-sm font-medium text-gray-700 mb-1">Mødested (valgfri)</label>
+        <Input
+          id="event-meeting-point"
+          value={meetingPoint}
+          onChange={(e) => setMeetingPoint(e.target.value)}
+          placeholder="Fx: ved Dronning Louises Bro"
+          maxLength={80}
         />
       </div>
 

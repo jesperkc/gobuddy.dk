@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DefaultLayout } from "../../src/components/AppShell";
 import { ProtectedRoute } from "../../src/components/ProtectedRoute";
 import { useAuth } from "../../src/contexts/AuthContext";
+import { RequireVerifiedEmail } from "../../src/components/EmailVerification";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { supabase } from "../../src/lib/supabase";
 import { haversineDistance } from "../../src/lib/geo";
@@ -376,7 +377,9 @@ function DiscoverPage() {
 function ProtectedDiscoverPage() {
   return (
     <ProtectedRoute redirectTo="/">
-      <DiscoverPage />
+      <RequireVerifiedEmail>
+        <DiscoverPage />
+      </RequireVerifiedEmail>
     </ProtectedRoute>
   );
 }

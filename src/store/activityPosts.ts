@@ -19,6 +19,9 @@ export interface ActivityPost {
   profile_id: string;
   title: string;
   description: string | null;
+  distance_m: number | null;
+  duration_s: number | null;
+  elevation_m: number | null;
   source: string;
   source_url: string | null;
   activity_date: string | null;
@@ -46,7 +49,7 @@ export interface ActivityPost {
 }
 
 const POST_SELECT = `
-  id, profile_id, title, description, source, source_url, activity_date, created_at, private,
+  id, profile_id, title, description, distance_m, duration_s, elevation_m, source, source_url, activity_date, created_at, private,
   interest:interests (interest_id, interest_da, icon),
   profile:profiles!profile_id (profile_id, first_name, slug, avatar_url),
   media:activity_post_media (id, url, media_type),
@@ -71,6 +74,8 @@ interface ActivityPostsState {
     description?: string;
     interestId?: string;
     activityDate?: string;
+    distanceM?: number;
+    durationS?: number;
   }) => Promise<ActivityPost | null>;
 
   /** Delete own post */
@@ -134,6 +139,8 @@ export const useActivityPostsStore = create<ActivityPostsState>((set, get) => ({
           profile_id: user.id,
           title: data.title,
           description: data.description || null,
+          distance_m: data.distanceM ?? null,
+          duration_s: data.durationS ?? null,
           interest_id: data.interestId || null,
           activity_date: data.activityDate || new Date().toISOString(),
           source: "manual",

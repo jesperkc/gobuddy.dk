@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @config '../tailwind.config.js';
 
@@ -172,7 +173,7 @@
     border-radius: inherit;
     filter: blur(1px);
     opacity: 1;
-    background: linear-gradient(to left, #27d489, #2d7bc4, #6501de, #2d7bc4, #27d489);
+    background: linear-gradient(to left, #27d489, #2d7bc4, #27d489);
     background-size: 200% 200%;
     transition:
       filter 200ms,
@@ -243,7 +244,8 @@
 
 /* Floating interest tiles — gentle vertical oscillation */
 @keyframes floatTile {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(var(--tile-rotate, 0deg));
   }
   50% {
@@ -270,8 +272,155 @@
   animation: messageFadeIn var(--transition-fast, 200ms) ease-out both;
 }
 
+/* Illustration animations — hooks are classes inside src/assets/illustrations/*.svg.
+   transform-origin values are in each SVG's viewBox units. */
+
+/* Cyclist: spokes spin around each hub (clockwise, bike rides right) */
+@keyframes illoSpin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.illo-spokes {
+  transform-box: view-box;
+  animation: illoSpin 1.6s linear infinite;
+}
+
+.illo-spokes-front {
+  transform-origin: 465px 507px;
+}
+
+.illo-spokes-rear {
+  transform-origin: 111px 490px;
+}
+
+/* Tennis: ball flies in towards the racket, spinning, then settles */
+@keyframes illoBallFlight {
+  0% {
+    transform: translate(170px, -60px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  60%,
+  85% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes illoBallSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+  60%,
+  100% {
+    transform: rotate(-540deg);
+  }
+}
+
+@keyframes illoBallTrail {
+  0%,
+  45% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  65%,
+  100% {
+    transform: scaleX(0.4);
+    opacity: 0;
+  }
+}
+
+.illo-ball-flight,
+.illo-ball-spin,
+.illo-ball-trail {
+  transform-box: view-box;
+  animation-duration: 2.8s;
+  animation-iteration-count: infinite;
+}
+
+.illo-ball-flight {
+  animation-name: illoBallFlight;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.illo-ball-spin {
+  transform-origin: 296px 355px;
+  animation-name: illoBallSpin;
+  animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.illo-ball-trail {
+  transform-origin: 340px 330px;
+  animation-name: illoBallTrail;
+  animation-timing-function: ease-out;
+}
+
+/* Lifter: hand-drawn style — snaps between held poses (steps) instead of easing.
+   Anticipation squash → lift in stages → trembling hold → drop with an impact squash. */
+@keyframes illoLift {
+  0% {
+    transform: scale(1, 1);
+  }
+  14% {
+    transform: scale(1.012, 0.985);
+  }
+  22% {
+    transform: scale(0.997, 1.012);
+  }
+  29% {
+    transform: scale(0.994, 1.024);
+  }
+  36% {
+    transform: scale(0.99, 1.036);
+  }
+  44% {
+    transform: translateX(2.5px) scale(0.99, 1.036);
+  }
+  50% {
+    transform: translateX(-2.5px) scale(0.99, 1.036);
+  }
+  56% {
+    transform: translateX(2.5px) scale(0.99, 1.036);
+  }
+  62% {
+    transform: translateX(0) scale(0.99, 1.036);
+  }
+  70% {
+    transform: scale(0.996, 1.016);
+  }
+  75% {
+    transform: scale(1.014, 0.982);
+  }
+  82%,
+  100% {
+    transform: scale(1, 1);
+  }
+}
+
+.illo-lift {
+  transform-box: view-box;
+  transform-origin: 480px 661px;
+  /* steps(1) holds each keyframe until the next one, like individual drawn frames */
+  animation: illoLift 3.2s steps(1, end) infinite;
+}
+
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+  .illo-spokes,
+  .illo-ball-flight,
+  .illo-ball-spin,
+  .illo-ball-trail,
+  .illo-lift {
+    animation: none;
+  }
   .card-reveal {
     animation: none;
     opacity: 1;

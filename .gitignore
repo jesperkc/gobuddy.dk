@@ -47,3 +47,7 @@ dist-ssr
 # TypeScript
 *.tsbuildinfo
 app.config.*.js
+
+# Storybook
+storybook-static
+*.log

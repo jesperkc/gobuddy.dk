@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback } from "../../../../src/components/ui/avatar";
 import { Map } from "../../../../src/components/Map";
 import { Skeleton } from "../../../../src/components/ui/skeleton";
 import { InterestBadge } from "../../../../src/components/InterestBadge";
+import { requireVerifiedEmail } from "../../../../src/store/emailVerification";
 
 function EventDetailPage() {
   const { slug } = Route.useParams();
@@ -53,15 +54,18 @@ function EventDetailPage() {
     );
   }
 
-  const isCreator = user?.id === event.creator.profile_id;
+  const isCreator = user?.id === event.creator_id;
   const isParticipant = event.event_participants.some((p) => p.profile_id === user?.id);
   const isCancelled = !!event.cancelled_at;
   const isPast = event.date_type === "specific" && event.event_date && event.event_date < new Date().toISOString().split("T")[0];
   const isFull = event.max_participants != null && event.event_participants.length >= event.max_participants;
+  // A two-person event with one seat left is a personal invitation (see sendProposal).
+  const isInvitation = event.max_participants === 2 && !isCreator && !isParticipant && !isFull && event.date_type === "specific";
   const interests = event.event_interests.map((ei) => ei.interests);
 
   const handleJoin = async () => {
     if (!user) return;
+    if (!requireVerifiedEmail()) return;
     setActionLoading(true);
     const ok = await joinEvent(event.event_id, user.id);
     if (ok) {
@@ -131,6 +135,12 @@ function EventDetailPage() {
           </div>
         )}
 
+        {isInvitation && (
+          <div className="rounded-lg bg-green-50 border border-green-200 p-3 mb-4 text-green-800 text-sm">
+            {event.creator?.first_name ?? "Nogen"} har foreslået det her til dig. Sig ja, hvis tidspunktet passer.
+          </div>
+        )}
+
         {/* Meta */}
         <div className="flex flex-col gap-1.5 text-sm text-gray-500 mb-4">
           <span className="flex items-center gap-1.5">
@@ -176,7 +186,7 @@ function EventDetailPage() {
           <div className="flex gap-3 mb-8">
             {!isParticipant && !isFull && (
               <Button onClick={handleJoin} disabled={actionLoading}>
-                {actionLoading ? "..." : "Deltag"}
+                {actionLoading ? "..." : isInvitation ? "Ja, jeg kommer" : "Deltag"}
               </Button>
             )}
             {!isParticipant && isFull && (
@@ -204,6 +214,7 @@ function EventDetailPage() {
         )}
 
         {/* Creator */}
+        {event.creator && (
         <div className="mb-6">
           <h2 className="text-sm font-semibold text-gray-700 mb-2">Oprettet af</h2>
           <Link
@@ -219,6 +230,7 @@ function EventDetailPage() {
             {event.creator.first_name ?? "Ukendt"}
           </Link>
         </div>
+        )}
 
         {/* Participants */}
         {event.event_participants.length > 0 && (
@@ -227,7 +239,7 @@ function EventDetailPage() {
               Deltagere ({event.event_participants.length})
             </h2>
             <div className="flex flex-wrap gap-2">
-              {event.event_participants.map(({ profiles: p }) => (
+              {event.event_participants.flatMap(({ profiles: p }) => (p ? [p] : [])).map((p) => (
                 <Link
                   key={p.profile_id}
                   to="/buddy/$slug"

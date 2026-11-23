@@ -54,9 +54,11 @@ export function EventCard({ event, distanceKm, index = 0 }: EventCardProps) {
         </div>
       )}
 
-      <p className="text-xs text-gray-400 mt-3">
-        Oprettet af {event.creator.first_name ?? "Ukendt"}
-      </p>
+      {event.creator && (
+        <p className="text-xs text-gray-400 mt-3">
+          Oprettet af {event.creator.first_name ?? "Ukendt"}
+        </p>
+      )}
     </Link>
   );
 }

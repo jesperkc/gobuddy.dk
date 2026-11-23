@@ -9,9 +9,10 @@ import { Map } from "../../src/components/Map";
 import { Button } from "../../src/components/ui/button";
 import { Or } from "../../src/components/ui/ui";
 import { InputWithIcon } from "../../src/components/ui/input-width-icon";
-import { safeGeolocation, safeSetTimeout, safeClearTimeout, ClientOnly } from "../../src/lib/ssr-utils";
+import { safeGeolocation, safeSetTimeout, safeClearTimeout, ClientOnly, useClientEffect } from "../../src/lib/ssr-utils";
 import { UnauthedRoute } from "@/components/UnauthedRoute";
 import { OnboardingStepper } from "@/components/OnboardingStepper";
+import { track } from "@/lib/track";
 
 interface SearchResult {
   display_name: string;
@@ -39,6 +40,10 @@ function Location() {
   const searchTimeoutRef = useRef<number>();
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  useClientEffect(() => {
+    track("location_viewed");
+  }, []);
+
   const handleGeolocation = () => {
     setIsLocating(true);
     setLocationError("");
@@ -52,7 +57,7 @@ function Location() {
       },
       (error) => {
         console.error("Error getting location:", error);
-        setLocationError("Could not get your location. Please try again or enter your city manually.");
+        setLocationError("Vi kunne ikke finde din placering. Prøv igen, eller søg efter din by herunder.");
         setIsLocating(false);
       }
     );
@@ -84,14 +89,15 @@ function Location() {
     );
     const address = await response.json();
     if (address.address) {
+      const { city, town, village, municipality, postcode, country, country_code } = address.address;
+      const cityName = city || town || village || municipality || "";
       setAddress({
-        // house_number: address.address.house_number,
-        // road: address.address.road,
-        postcode: address.address.postcode,
-        city: address.address.city,
-        country: address.address.country,
-        country_code: address.address.country_code,
+        postcode: postcode ?? "",
+        city: cityName,
+        country: country ?? "",
+        country_code: country_code ?? "",
       });
+      setSearchQuery(cityName);
       return;
     }
   };
@@ -129,7 +135,7 @@ function Location() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate({ to: "/details" });
+    navigate({ to: "/signup" });
   };
 
   return (

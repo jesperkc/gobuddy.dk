@@ -132,6 +132,9 @@ export type Database = {
           activity_date: string | null
           created_at: string | null
           description: string | null
+          distance_m: number | null
+          duration_s: number | null
+          elevation_m: number | null
           id: string
           interest_id: string | null
           private: boolean
@@ -147,6 +150,9 @@ export type Database = {
           activity_date?: string | null
           created_at?: string | null
           description?: string | null
+          distance_m?: number | null
+          duration_s?: number | null
+          elevation_m?: number | null
           id?: string
           interest_id?: string | null
           private?: boolean
@@ -162,6 +168,9 @@ export type Database = {
           activity_date?: string | null
           created_at?: string | null
           description?: string | null
+          distance_m?: number | null
+          duration_s?: number | null
+          elevation_m?: number | null
           id?: string
           interest_id?: string | null
           private?: boolean
@@ -353,6 +362,48 @@ export type Database = {
             referencedColumns: ["profile_id"]
           },
         ]
+      }
+      email_verifications: {
+        Row: {
+          user_id: string
+          verified_at: string
+        }
+        Insert: {
+          user_id: string
+          verified_at?: string
+        }
+        Update: {
+          user_id?: string
+          verified_at?: string
+        }
+        Relationships: []
+      }
+      funnel_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: number
+          props: Json | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: never
+          props?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: never
+          props?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       hi5s: {
         Row: {
@@ -736,6 +787,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_email_verified: {
+        Args: never
+        Returns: boolean
+      }
+      mark_email_verified: {
+        Args: never
+        Returns: string
+      }
       admin_list_profiles: {
         Args: never
         Returns: {

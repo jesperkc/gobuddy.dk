@@ -2,12 +2,17 @@ import { Loader2, MapPin, Search } from "lucide-react";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import { InputWithIcon } from "./ui/input-width-icon";
+import { shortPlaceName } from "@/lib/places";
 
 interface SearchResult {
   display_name: string;
+  /** The feature's own name (park, lake, café), empty for plain addresses. */
+  name?: string;
   lat: string;
   lon: string;
   address: {
+    road?: string;
+    house_number?: string;
     city?: string;
     town?: string;
     village?: string;
@@ -73,6 +78,8 @@ export function ActivityLocationPicker({
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isReversing, setIsReversing] = useState(false);
+  // The full address of the picked place, shown under the field so a short name like "Søerne" stays unambiguous.
+  const [addressHint, setAddressHint] = useState<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const reverseDebounceRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -85,7 +92,7 @@ export function ActivityLocationPicker({
     setIsSearching(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`,
+        `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`,
       );
       const data: SearchResult[] = await response.json();
       setSearchResults(data);
@@ -101,11 +108,12 @@ export function ActivityLocationPicker({
     setIsReversing(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&addressdetails=1`,
       );
       const data = await response.json();
       if (data?.display_name) {
-        setPlaceName(data.display_name);
+        setPlaceName(shortPlaceName(data));
+        setAddressHint(data.display_name);
       }
     } catch (error) {
       console.error("Reverse geocode error:", error);
@@ -117,26 +125,33 @@ export function ActivityLocationPicker({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPlaceName(value);
+    setAddressHint(null);
     setShowSuggestions(true);
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => handleSearch(value), 1000);
   };
 
   const handleSelect = (result: SearchResult) => {
-    setPlaceName(result.display_name);
+    setPlaceName(shortPlaceName(result));
+    setAddressHint(result.display_name);
     setCoordinates({ lat: parseFloat(result.lat), lng: parseFloat(result.lon) });
     setShowSuggestions(false);
     setSearchResults([]);
   };
 
+  // Moving the map only fine-tunes the pin: a chosen name like "Søerne" still describes it.
+  // Look the spot up only when there is no name yet.
+  const placeNameRef = useRef(placeName);
+  placeNameRef.current = placeName;
   const handleDragEnd = useCallback((center: { lat: number; lng: number }) => {
     setCoordinates(center);
     clearTimeout(reverseDebounceRef.current);
+    if (placeNameRef.current.trim()) return;
     reverseDebounceRef.current = setTimeout(() => reverseGeocode(center.lat, center.lng), 500);
   }, [setCoordinates, reverseGeocode]);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 min-w-0">
       <div className="relative">
         <InputWithIcon
           type="text"
@@ -165,7 +180,10 @@ export function ActivityLocationPicker({
               >
                 <div className="flex items-center gap-2">
                   <MapPin size={16} className="text-gray-400 shrink-0" />
-                  <span className="truncate">{result.display_name}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate font-medium text-gray-900">{shortPlaceName(result)}</span>
+                    <span className="block truncate text-xs text-gray-500">{result.display_name}</span>
+                  </span>
                 </div>
               </button>
             ))}
@@ -173,6 +191,11 @@ export function ActivityLocationPicker({
         )}
       </div>
 
+      {addressHint && <p className="text-xs text-gray-500 line-clamp-2 break-words -mt-1">{addressHint}</p>}
+
+      {coordinates && (
+        <p className="text-xs text-gray-500">Flyt kortet, så nålen står præcis hvor I mødes.</p>
+      )}
       {coordinates && (
         <div className="relative h-[250px] w-full rounded-lg overflow-hidden border border-gray-100">
           {/* Fixed center marker */}

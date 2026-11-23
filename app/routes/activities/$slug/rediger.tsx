@@ -104,7 +104,7 @@ function EditEventPage() {
     );
   }
 
-  if (user?.id !== event.creator.profile_id) {
+  if (user?.id !== event.creator_id) {
     return (
       <DefaultLayout>
         <div className="text-center text-gray-400">

@@ -7,6 +7,7 @@ import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
 import { EventForm, type EventFormData, type InterestOption } from "../../../src/components/EventForm";
 import { useAuth } from "../../../src/contexts/AuthContext";
 import { supabase } from "../../../src/lib/supabase";
+import { requireVerifiedEmail } from "../../../src/store/emailVerification";
 
 function CreateEventPage() {
   const { user } = useAuth();
@@ -34,6 +35,7 @@ function CreateEventPage() {
 
   const handleSubmit = async (data: EventFormData) => {
     if (!user) return;
+    if (!requireVerifiedEmail()) return;
     setSubmitting(true);
 
     try {

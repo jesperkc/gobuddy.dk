@@ -162,6 +162,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // signOut({ scope: "local" }) still returns early if the stored session can't
+  // be loaded/refreshed, so as a last resort wipe the auth keys and reset state.
+  const forceLocalSignOut = async () => {
+    const { error } = await supabase.auth
+      .signOut({ scope: "local" })
+      .catch((e) => ({ error: e }));
+    if (error) {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith("sb-") && k.includes("-auth-token"))
+        .forEach((k) => localStorage.removeItem(k));
+    }
+    setSession(null);
+    setUser(null);
+    setUserRoles([]);
+  };
+
   const logout = async () => {
     // Only proceed if we're on the client
     if (!isBrowser) {
@@ -177,14 +193,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { error } = await supabase.auth.signOut();
 
       if (error) {
-        setError(error.message);
+        // Server-side revoke failed (e.g. session_not_found, network error).
+        // supabase-js then keeps the session in localStorage, so force a
+        // local sign-out to guarantee the user is logged out on this device.
+        console.warn("Global sign-out failed, clearing local session:", error.message);
+        await forceLocalSignOut();
       }
 
-      return { error };
+      return { error: null };
     } catch {
-      const errorMessage = "An unexpected error occurred during logout";
-      setError(errorMessage);
-      return { error: new Error(errorMessage) as AuthError };
+      await forceLocalSignOut();
+      return { error: null };
     } finally {
       setLoading(false);
     }

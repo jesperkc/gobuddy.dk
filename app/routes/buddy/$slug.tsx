@@ -10,6 +10,9 @@ import { supabase } from "../../../src/lib/supabase";
 import { useActivityPostsStore } from "@/store/activityPosts";
 import { ProfileView, ProfileHero, type ProfileViewData, type RelatedPair, ProfileHeroSkeleton } from "@/components/ProfileView";
 import { SCORE_MEDIUM } from "@/lib/interestRelations";
+import { RequireVerifiedEmail } from "@/components/EmailVerification";
+import { sendHi5 } from "@/lib/hi5";
+import { requireVerifiedEmail } from "@/store/emailVerification";
 
 function BuddyProfile() {
   const { slug } = Route.useParams();
@@ -74,6 +77,7 @@ function BuddyProfile() {
             country,
             avatar_url,
             created_at,
+            bio,
             user_interests (
               interest_id,
               description,
@@ -102,6 +106,7 @@ function BuddyProfile() {
           country: row.country,
           avatar_url: row.avatar_url,
           created_at: row.created_at,
+          bio: row.bio,
           interests: allInterests
             .filter((ui: { is_non_interest: boolean }) => !ui.is_non_interest)
             .map((ui: { interest_id: string; description: string | null; interests: { interest_da: string; icon: string } }) => ({
@@ -250,25 +255,11 @@ function BuddyProfile() {
 
   async function sendWave() {
     if (!user || !profile || sendingWave) return;
+    if (!requireVerifiedEmail()) return;
     setSendingWave(true);
 
     try {
-      const [msgResult, hi5Result] = await Promise.all([
-        supabase.from("messages").insert({
-          sender_id: user.id,
-          receiver_id: profile.profile_id,
-          content: "👋",
-        }),
-        supabase
-          .from("hi5s")
-          .upsert(
-            { sender_id: user.id, receiver_id: profile.profile_id, updated_at: new Date().toISOString() },
-            { onConflict: "sender_id,receiver_id" },
-          ),
-      ]);
-
-      if (msgResult.error) throw msgResult.error;
-      if (hi5Result.error) console.error("Hi5 record error:", hi5Result.error);
+      await sendHi5(user.id, profile.profile_id, "profile");
       setWaveSent(true);
       openChat(profile.profile_id, profile.first_name);
     } catch (err) {
@@ -336,7 +327,9 @@ function BuddyProfile() {
 function ProtectedBuddyProfile() {
   return (
     <ProtectedRoute redirectTo="/">
-      <BuddyProfile />
+      <RequireVerifiedEmail>
+        <BuddyProfile />
+      </RequireVerifiedEmail>
     </ProtectedRoute>
   );
 }

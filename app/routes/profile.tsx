@@ -50,6 +50,7 @@ function Profile() {
       country: profile.country || null,
       avatar_url: profile.avatar_url || null,
       created_at: profile.created_at || null,
+      bio: profile.bio || null,
       email: user.email || null,
       interests: all
         .filter((i) => !i.is_non_interest)

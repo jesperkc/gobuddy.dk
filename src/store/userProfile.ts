@@ -15,6 +15,7 @@ interface UserProfile {
   longitude?: number;
   latitude?: number;
   avatar_url?: string | null;
+  bio?: string | null;
   user_interests: {
     interest_id: string;
     description: string;

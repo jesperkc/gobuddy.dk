@@ -38,6 +38,7 @@ export interface ProfileViewData {
   country: string | null;
   avatar_url: string | null;
   created_at: string | null;
+  bio?: string | null;
   email?: string | null;
   interests: ProfileViewInterest[];
   nonInterests: ProfileViewInterest[];
@@ -181,6 +182,8 @@ export function ProfileHero({
                 </span>
               )}
             </div>
+
+            {data.bio && <p className="mt-3 max-w-prose text-gray-700 whitespace-pre-line">{data.bio}</p>}
           </div>
 
           {/* Actions */}
