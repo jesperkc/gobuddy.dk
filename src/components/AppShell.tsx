@@ -1,5 +1,5 @@
 import React from "react";
-import { Navbar } from "./NavBar";
+import { NavBarPublic } from "./NavBarPublic";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export function DefaultLayout({ children, header }: AppShellProps) {
       >
         Gå til indhold
       </a>
-      <Navbar />
+      <NavBarPublic />
       <main id="main-content">
         {header ? (
           <>

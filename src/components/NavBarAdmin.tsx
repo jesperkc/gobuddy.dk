@@ -1,11 +1,5 @@
-// No need to import logo as we'll use a div placeholder
-import { useAuth } from "../contexts/AuthContext";
-import { useClientEffect } from "../lib/ssr-utils";
 import { Heart, LayoutDashboard, Palette, ScatterChart, User } from "lucide-react";
-import { useUserProfileStore } from "@/store/userProfile";
-import { Navbar } from "./ui/navbar";
-// import { useUserProfileStore } from "@/store/userProfile";
-
+import { Navbar } from "./Navbar";
 const adminNavItems = [
   {
     label: "Dashboard",
@@ -34,30 +28,7 @@ const adminNavItems = [
   },
 ];
 
+/** Admin navbar: same shared navbar with admin links. */
 export function NavBarAdmin() {
-  const { user } = useAuth();
-  const { profile } = useUserProfileStore();
-
-  // const location = useLocation();
-  // const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // const navigate = useNavigate();
-
-  // Load user profile when component mounts (client-side only)
-  useClientEffect(() => {
-    if (user && !profile) {
-      useUserProfileStore.getState().loadProfile(user);
-    }
-  }, [user, profile]);
-
-  // const handleLogout = async () => {
-  //   await logout();
-  //   setIsMobileMenuOpen(false);
-  //   navigate({ to: "/" });
-  // };
-
-  // const toggleMobileMenu = () => {
-  //   setIsMobileMenuOpen(!isMobileMenuOpen);
-  // };
-
-  return <Navbar navigationLinks={adminNavItems} />;
+  return <Navbar navigationLinks={adminNavItems} containerClassName="max-w-7xl" />;
 }
