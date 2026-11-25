@@ -6,7 +6,7 @@ From clone to a running app and green tests. See `CLAUDE.md` for conventions.
 
 ```mermaid
 flowchart TD
-  A["git clone"] --> B["nvm use<br/>(.nvmrc: Node 18.19.1)"]
+  A["git clone"] --> B["nvm use<br/>(.nvmrc: Node 22)"]
   B --> C["npm ci"]
   C --> D["cp .env.example .env"]
   D --> E["Fill VITE_SUPABASE_URL<br/>VITE_SUPABASE_PUBLISHABLE_KEY<br/>VITE_STRAVA_CLIENT_ID<br/>VITE_APP_URL"]
