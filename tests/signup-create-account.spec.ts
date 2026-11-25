@@ -89,8 +89,9 @@ test.describe("GoBuddy real account creation", () => {
 
       test.skip(rateLimited, "Supabase email send rate limit hit (over_email_send_rate_limit)");
 
-      // A successful real signup navigates to the email-confirmation step.
-      await expect(page).toHaveURL(/\/confirmemail/);
+      // A successful real signup lands in the app (/home) when Supabase issues a
+      // session right away ("Confirm email" off), or on /confirmemail otherwise.
+      await expect(page).toHaveURL(/\/(home|confirmemail)(\?|$)/);
       expect(createdUserId, "signup response should contain a user id").toBeTruthy();
 
       // The account really exists in Supabase auth.

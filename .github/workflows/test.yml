@@ -9,7 +9,8 @@ on:
 jobs:
   playwright:
     name: Playwright
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, which Playwright does not support yet.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
