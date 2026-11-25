@@ -386,7 +386,15 @@ const UserManagement = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap  text-gray-500">
-                              {user.city && user.country ? `${user.city}, ${user.country}` : "Ikke angivet"}
+                              <Link
+                                to="/godaddy/users/$userId/edit"
+                                params={{ userId: user.profile_id }}
+                                search={{ tab: "location" }}
+                                className={user.city ? "hover:text-blue-700 hover:underline" : "text-blue-700 hover:underline"}
+                                title="Rediger placering"
+                              >
+                                {user.city ? (user.country ? `${user.city}, ${user.country}` : user.city) : "Angiv placering"}
+                              </Link>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap  text-gray-500">{formatDate(user.created_at)}</td>
                             <td className="px-6 py-4 whitespace-nowrap">

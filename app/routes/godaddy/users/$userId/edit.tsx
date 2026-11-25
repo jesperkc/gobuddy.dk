@@ -29,10 +29,11 @@ type TabType = "details" | "interests" | "location" | "roles";
 
 export function EditUser() {
   const { userId, profileData, userRoles } = Route.useLoaderData();
+  const { tab } = Route.useSearch();
   const navigate = useNavigate();
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<TabType>("details");
+  const [activeTab, setActiveTab] = useState<TabType>(tab ?? "details");
 
   // Data state
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -48,13 +49,18 @@ export function EditUser() {
   // Form states for editing
   const [selectedInterestsWithDescriptions, setSelectedInterestsWithDescriptions] = useState<Record<string, string>>({});
   const [selectedNonInterests, setSelectedNonInterests] = useState<Set<string>>(new Set());
-  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | undefined>();
-  const [address, setAddress] = useState<IAddress>({
-    postcode: "",
-    city: "",
-    country: "",
-    country_code: "",
+  // Initialised from loader data (not in the effect below) so the location
+  // picker has the saved city on first render when opened via ?tab=location.
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | undefined>(() => {
+    const p = profileData?.profile;
+    return p?.latitude != null && p?.longitude != null ? { lat: p.latitude, lng: p.longitude } : undefined;
   });
+  const [address, setAddress] = useState<IAddress>(() => ({
+    postcode: profileData?.profile?.postcode || "",
+    city: profileData?.profile?.city || "",
+    country: profileData?.profile?.country || "",
+    country_code: profileData?.profile?.country_code || "",
+  }));
 
   useEffect(() => {
     const handleData = async () => {
@@ -76,20 +82,6 @@ export function EditUser() {
         });
         setSelectedInterestsWithDescriptions(interestsWithDescriptions);
         setSelectedNonInterests(nonInterestIds);
-
-        // Set initial location data
-        if (profileData.profile.city) {
-          setAddress({
-            postcode: profileData.profile.postcode || "",
-            city: profileData.profile.city,
-            country: profileData.profile.country || "",
-            country_code: profileData.profile.country_code || "",
-          });
-        }
-        setCoordinates({
-          lat: profileData.profile.latitude || 0,
-          lng: profileData.profile.longitude || 0,
-        });
       } catch (err) {
         setError(err instanceof Error ? err.message : "En fejl opstod under indlæsning af data");
         console.error("Error handling data:", err);
@@ -206,8 +198,8 @@ export function EditUser() {
         postcode: address.postcode || null,
         country: address.country || null,
         country_code: address.country_code || null,
-        latitude: coordinates?.lat || null,
-        longitude: coordinates?.lng || null,
+        latitude: coordinates?.lat ?? null,
+        longitude: coordinates?.lng ?? null,
       });
       toast.success("Placering gemt!");
     } catch (err) {
@@ -454,6 +446,7 @@ export function EditUser() {
               setCoordinates={setCoordinates}
               onSave={saveLocation}
               saving={saving}
+              adminMode
             />
           )}
 
@@ -517,8 +510,13 @@ export function EditUser() {
   );
 }
 
+const TAB_IDS: TabType[] = ["details", "interests", "location", "roles"];
+
 export const Route = createFileRoute("/godaddy/users/$userId/edit")({
   component: EditUser,
+  validateSearch: (search: Record<string, unknown>): { tab?: TabType } => ({
+    tab: TAB_IDS.includes(search.tab as TabType) ? (search.tab as TabType) : undefined,
+  }),
   loader: async ({ params }) => {
     const { userId } = params;
 

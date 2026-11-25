@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
 
@@ -31,13 +31,23 @@ function MapUpdater({
   return null;
 }
 
+function ClickHandler({ onClick }: { onClick: (coords: { lat: number; lng: number }) => void }) {
+  useMapEvents({
+    click: (e) => onClick({ lat: e.latlng.lat, lng: e.latlng.lng }),
+  });
+  return null;
+}
+
 export const Map = ({
   coords,
+  onClick,
 }: {
   coords?: {
     lat: number;
     lng: number;
   };
+  /** When set, clicking the map reports the clicked position. */
+  onClick?: (coords: { lat: number; lng: number }) => void;
 }) => {
   return (
     <MapContainer center={coords} zoom={1} className="h-full w-full">
@@ -47,6 +57,7 @@ export const Map = ({
       />
       {coords && coords.lng !== 0 && <Marker position={coords} icon={customIcon} />}
       <MapUpdater coords={coords} />
+      {onClick && <ClickHandler onClick={onClick} />}
     </MapContainer>
   );
 };

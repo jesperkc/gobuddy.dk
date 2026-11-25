@@ -31,14 +31,21 @@ export interface LocationPickerProps {
   coordinates: { lat: number; lng: number } | undefined;
   setAddress: (address: IAddress) => void;
   setCoordinates: (coords: { lat: number; lng: number }) => void;
+  /** Prefill the search field, e.g. with the city already saved. */
+  initialQuery?: string;
+  /**
+   * Admin editing another user: hide "Del min placering" (it would use the
+   * admin's own position) and let the admin click the map to place the pin.
+   */
+  adminMode?: boolean;
 }
 
-export const LocationPicker = ({ coordinates, setAddress, setCoordinates }: LocationPickerProps) => {
+export const LocationPicker = ({ coordinates, setAddress, setCoordinates, initialQuery = "", adminMode = false }: LocationPickerProps) => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
@@ -68,13 +75,25 @@ export const LocationPicker = ({ coordinates, setAddress, setCoordinates }: Loca
     );
     const addressData = await response.json();
     if (addressData.address) {
+      const city = addressData.address.city || addressData.address.town || addressData.address.village || "";
       setAddress({
         postcode: addressData.address.postcode || "",
-        city: addressData.address.city || "",
+        city,
         country: addressData.address.country || "",
         country_code: addressData.address.country_code || "",
       });
-      setSearchQuery(addressData.address.city || "");
+      setSearchQuery(city);
+    }
+  };
+
+  const handleMapClick = async (location: { lat: number; lng: number }) => {
+    setCoordinates(location);
+    setLocationError("");
+    try {
+      await getAddress(location);
+    } catch (error) {
+      console.error("Reverse geocoding error:", error);
+      setLocationError("Kunne ikke finde en by for det valgte punkt.");
     }
   };
 
@@ -129,25 +148,32 @@ export const LocationPicker = ({ coordinates, setAddress, setCoordinates }: Loca
   return (
     <div className="space-y-6">
       <div className="h-[300px] w-full rounded-lg overflow-hidden shadow-md mb-6">
-        <Map coords={coordinates} />
+        <Map coords={coordinates} onClick={adminMode ? handleMapClick : undefined} />
       </div>
 
-      <Button type="button" onClick={handleGeolocation} disabled={isLocating}>
-        {isLocating ? (
-          <>
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-            Henter placering...
-          </>
-        ) : (
-          <>
-            <MapPin size={20} className="mr-2" />
-            Del min placering
-          </>
-        )}
-      </Button>
+      {adminMode && <p className="text-sm text-gray-500 -mt-4">Søg efter en by, eller klik på kortet for at placere brugeren præcist.</p>}
+
+      {!adminMode && (
+        <>
+          <Button type="button" onClick={handleGeolocation} disabled={isLocating}>
+            {isLocating ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Henter placering...
+              </>
+            ) : (
+              <>
+                <MapPin size={20} className="mr-2" />
+                Del min placering
+              </>
+            )}
+          </Button>
+
+          <Or />
+        </>
+      )}
 
       {locationError && <div className="text-red-600 ">{locationError}</div>}
-      <Or />
 
       <div className="search-container relative">
         <div className="relative">
@@ -156,7 +182,7 @@ export const LocationPicker = ({ coordinates, setAddress, setCoordinates }: Loca
             value={searchQuery}
             onChange={handleSearchInputChange}
             onFocus={() => setShowSuggestions(true)}
-            placeholder="Søg efter din by"
+            placeholder={adminMode ? "Søg efter by" : "Søg efter din by"}
             autoComplete="off"
             icon={<Search />}
           />
