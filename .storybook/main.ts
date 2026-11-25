@@ -2,9 +2,9 @@ import type { StorybookConfig } from "@storybook/react-vite";
 import path from "path";
 import { mergeConfig, type Plugin } from "vite";
 
-const root = path.resolve(__dirname, "..");
+const root = path.resolve(import.meta.dirname, "..");
 const realSupabase = path.resolve(root, "src/lib/supabase.ts");
-const mockSupabase = path.resolve(__dirname, "mocks/supabase.ts");
+const mockSupabase = path.resolve(import.meta.dirname, "mocks/supabase.ts");
 
 /** Swap the real Supabase client for the in-memory one, however it is imported ("@/lib/supabase", "./supabase", "../lib/supabase"). */
 const mockSupabasePlugin: Plugin = {
