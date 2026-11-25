@@ -1,26 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { DefaultLayout } from "../../src/components/AppShell";
-import { ProtectedRoute } from "../../src/components/ProtectedRoute";
-import { useAuth } from "../../src/contexts/AuthContext";
-import { useUserProfileStore } from "../../src/store/userProfile";
+import { ProtectedRoute, type AuthedProps } from "../../src/components/ProtectedRoute";
 import { supabase } from "@/lib/supabase";
 import type { StravaConnection } from "@/lib/strava";
 import { useActivityPostsStore } from "@/store/activityPosts";
+import { useUserProfileStore } from "@/store/userProfile";
 import { toast } from "sonner";
 import { ProfileView, ProfileHero, type ProfileViewData, ProfileHeroSkeleton } from "@/components/ProfileView";
 
-function Profile() {
-  const { user } = useAuth();
-  const { profile, loading, error, loadProfile } = useUserProfileStore();
+function Profile({ user, profile }: AuthedProps) {
+  const error = useUserProfileStore((s) => s.error);
   const [stravaConnection, setStravaConnection] = useState<StravaConnection | null>(null);
   const { posts: activityPosts, fetchPosts: fetchActivityPosts, deletePost } = useActivityPostsStore();
-
-  useEffect(() => {
-    if (user && !profile && !loading) {
-      loadProfile(user);
-    }
-  }, [user, profile, loadProfile, loading]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -78,11 +70,11 @@ function Profile() {
   };
 
   const heroHeader =
-    loading || !viewData ? <ProfileHeroSkeleton /> : <ProfileHero data={viewData} isOwn activityPosts={activityPosts} flat />;
+    !viewData ? <ProfileHeroSkeleton /> : <ProfileHero data={viewData} isOwn activityPosts={activityPosts} flat />;
 
   return (
     <DefaultLayout header={heroHeader}>
-      {!loading && viewData && (
+      {viewData && (
         <>
           <ProfileView
             data={viewData}
@@ -102,7 +94,7 @@ function Profile() {
 function ProtectedProfile() {
   return (
     <ProtectedRoute>
-      <Profile />
+      {(props) => <Profile {...props} />}
     </ProtectedRoute>
   );
 }

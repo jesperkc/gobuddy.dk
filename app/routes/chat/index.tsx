@@ -3,14 +3,12 @@ import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState } from "react";
 import { MessageCircle, ArrowRight } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
-import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
-import { useAuth } from "../../../src/contexts/AuthContext";
+import { ProtectedRoute, type AuthedProps } from "../../../src/components/ProtectedRoute";
 import { supabase } from "../../../src/lib/supabase";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
 import type { Message, ChatThread } from "../../../src/lib/chat-types";
 
-function InboxPage() {
-  const { user } = useAuth();
+function InboxPage({ user }: AuthedProps) {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -158,7 +156,7 @@ function InboxPage() {
 function ProtectedInboxPage() {
   return (
     <ProtectedRoute redirectTo="/">
-      <InboxPage />
+      {(props) => <InboxPage {...props} />}
     </ProtectedRoute>
   );
 }

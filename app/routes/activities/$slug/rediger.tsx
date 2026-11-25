@@ -3,14 +3,13 @@ import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DefaultLayout } from "../../../../src/components/AppShell";
-import { ProtectedRoute } from "../../../../src/components/ProtectedRoute";
+import { ProtectedRoute, type AuthedProps } from "../../../../src/components/ProtectedRoute";
 import {
   EventForm,
   type EventFormData,
   type EventFormInitialData,
   type InterestOption,
 } from "../../../../src/components/EventForm";
-import { useAuth } from "../../../../src/contexts/AuthContext";
 import { useEventsStore, type EventWithDetails } from "../../../../src/store/events";
 import { supabase } from "../../../../src/lib/supabase";
 import { Skeleton } from "../../../../src/components/ui/skeleton";
@@ -36,9 +35,8 @@ function eventToInitialData(event: EventWithDetails): EventFormInitialData {
   };
 }
 
-function EditEventPage() {
+function EditEventPage({ user }: AuthedProps) {
   const { slug } = Route.useParams();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { fetchEvent } = useEventsStore();
 
@@ -188,7 +186,7 @@ function EditEventPage() {
 function ProtectedEditEventPage() {
   return (
     <ProtectedRoute redirectTo="/login">
-      <EditEventPage />
+      {(props) => <EditEventPage {...props} />}
     </ProtectedRoute>
   );
 }

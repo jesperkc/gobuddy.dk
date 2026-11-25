@@ -3,8 +3,7 @@ import { useEffect, useState, useMemo } from "react";
 import { MapPin, ArrowRight } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
 import { PageTitle } from "@/components/PageTitle";
-import { ProtectedRoute } from "../../src/components/ProtectedRoute";
-import { useAuth } from "../../src/contexts/AuthContext";
+import { ProtectedRoute, type AuthedProps } from "../../src/components/ProtectedRoute";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { useEventsStore } from "../../src/store/events";
 import { useActivityPostsStore } from "../../src/store/activityPosts";
@@ -31,9 +30,8 @@ import { toast } from "sonner";
 
 const NEARBY_RADIUS_KM = 50;
 
-function HomePage() {
-  const { user } = useAuth();
-  const { profile, loadProfile } = useUserProfileStore();
+function HomePage({ user, profile }: AuthedProps) {
+  const { loadProfile } = useUserProfileStore();
   const { events, fetchEvents } = useEventsStore();
   const { posts: feedPosts, fetchPosts: fetchFeedPosts } = useActivityPostsStore();
   const [buddies, setBuddies] = useState<BuddyProfile[]>([]);
@@ -57,12 +55,6 @@ function HomePage() {
       .eq("sender_id", user.id)
       .then(({ data }) => setHi5SentIds(new Set((data ?? []).map((h) => h.receiver_id))));
   }, [user]);
-
-  useEffect(() => {
-    if (user && !profile) {
-      loadProfile(user);
-    }
-  }, [user, profile, loadProfile]);
 
   useLocationUpdate(user, profile, loadProfile);
 
@@ -371,11 +363,7 @@ function ProfileTask({ label, to }: { label: string; to: string }) {
 }
 
 function ProtectedHomePage() {
-  return (
-    <ProtectedRoute redirectTo="/">
-      <HomePage />
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute redirectTo="/">{(props) => <HomePage {...props} />}</ProtectedRoute>;
 }
 
 export const Route = createFileRoute("/home")({

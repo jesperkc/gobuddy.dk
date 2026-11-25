@@ -3,8 +3,7 @@ import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState } from "react";
 import { Plus, Frown } from "lucide-react";
 import { DefaultLayout } from "../../src/components/AppShell";
-import { ProtectedRoute } from "../../src/components/ProtectedRoute";
-import { useAuth } from "../../src/contexts/AuthContext";
+import { ProtectedRoute, type AuthedProps } from "../../src/components/ProtectedRoute";
 import { useActivityPostsStore, type ActivityPost } from "../../src/store/activityPosts";
 import { ActivityPostCard } from "../../src/components/ActivityPostCard";
 import { Button } from "../../src/components/ui/button";
@@ -26,8 +25,15 @@ interface InterestOption {
   category?: string;
 }
 
-function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPost) => void; onCancel: () => void }) {
-  const { user } = useAuth();
+function CreatePostForm({
+  user,
+  onCreated,
+  onCancel,
+}: {
+  user: AuthedProps["user"];
+  onCreated: (post: ActivityPost) => void;
+  onCancel: () => void;
+}) {
   const { createPost } = useActivityPostsStore();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -156,8 +162,7 @@ function CreatePostForm({ onCreated, onCancel }: { onCreated: (post: ActivityPos
 
 // ── Feed page ──────────────────────────────────────────────────────
 
-function FeedPage() {
-  const { user } = useAuth();
+function FeedPage({ user }: AuthedProps) {
   const { posts, loading, error, fetchPosts } = useActivityPostsStore();
   const [showCreateForm, setShowCreateForm] = useState(false);
 
@@ -191,7 +196,7 @@ function FeedPage() {
     >
       <div className="space-y-6">
         {/* Create form */}
-        {showCreateForm && <CreatePostForm onCreated={handleCreated} onCancel={() => setShowCreateForm(false)} />}
+        {showCreateForm && <CreatePostForm user={user} onCreated={handleCreated} onCancel={() => setShowCreateForm(false)} />}
 
         {/* Content */}
         {loading && (
@@ -243,9 +248,11 @@ function FeedPage() {
 function ProtectedFeedPage() {
   return (
     <ProtectedRoute redirectTo="/login">
-      <RequireVerifiedEmail title="Bekræft din email for at se feedet">
-        <FeedPage />
-      </RequireVerifiedEmail>
+      {(props) => (
+        <RequireVerifiedEmail title="Bekræft din email for at se feedet">
+          <FeedPage {...props} />
+        </RequireVerifiedEmail>
+      )}
     </ProtectedRoute>
   );
 }

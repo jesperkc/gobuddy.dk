@@ -3,14 +3,12 @@ import { PageTitle } from "@/components/PageTitle";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { DefaultLayout } from "../../../src/components/AppShell";
-import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
+import { ProtectedRoute, type AuthedProps } from "../../../src/components/ProtectedRoute";
 import { EventForm, type EventFormData, type InterestOption } from "../../../src/components/EventForm";
-import { useAuth } from "../../../src/contexts/AuthContext";
 import { supabase } from "../../../src/lib/supabase";
 import { requireVerifiedEmail } from "../../../src/store/emailVerification";
 
-function CreateEventPage() {
-  const { user } = useAuth();
+function CreateEventPage({ user }: AuthedProps) {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [myInterests, setMyInterests] = useState<InterestOption[]>([]);
@@ -102,7 +100,7 @@ function CreateEventPage() {
 function ProtectedCreateEventPage() {
   return (
     <ProtectedRoute redirectTo="/login">
-      <CreateEventPage />
+      {(props) => <CreateEventPage {...props} />}
     </ProtectedRoute>
   );
 }

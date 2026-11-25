@@ -2,8 +2,10 @@ import { create } from "zustand";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 
-interface UserProfile {
+export interface UserProfile {
   id: string;
+  /** Primary key of the profiles row (equals auth user id). */
+  profile_id: string;
   first_name: string;
   age: number;
   email: string;
@@ -41,7 +43,6 @@ interface UserProfileState {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   loadProfile: (user: User) => Promise<void>;
-  updateProfile: (updates: Partial<UserProfile>) => Promise<boolean>;
   clearProfile: () => void;
 }
 
@@ -103,7 +104,7 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
             onboarding
           )
         )
-        `
+        `,
         )
         .single();
       if (error && error.code !== "PGRST116") {
@@ -118,6 +119,7 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
         // Create a minimal profile from user data
         const profile: UserProfile = {
           id: user.id,
+          profile_id: user.id,
           first_name: "",
           age: 0,
           coordinates: null,
@@ -138,51 +140,6 @@ export const useUserProfileStore = create<UserProfileState>((set, get) => ({
       const errorMessage = err instanceof Error ? err.message : "Failed to load profile";
       console.error("Error loading profile:", err);
       setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  },
-
-  updateProfile: async (updates: Partial<UserProfile>) => {
-    const { profile, setLoading, setError, setProfile } = get();
-
-    if (!profile) {
-      setError("No profile to update");
-      return false;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      // Try to update in profiles table first
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .upsert({ id: profile.id, ...updates })
-        .eq("id", profile.id);
-
-      if (profileError && profileError.code !== "42P01") {
-        // 42P01 is "relation does not exist"
-        throw profileError;
-      }
-
-      // Update user metadata as fallback or primary method
-      const { error: metadataError } = await supabase.auth.updateUser({
-        data: { ...updates },
-      });
-
-      if (metadataError) {
-        throw metadataError;
-      }
-
-      // Update local state
-      setProfile({ ...profile, ...updates });
-      return true;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to update profile";
-      console.error("Error updating profile:", err);
-      setError(errorMessage);
-      return false;
     } finally {
       setLoading(false);
     }

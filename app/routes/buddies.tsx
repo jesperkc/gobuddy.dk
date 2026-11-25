@@ -4,8 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Search, MapPin, Frown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DefaultLayout } from "../../src/components/AppShell";
-import { ProtectedRoute } from "../../src/components/ProtectedRoute";
-import { useAuth } from "../../src/contexts/AuthContext";
+import { ProtectedRoute, type AuthedProps } from "../../src/components/ProtectedRoute";
 import { RequireVerifiedEmail } from "../../src/components/EmailVerification";
 import { useUserProfileStore } from "../../src/store/userProfile";
 import { supabase } from "../../src/lib/supabase";
@@ -14,9 +13,8 @@ import { BuddyCard, type BuddyProfile, type RawBuddyRow, type RelatedInterestInf
 import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
 import { SCORE_MEDIUM } from "@/lib/interestRelations";
 
-function DiscoverPage() {
-  const { user } = useAuth();
-  const { profile, loadProfile } = useUserProfileStore();
+function DiscoverPage({ user, profile }: AuthedProps) {
+  const { loadProfile } = useUserProfileStore();
   const [buddies, setBuddies] = useState<BuddyProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,12 +22,6 @@ function DiscoverPage() {
   const [hi5SentIds, setHi5SentIds] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<"interests" | "newest">("interests");
   const [visibleCount, setVisibleCount] = useState(12);
-
-  useEffect(() => {
-    if (user && !profile) {
-      loadProfile(user);
-    }
-  }, [user, profile, loadProfile]);
 
   const interestKey = useMemo(
     () =>
@@ -377,9 +369,11 @@ function DiscoverPage() {
 function ProtectedDiscoverPage() {
   return (
     <ProtectedRoute redirectTo="/">
-      <RequireVerifiedEmail>
-        <DiscoverPage />
-      </RequireVerifiedEmail>
+      {(props) => (
+        <RequireVerifiedEmail>
+          <DiscoverPage {...props} />
+        </RequireVerifiedEmail>
+      )}
     </ProtectedRoute>
   );
 }

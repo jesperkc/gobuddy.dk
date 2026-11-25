@@ -4,9 +4,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Check, ExternalLink, Link2, Link2Off, Loader2, Lock, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BioForm } from "@/components/BioForm";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ProtectedRoute, type AuthedProps } from "@/components/ProtectedRoute";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/contexts/AuthContext";
 import { IAddress } from "@/components/LocationPicker";
 import { DefaultLayout } from "@/components/AppShell";
 import { fetchProfileWithInterests } from "../../src/lib/fetchProfileWithInterests";
@@ -44,9 +43,8 @@ interface ProfileEditSearch {
   strava_connected?: string;
 }
 
-export function ProfileEdit() {
+export function ProfileEdit({ user }: Pick<AuthedProps, "user">) {
   const { profileData } = Route.useLoaderData();
-  const { user, loading: loadingUser } = useAuth();
   const navigate = useNavigate();
   const search = Route.useSearch();
 
@@ -89,8 +87,6 @@ export function ProfileEdit() {
 
   useEffect(() => {
     const handleData = async () => {
-      if (!user?.id || loadingUser) return; // Wait for auth to fully initialize
-      // console.log("Fetching profile data for user:", user.id, loadingUser);
 
       try {
         setProfile(profileData.profile);
@@ -838,7 +834,7 @@ export function ProfileEdit() {
 function ProtectedProfile() {
   return (
     <ProtectedRoute>
-      <ProfileEdit />
+      {(props) => <ProfileEdit {...props} />}
     </ProtectedRoute>
   );
 }

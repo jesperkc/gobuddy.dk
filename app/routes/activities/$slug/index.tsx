@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Calendar, MapPin, Users, AlertTriangle, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { DefaultLayout } from "../../../../src/components/AppShell";
-import { ProtectedRoute } from "../../../../src/components/ProtectedRoute";
-import { useAuth } from "../../../../src/contexts/AuthContext";
+import { ProtectedRoute, type AuthedProps } from "../../../../src/components/ProtectedRoute";
 import { useEventsStore, formatEventDate, type EventWithDetails } from "../../../../src/store/events";
 import { Button } from "../../../../src/components/ui/button";
 import { Avatar, AvatarFallback } from "../../../../src/components/ui/avatar";
@@ -13,9 +12,8 @@ import { Skeleton } from "../../../../src/components/ui/skeleton";
 import { InterestBadge } from "../../../../src/components/InterestBadge";
 import { requireVerifiedEmail } from "../../../../src/store/emailVerification";
 
-function EventDetailPage() {
+function EventDetailPage({ user }: AuthedProps) {
   const { slug } = Route.useParams();
-  const { user } = useAuth();
   const { fetchEvent, joinEvent, leaveEvent, cancelEvent } = useEventsStore();
   const [event, setEvent] = useState<EventWithDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -265,7 +263,7 @@ function EventDetailPage() {
 function ProtectedEventDetailPage() {
   return (
     <ProtectedRoute redirectTo="/login">
-      <EventDetailPage />
+      {(props) => <EventDetailPage {...props} />}
     </ProtectedRoute>
   );
 }

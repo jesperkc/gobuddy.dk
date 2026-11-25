@@ -2,9 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
-import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
-import { useAuth } from "../../../src/contexts/AuthContext";
-import { useUserProfileStore } from "../../../src/store/userProfile";
+import { ProtectedRoute, type AuthedProps } from "../../../src/components/ProtectedRoute";
 import { useChatPopupStore } from "../../../src/store/chatPopup";
 import { supabase } from "../../../src/lib/supabase";
 import { useActivityPostsStore } from "@/store/activityPosts";
@@ -14,10 +12,8 @@ import { RequireVerifiedEmail } from "@/components/EmailVerification";
 import { sendHi5 } from "@/lib/hi5";
 import { requireVerifiedEmail } from "@/store/emailVerification";
 
-function BuddyProfile() {
+function BuddyProfile({ user, profile: myProfile }: AuthedProps) {
   const { slug } = Route.useParams();
-  const { user } = useAuth();
-  const { profile: myProfile, loadProfile } = useUserProfileStore();
   const openChat = useChatPopupStore((s) => s.openChat);
   const [profile, setProfile] = useState<ProfileViewData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,10 +25,6 @@ function BuddyProfile() {
   const [relatedPairs, setRelatedPairs] = useState<RelatedPair[]>([]);
   const [stravaAthleteId, setStravaAthleteId] = useState<number | null>(null);
   const { posts: activityPosts, fetchPosts: fetchActivityPosts } = useActivityPostsStore();
-
-  useEffect(() => {
-    if (user && !myProfile) loadProfile(user);
-  }, [user, myProfile, loadProfile]);
 
   // Check if hi5 already sent to this buddy
   useEffect(() => {
@@ -327,9 +319,11 @@ function BuddyProfile() {
 function ProtectedBuddyProfile() {
   return (
     <ProtectedRoute redirectTo="/">
-      <RequireVerifiedEmail>
-        <BuddyProfile />
-      </RequireVerifiedEmail>
+      {(props) => (
+        <RequireVerifiedEmail>
+          <BuddyProfile {...props} />
+        </RequireVerifiedEmail>
+      )}
     </ProtectedRoute>
   );
 }

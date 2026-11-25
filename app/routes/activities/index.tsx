@@ -3,23 +3,15 @@ import { PageTitle } from "@/components/PageTitle";
 import { useEffect } from "react";
 import { Plus, Frown } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
-import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
-import { useAuth } from "../../../src/contexts/AuthContext";
-import { useUserProfileStore } from "../../../src/store/userProfile";
+import { ProtectedRoute, type AuthedProps } from "../../../src/components/ProtectedRoute";
 import { useEventsStore } from "../../../src/store/events";
 import { EventCard } from "../../../src/components/EventCard";
 import { Button } from "../../../src/components/ui/button";
 import { haversineDistance } from "../../../src/lib/geo";
 import { Skeleton } from "../../../src/components/ui/skeleton";
 
-function EventsPage() {
-  const { user } = useAuth();
-  const { profile, loadProfile } = useUserProfileStore();
+function EventsPage({ profile }: AuthedProps) {
   const { events, loading, error, fetchEvents } = useEventsStore();
-
-  useEffect(() => {
-    if (user && !profile) loadProfile(user);
-  }, [user, profile, loadProfile]);
 
   useEffect(() => {
     fetchEvents();
@@ -94,7 +86,7 @@ function EventsPage() {
 function ProtectedEventsPage() {
   return (
     <ProtectedRoute redirectTo="/login">
-      <EventsPage />
+      {(props) => <EventsPage {...props} />}
     </ProtectedRoute>
   );
 }

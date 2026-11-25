@@ -2,8 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { ArrowLeft, Send, Hand, CalendarPlus } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
-import { ProtectedRoute } from "../../../src/components/ProtectedRoute";
-import { useAuth } from "../../../src/contexts/AuthContext";
+import { ProtectedRoute, type AuthedProps } from "../../../src/components/ProtectedRoute";
 import { supabase } from "../../../src/lib/supabase";
 import { Button } from "../../../src/components/ui/button";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
@@ -14,9 +13,8 @@ import { ProposalMessage } from "@/components/ProposalMessage";
 import { ProposalDialog } from "@/components/ProposalDialog";
 import { requireVerifiedEmail } from "@/store/emailVerification";
 
-function ChatPage() {
+function ChatPage({ user }: AuthedProps) {
   const { buddyId } = Route.useParams();
-  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
@@ -273,7 +271,7 @@ function ChatPage() {
 function ProtectedChatPage() {
   return (
     <ProtectedRoute redirectTo="/">
-      <ChatPage />
+      {(props) => <ChatPage {...props} />}
     </ProtectedRoute>
   );
 }
