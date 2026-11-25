@@ -1,8 +1,8 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode } from "react";
 import { Navigate } from "@tanstack/react-router";
 import { User } from "@supabase/supabase-js";
 import { useAuth } from "../contexts/AuthContext";
-import { isBrowser, useClientEffect } from "../lib/ssr-utils";
+import { isBrowser, useClientEffect, useHydrated } from "../lib/ssr-utils";
 import { UserProfile, useUserProfileStore } from "@/store/userProfile";
 import { Button } from "@/components/ui/button";
 
@@ -34,12 +34,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, redire
   const profileLoading = useUserProfileStore((s) => s.loading);
   const profileError = useUserProfileStore((s) => s.error);
   const loadProfile = useUserProfileStore((s) => s.loadProfile);
-  const [hasMounted, setHasMounted] = useState(false);
-
-  // Track client-side mounting to prevent hydration mismatches
-  useClientEffect(() => {
-    setHasMounted(true);
-  }, []);
+  const hasMounted = useHydrated();
 
   // Profile belongs to this user (guards against a stale profile after switching accounts)
   const ownProfile = user && profile?.profile_id === user.id ? profile : null;

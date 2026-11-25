@@ -190,6 +190,25 @@ export const useClientEffect = (effect: () => void | (() => void), deps?: React.
   }, deps);
 };
 
+// App-wide flag: true once the first client render has hydrated.
+// Components mounted after that (e.g. on route changes) can render
+// client-only content immediately instead of flashing a fallback.
+let hydrated = false;
+
+/**
+ * Returns false during SSR and the initial hydration render, true afterwards.
+ * Unlike a per-component `hasMounted` state, this stays true for components
+ * that mount later, so client-side navigations don't flash a loading state.
+ */
+export const useHydrated = (): boolean => {
+  const [isHydrated, setIsHydrated] = React.useState(hydrated);
+  React.useEffect(() => {
+    hydrated = true;
+    setIsHydrated(true);
+  }, []);
+  return isHydrated;
+};
+
 /**
  * Component wrapper for client-only rendering
  * Renders children only on the client, shows fallback on server
@@ -198,11 +217,7 @@ export const ClientOnly: React.FC<{
   children: React.ReactNode;
   fallback?: React.ReactNode;
 }> = ({ children, fallback = null }) => {
-  const [hasMounted, setHasMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setHasMounted(true);
-  }, []);
+  const hasMounted = useHydrated();
 
   if (!hasMounted) {
     return React.createElement(React.Fragment, null, fallback);

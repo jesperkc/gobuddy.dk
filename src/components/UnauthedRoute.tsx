@@ -1,7 +1,7 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode } from "react";
 import { Navigate } from "@tanstack/react-router";
 import { useAuth } from "../contexts/AuthContext";
-import { isBrowser, useClientEffect } from "../lib/ssr-utils";
+import { isBrowser, useHydrated } from "../lib/ssr-utils";
 
 interface UnauthedRouteProps {
   children: ReactNode;
@@ -10,12 +10,7 @@ interface UnauthedRouteProps {
 
 export const UnauthedRoute: React.FC<UnauthedRouteProps> = ({ children, redirectTo = "/home" }) => {
   const { isAuthenticated, loading } = useAuth();
-  const [hasMounted, setHasMounted] = useState(false);
-
-  // Track client-side mounting to prevent hydration mismatches
-  useClientEffect(() => {
-    setHasMounted(true);
-  }, []);
+  const hasMounted = useHydrated();
 
   // On server or before client hydration, always show loading state
   // This prevents authentication state mismatches between server and client

@@ -1,7 +1,7 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode } from "react";
 import { Navigate } from "@tanstack/react-router";
 import { useAuth } from "../contexts/AuthContext";
-import { isBrowser, useClientEffect } from "../lib/ssr-utils";
+import { isBrowser, useHydrated } from "../lib/ssr-utils";
 import type { Database } from "../../database.types";
 
 type UserRole = Database["public"]["Enums"]["app_role"];
@@ -20,12 +20,7 @@ export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({
   fallbackTo = "/home",
 }) => {
   const { isAuthenticated, hasRole, loading, userRoles, user } = useAuth();
-  const [hasMounted, setHasMounted] = useState(false);
-
-  // Track client-side mounting to prevent hydration mismatches
-  useClientEffect(() => {
-    setHasMounted(true);
-  }, []);
+  const hasMounted = useHydrated();
 
   // On server or before client hydration, always show loading state
   // This prevents authentication state mismatches between server and client
