@@ -5,6 +5,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}", "./app/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      transitionProperty: {
+        height: "height",
+      },
       fontFamily: {
         baloo: ['"Baloo 2 Variable"', '"Baloo 2"', "system-ui", "sans-serif"],
         sans: ['"Inter Variable"', '"Inter"', "system-ui", "sans-serif"],
@@ -46,12 +49,12 @@ export default {
           foreground: "hsl(var(--destructive-foreground))",
         },
         blue: {
-          50:  "#f0f5fa",
+          50: "#f0f5fa",
           100: "#dde8f3",
           200: "#b9d5ef",
           300: "#8bb9e4",
           400: "#5a9bd8",
-          500: "#2e7cc5",  // brand-blue
+          500: "#2e7cc5", // brand-blue
           600: "#2768a5",
           700: "#205688",
           800: "#19446b",
@@ -59,12 +62,12 @@ export default {
           950: "#102232",
         },
         green: {
-          50:  "#effaf6",
+          50: "#effaf6",
           100: "#dcf4ea",
           200: "#b7f1d8",
           300: "#88e7be",
           400: "#55dda2",
-          500: "#2ad489",  // brand-green
+          500: "#2ad489", // brand-green
           600: "#22aa6f",
           700: "#1c8d5c",
           800: "#166f48",
@@ -72,7 +75,7 @@ export default {
           950: "#0e3424",
         },
         red: {
-          50:  "#fbefef",
+          50: "#fbefef",
           100: "#f6dada",
           200: "#f1b7b7",
           300: "#eb8484",
@@ -85,7 +88,7 @@ export default {
           950: "#340e0e",
         },
         orange: {
-          50:  "#fcf4ed",
+          50: "#fcf4ed",
           100: "#fae5d6",
           200: "#f8ceaf",
           300: "#f8ad77",
@@ -98,7 +101,7 @@ export default {
           950: "#3a1d08",
         },
         amber: {
-          50:  "#fcf7ed",
+          50: "#fcf7ed",
           100: "#faedd6",
           200: "#f8ddaf",
           300: "#f8c977",
@@ -111,7 +114,7 @@ export default {
           950: "#3a2808",
         },
         yellow: {
-          50:  "#fcf9ed",
+          50: "#fcf9ed",
           100: "#faf3d6",
           200: "#f8eaaf",
           300: "#f8de77",
@@ -124,7 +127,7 @@ export default {
           950: "#3a3008",
         },
         violet: {
-          50:  "#f4f0fa",
+          50: "#f4f0fa",
           100: "#e6dcf4",
           200: "#d0bbec",
           300: "#b08be4",
@@ -137,7 +140,7 @@ export default {
           950: "#1f1231",
         },
         pink: {
-          50:  "#fbeff5",
+          50: "#fbeff5",
           100: "#f6dae8",
           200: "#f1b7d4",
           300: "#eb84b8",

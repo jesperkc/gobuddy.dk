@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setError(error.message);
         } else {
           setSession((prev) => (prev?.access_token === session?.access_token ? prev : session));
-          setUser((prev) => (prev?.id === session?.user?.id ? prev : session?.user ?? null));
+          setUser((prev) => (prev?.id === session?.user?.id ? prev : (session?.user ?? null)));
 
           // Load user roles if user exists
           if (session?.user) {
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // console.log("Auth state change:", event, session);
 
       setSession((prev) => (prev?.access_token === session?.access_token ? prev : session));
-      setUser((prev) => (prev?.id === session?.user?.id ? prev : session?.user ?? null));
+      setUser((prev) => (prev?.id === session?.user?.id ? prev : (session?.user ?? null)));
       setLoading(false);
 
       // Load user roles for authenticated users
@@ -165,9 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // signOut({ scope: "local" }) still returns early if the stored session can't
   // be loaded/refreshed, so as a last resort wipe the auth keys and reset state.
   const forceLocalSignOut = async () => {
-    const { error } = await supabase.auth
-      .signOut({ scope: "local" })
-      .catch((e) => ({ error: e }));
+    const { error } = await supabase.auth.signOut({ scope: "local" }).catch((e) => ({ error: e }));
     if (error) {
       Object.keys(localStorage)
         .filter((k) => k.startsWith("sb-") && k.includes("-auth-token"))

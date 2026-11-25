@@ -118,7 +118,7 @@ export function Navbar() {
                         className="block px-4 py-2  text-red-600 hover:bg-red-50 font-medium"
                         onClick={() => setIsDropdownOpen(false)}
                       >
-                        🛡️ Admin Dashboard
+                        Admin Dashboard
                       </Link>
                     )}
                     <div className="border-t border-gray-100"></div>

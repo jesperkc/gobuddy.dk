@@ -272,9 +272,12 @@ export function ChatPopup() {
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-1" style={{ height: 320 }}>
+      <div
+        className="flex overflow-y-auto px-3 py-3 space-y-1 items-center transition-height duration-500 ease-in-out"
+        style={{ height: messages.length > 0 ? 320 : 160 }}
+      >
         {loading && (
-          <div className="space-y-3 animate-pulse">
+          <div className="space-y-3 animate-pulse w-full self-end">
             {[1, 2, 3].map((i) => (
               <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : ""}`}>
                 <div className={`h-8 rounded-2xl ${i % 2 === 0 ? "bg-blue-100 w-32" : "bg-gray-100 w-40"}`} />
@@ -283,7 +286,9 @@ export function ChatPopup() {
           </div>
         )}
 
-        {!loading && messages.length === 0 && <div className="text-center text-gray-400 text-xs py-8">Skriv den første besked! 👋</div>}
+        {!loading && messages.length === 0 && (
+          <div className="text-center text-gray-400 text-xs py-8 w-full">Skriv den første besked! 👋</div>
+        )}
 
         {messages.map((msg, index) => {
           const isMe = msg.sender_id === user?.id;
@@ -297,7 +302,13 @@ export function ChatPopup() {
               )}
               <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-1`}>
                 {proposal ? (
-                  <ProposalMessage text={proposal.text} slug={proposal.slug} isMe={isMe} time={formatTime(msg.created_at)} onNavigate={closeChat} />
+                  <ProposalMessage
+                    text={proposal.text}
+                    slug={proposal.slug}
+                    isMe={isMe}
+                    time={formatTime(msg.created_at)}
+                    onNavigate={closeChat}
+                  />
                 ) : isHighfive ? (
                   <div
                     className={`message-fade-in flex flex-col items-center justify-center w-14 h-14 rounded-2xl ${
