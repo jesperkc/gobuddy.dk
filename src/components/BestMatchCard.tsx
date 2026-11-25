@@ -79,7 +79,7 @@ export function BestMatchCard({ buddy, sharedInterestIds, distanceKm, hi5Sent, s
                   {sending ? "Sender..." : `Send highfive til ${name}`}
                 </Button>
                 <Button onClick={onChat} variant="outline" size="lg" className="w-full sm:w-auto rounded-full">
-                  Skiv besked
+                  Skriv besked
                 </Button>
               </div>
               <Button onClick={onPropose} variant="outline" size="lg" className="w-full sm:w-auto rounded-full">
