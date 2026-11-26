@@ -297,7 +297,7 @@ function Index() {
           {/* Logo + nav */}
           <div className="flex items-center justify-between mb-10 sm:mb-14">
             <Link to="/" className="flex items-center" aria-label="GoBuddy">
-              <GobuddyLogo className="logo h-9 sm:h-10" withText colorLeft="#ffffff" colorRight="#ffffff" />
+              <GobuddyLogo className="logo h-9 sm:h-10" withText colorLeft="#000000" colorRight="#000000" />
             </Link>
             <div className="flex items-center gap-2 sm:gap-3">
               <Link to="/login" className="text-sm font-medium text-gray-900/80 hover:text-gray-900 transition-colors px-3 py-2">
@@ -451,7 +451,8 @@ function ResumeBanner() {
       className="group mx-auto -mt-4 mb-8 sm:mb-10 flex w-fit max-w-full items-center gap-3 rounded-full bg-white/85 py-2 pl-4 pr-2 text-sm text-gray-900 shadow-sm hover:bg-white transition-colors"
     >
       <span className="truncate">
-        {name ? `Velkommen tilbage, ${name}.` : "Velkommen tilbage."} <span className="hidden sm:inline text-gray-600">Din profil er på trin {resume.step} af 3.</span>
+        {name ? `Velkommen tilbage, ${name}.` : "Velkommen tilbage."}{" "}
+        <span className="hidden sm:inline text-gray-600">Din profil er på trin {resume.step} af 3.</span>
       </span>
       <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gray-900 px-3 py-1 font-medium text-white">
         Fortsæt
