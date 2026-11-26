@@ -57,11 +57,11 @@ export function BestMatchCard({ buddy, sharedInterestIds, distanceKm, hi5Sent, s
         <div className="flex flex-col gap-2 sm:shrink-0">
           {hi5Sent ? (
             <>
-              <Button onClick={onPropose} size="lg" className="w-full sm:w-auto rounded-full bg-gray-900 hover:bg-gray-800 text-white">
+              <Button variant="dark" onClick={onPropose} size="lg" className="w-full sm:w-auto">
                 <CalendarPlus className="w-4 h-4" />
                 Foreslå en tur
               </Button>
-              <Button onClick={onChat} variant="outline" size="lg" className="w-full sm:w-auto rounded-full">
+              <Button onClick={onChat} variant="outline" size="lg" className="w-full sm:w-auto">
                 <MessageCircle className="w-4 h-4" />
                 Åbn chat med {name}
               </Button>
@@ -69,20 +69,20 @@ export function BestMatchCard({ buddy, sharedInterestIds, distanceKm, hi5Sent, s
           ) : (
             <>
               <div className="gap-2 flex">
-                <Button
+                <Button variant="dark"
                   onClick={onHi5}
                   disabled={sending}
                   size="lg"
-                  className="w-full sm:w-auto rounded-full bg-gray-900 hover:bg-gray-800 text-white"
+                  className="w-full sm:w-auto"
                 >
                   <Hand className="w-4 h-4 -rotate-12" />
                   {sending ? "Sender..." : `Send highfive til ${name}`}
                 </Button>
-                <Button onClick={onChat} variant="outline" size="lg" className="w-full sm:w-auto rounded-full">
+                <Button onClick={onChat} variant="outline" size="lg" className="w-full sm:w-auto">
                   Skriv besked
                 </Button>
               </div>
-              <Button onClick={onPropose} variant="outline" size="lg" className="w-full sm:w-auto rounded-full">
+              <Button onClick={onPropose} variant="outline" size="lg" className="w-full sm:w-auto">
                 <CalendarPlus className="w-4 h-4" />
                 Foreslå en tur
               </Button>

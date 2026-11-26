@@ -71,7 +71,7 @@ Preview all colors at `/godaddy/design-system` (admin-only).
 
 - **Primary border**: `border-gray-100` — very light gray, used on cards, nav
 - **Secondary border**: `border-gray-200` — slightly darker, used on inputs, dividers
-- **Input border**: `hsl(0 0% 20%)` — dark border on form inputs
+- **Input border**: `hsl(0 0% 75%)` — mid-gray border on form inputs (stock shadcn is 89.8%; darker so fields stay visible on white)
 
 ### Shadows
 
@@ -115,11 +115,13 @@ Preview all colors at `/godaddy/design-system` (admin-only).
 
 ### Buttons
 
-Buttons use the `class-variance-authority` (CVA) library for type-safe variants. Default radius is `rounded-md` (6px).
+Buttons use the `class-variance-authority` (CVA) library for type-safe variants. All buttons are pills: `rounded-full` is baked into the base class, so never add it (or another radius) per usage. Icon buttons become circles.
 
 **Primary** — `bg-primary text-primary-foreground shadow-sm hover:bg-primary/90`. Dark fill, white text, slight shadow. Hover dims the background.
 
-**Outline** — `border border-input bg-background shadow-xs hover:bg-accent`. White fill, dark border, hover changes background to accent gray.
+**Dark** — `bg-gray-900 text-white shadow-sm hover:bg-gray-800`. The main CTA on `/home`, onboarding and signup. Use `variant="dark"`; do not hand-write these classes.
+
+**Outline** — `border border-input bg-background shadow-xs hover:bg-accent`. White fill, mid-gray border, hover changes background to accent gray.
 
 **Ghost** — No background, no shadow. Hover adds accent background. Used for inline actions.
 
@@ -174,7 +176,7 @@ Pill-shaped (`rounded-full`), 12px text, medium weight. Three color variants:
 
 - Password fields carry an inline show/hide toggle (`Eye`/`EyeOff`, `text-gray-500`) instead of a confirmation field. The onboarding stepper has three steps: Interesser, Placering, Opret konto.
 
-- Border: `border-input` (dark gray, `hsl(0 0% 20%)`)
+- Border: `border-input` (mid-gray, `hsl(0 0% 75%)`)
 - Radius: `rounded-md`
 - Focus: `ring-1 ring-ring`
 - Background: `bg-white` (Input, Textarea, SelectTrigger) — stays white on both cream pages and white cards
@@ -223,11 +225,11 @@ Tailwind's default 4px base. Pages use `space-y-6` or `space-y-8` for section sp
 | Tailwind Class | Value  | Usage                            |
 | -------------- | ------ | -------------------------------- |
 | `rounded-sm`   | ~4px   | Focus outlines                   |
-| `rounded-md`   | 6px    | Buttons, inputs, dropdowns       |
+| `rounded-md`   | 6px    | Inputs, dropdowns                |
 | `rounded-lg`   | 8px    | Secondary containers, form pills |
 | `rounded-xl`   | 12px   | Profile sections, status banners |
 | `rounded-2xl`  | 16px   | Buddy cards, event cards         |
-| `rounded-full` | 9999px | Interest badges, avatar circles  |
+| `rounded-full` | 9999px | Buttons, interest badges, avatars |
 
 ## 6. Depth & Elevation
 
@@ -323,7 +325,7 @@ Use the `InterestBadge` component (`src/components/InterestBadge.tsx`). Variants
 `<InterestBadge name="Løb" icon="🏃" variant="shared" />`
 
 **Primary button:**
-`bg-primary text-primary-foreground shadow-sm rounded-md h-9 px-4 py-2`. Hover: `hover:bg-primary/90`.
+`bg-primary text-primary-foreground shadow-sm rounded-full h-9 px-4 py-2`. Hover: `hover:bg-primary/90`.
 
 **Buddy card:**
 Portrait grid item. `rounded-2xl border border-gray-100 bg-white p-5`. Avatar: `h-16 w-16 bg-blue-100 text-blue-700`. Name: `font-semibold text-base`. Location: `text-xs text-gray-500`.

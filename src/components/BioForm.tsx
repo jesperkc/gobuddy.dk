@@ -117,7 +117,7 @@ export function BioForm({ id, label, placeholder, submitLabel = "Gem", allowEmpt
         </span>
       </div>
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-        <Button type="submit" size="lg" disabled={!canSave} className="w-full sm:w-auto rounded-full bg-gray-900 hover:bg-gray-800 px-6 text-white">
+        <Button variant="dark" type="submit" size="lg" disabled={!canSave} className="w-full sm:w-auto px-6">
           {saving ? "Gemmer..." : submitLabel}
         </Button>
         {children}

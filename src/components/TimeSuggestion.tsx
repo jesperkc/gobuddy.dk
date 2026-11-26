@@ -71,7 +71,7 @@ export function SuggestTimeDialog({ open, onOpenChange, creatorName, onSubmit }:
             <Label htmlFor="suggest-note">Besked (valgfri)</Label>
             <Textarea id="suggest-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Fx: Jeg skal arbejde lørdag" maxLength={200} className="mt-1" />
           </div>
-          <Button type="submit" disabled={!date} className="w-full rounded-full" size="lg">
+          <Button type="submit" disabled={!date} className="w-full" size="lg">
             Send forslag
           </Button>
         </form>

@@ -192,7 +192,7 @@ export function ProposalDialog({ open, onOpenChange, buddyId, buddyName, onSent 
 
           {preview && <p className="text-sm text-gray-600 rounded-xl bg-gray-50 px-3 py-2 whitespace-pre-line">{preview}</p>}
 
-          <Button type="submit" disabled={!canSubmit} className="w-full rounded-full" size="lg">
+          <Button type="submit" disabled={!canSubmit} className="w-full" size="lg">
             {submitting ? "Sender..." : `Send forslag${buddyName ? ` til ${buddyName}` : ""}`}
           </Button>
         </form>

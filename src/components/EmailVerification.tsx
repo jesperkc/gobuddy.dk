@@ -88,7 +88,7 @@ export function EmailVerificationDialog() {
             </Button>
           </div>
         ) : (
-          <Button onClick={sendLink} disabled={busy} className="rounded-full bg-gray-900 hover:bg-gray-800">
+          <Button variant="dark" onClick={sendLink} disabled={busy}>
             {busy ? "Sender..." : "Send mig et link"}
           </Button>
         )}
@@ -114,7 +114,7 @@ export function VerifyEmailBanner() {
       <p className="text-sm text-blue-900 flex-1">
         <span className="font-medium">Bekræft din email for at se buddies i nærheden og feedet.</span> Indtil da kan du gøre din profil klar.
       </p>
-      <Button onClick={openDialog} size="sm" className="rounded-full bg-blue-700 hover:bg-blue-800 text-white self-start sm:self-auto">
+      <Button onClick={openDialog} size="sm" className="bg-blue-700 hover:bg-blue-800 text-white self-start sm:self-auto">
         Bekræft nu
       </Button>
     </div>
@@ -139,7 +139,7 @@ export function LockedUntilVerified({ title = "Bekræft din email for at se andr
       <Lock className="w-6 h-6 text-gray-500 mx-auto mb-3" aria-hidden="true" />
       <h2 className="font-medium mb-1">{title}</h2>
       <p className="text-sm text-gray-600 mb-4">Det beskytter alle på GoBuddy mod falske profiler. Det tager kun et øjeblik.</p>
-      <Button onClick={openDialog} className="rounded-full bg-gray-900 hover:bg-gray-800 text-white">
+      <Button variant="dark" onClick={openDialog}>
         Bekræft min email
       </Button>
     </section>

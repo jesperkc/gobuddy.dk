@@ -158,10 +158,10 @@ export function FirstPostForm({ interest, step, total, verified, submitting, onS
       </div>
 
       <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-center">
-        <Button type="submit" size="lg" disabled={!canSubmit} className="w-full sm:w-auto rounded-full bg-gray-900 hover:bg-gray-800 px-6 text-white">
+        <Button variant="dark" type="submit" size="lg" disabled={!canSubmit} className="w-full sm:w-auto px-6">
           {submitting ? "Gemmer..." : verified ? "Del opslag" : "Gem opslag"}
         </Button>
-        <Button type="button" variant="ghost" size="lg" onClick={onSkip} className="w-full sm:w-auto rounded-full text-gray-600">
+        <Button type="button" variant="ghost" size="lg" onClick={onSkip} className="w-full sm:w-auto text-gray-600">
           Spring over
         </Button>
       </div>

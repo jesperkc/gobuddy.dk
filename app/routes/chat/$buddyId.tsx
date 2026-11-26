@@ -239,7 +239,7 @@ function ChatPage({ user }: AuthedProps) {
             type="button"
             variant="ghost"
             size="icon"
-            className="rounded-full h-10 w-10 shrink-0 text-blue-700 hover:bg-blue-50"
+            className="h-10 w-10 shrink-0 text-blue-700 hover:bg-blue-50"
             title="Foreslå en tur"
             aria-label="Foreslå en tur"
             onClick={() => {
@@ -257,7 +257,7 @@ function ChatPage({ user }: AuthedProps) {
             className="flex-1 rounded-full"
             autoFocus
           />
-          <Button type="submit" disabled={!newMessage.trim() || sending} size="icon" className="rounded-full h-10 w-10 shrink-0">
+          <Button type="submit" disabled={!newMessage.trim() || sending} size="icon" className="h-10 w-10 shrink-0">
             <Send className="w-4 h-4" />
           </Button>
         </form>

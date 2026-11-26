@@ -183,7 +183,7 @@ function InterestPage() {
             {!isAuthenticated && (
               <div className="text-center border-t pt-8">
                 <p className="text-gray-600 mb-3">Interesseret i {interest.interest_da.toLowerCase()}?</p>
-                <Button onClick={startSignup} size="lg" className="rounded-full h-12 px-6 text-base bg-blue-600 hover:bg-blue-800">
+                <Button onClick={startSignup} size="lg" className="h-12 px-6 text-base bg-blue-600 hover:bg-blue-800">
                   Opret gratis profil
                   <ArrowRight className="w-4 h-4" />
                 </Button>

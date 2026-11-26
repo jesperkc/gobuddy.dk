@@ -69,7 +69,7 @@ function Interests() {
         </div>
 
         <div className="flex items-center justify-between">
-          <Button type="button" variant="ghost" className="rounded-full" onClick={() => navigate({ to: "/" })}>
+          <Button type="button" variant="ghost"  onClick={() => navigate({ to: "/" })}>
             Tilbage
           </Button>
           <Button

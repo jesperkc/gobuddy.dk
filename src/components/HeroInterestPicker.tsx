@@ -95,10 +95,10 @@ export function HeroInterestPicker() {
       )}
 
       <div className="mt-8 flex flex-col items-center gap-3">
-        <Button
+        <Button variant="dark"
           onClick={start}
           size="lg"
-          className="h-14 rounded-full px-8 text-base bg-gray-900 text-white hover:bg-gray-800 shadow-lg shadow-green-900/20"
+          className="h-14 px-8 text-base shadow-lg shadow-green-900/20"
         >
           {ctaLabel}
           <ArrowRight className="ml-1 h-4 w-4" />

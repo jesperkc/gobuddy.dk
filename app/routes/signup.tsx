@@ -246,11 +246,11 @@ function Signup() {
               Modtag vores nyhedsbrev
             </Label>
           </div>
-          <Button
+          <Button variant="dark"
             type="submit"
             disabled={isLoading}
             size="xl"
-            className="w-full rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-lg"
+            className="w-full shadow-lg"
           >
             {isLoading ? (
               <>

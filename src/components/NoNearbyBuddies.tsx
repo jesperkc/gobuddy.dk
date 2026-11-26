@@ -38,18 +38,18 @@ export function NoNearbyBuddies({ radiusKm, nearestKm }: NoNearbyBuddiesProps) {
         Du får det meste ud af GoBuddy, når du tager en ven med.
       </p>
       <div className="flex flex-col sm:flex-row gap-3">
-        <Button onClick={handleInvite} size="lg" className="rounded-full bg-gray-900 hover:bg-gray-800 text-white">
+        <Button variant="dark" onClick={handleInvite} size="lg">
           <Share2 className="w-4 h-4" />
           Inviter en ven
         </Button>
-        <Button asChild variant="outline" size="lg" className="rounded-full">
+        <Button asChild variant="outline" size="lg">
           <Link to="/activities">
             <Calendar className="w-4 h-4" />
             Se aktiviteter
           </Link>
         </Button>
         {nearestKm !== null && (
-          <Button asChild variant="ghost" size="lg" className="rounded-full">
+          <Button asChild variant="ghost" size="lg">
             <Link to="/buddies">Se alle buddies</Link>
           </Button>
         )}

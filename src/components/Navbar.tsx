@@ -54,7 +54,7 @@ const UserMenu = ({ userName, userEmail, userAvatar, isAdmin, handleLogout }: Us
     <DropdownMenuTrigger asChild>
       <Button
         variant="ghost"
-        className="h-10 w-10 rounded-full p-0 ring-2 ring-green-500 ring-offset-2 ring-offset-white transition-shadow hover:bg-transparent hover:ring-green-600 data-[state=open]:ring-green-600 dark:ring-offset-black"
+        className="h-10 w-10 p-0 ring-2 ring-green-500 ring-offset-2 ring-offset-white transition-shadow hover:bg-transparent hover:ring-green-600 data-[state=open]:ring-green-600 dark:ring-offset-black"
       >
         <Avatar className="h-10 w-10">
           <AvatarImage src={userAvatar} alt={userName} />

@@ -156,7 +156,7 @@ function Location() {
             </ClientOnly>
           </div>
 
-          <Button onClick={handleGeolocation} disabled={isLocating} className="rounded-full bg-gray-900 hover:bg-gray-800 px-6">
+          <Button variant="dark" onClick={handleGeolocation} disabled={isLocating} className="px-6">
             {isLocating ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -214,13 +214,13 @@ function Location() {
             </div>
 
             <div className="flex items-center justify-between">
-              <Button type="button" variant="ghost" className="rounded-full" onClick={() => navigate({ to: "/interests" })}>
+              <Button type="button" variant="ghost"  onClick={() => navigate({ to: "/interests" })}>
                 Tilbage
               </Button>
-              <Button
+              <Button variant="dark"
                 type="submit"
                 disabled={!coordinates}
-                className="rounded-full bg-gray-900 hover:bg-gray-800 px-6"
+                className="px-6"
               >
                 Videre
                 <ArrowRight className="ml-2 h-4 w-4" />
