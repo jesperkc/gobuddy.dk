@@ -40,6 +40,37 @@ function Interests() {
     fetchInterests();
   }, []);
 
+  // Interests seeded from outside the flow (e.g. an /interesser/$slug page) may
+  // not be onboarding interests. Fetch those so they show up as selected.
+  const [extraInterests, setExtraInterests] = useState<Tables<"interests">[]>([]);
+  const missingIds = interests.filter(
+    (id) => !availableInterests.some((i) => i.interest_id === id) && !extraInterests.some((i) => i.interest_id === id),
+  );
+  const missingKey = availableInterests.length ? missingIds.join(",") : "";
+
+  useEffect(() => {
+    if (!missingKey) return;
+    let cancelled = false;
+    supabase
+      .from("interests")
+      .select("*")
+      .in("interest_id", missingKey.split(","))
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          console.error("Error fetching selected interests:", error);
+          return;
+        }
+        setExtraInterests((prev) => [...prev, ...(data || [])]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [missingKey]);
+
+  // Show seeded non-onboarding interests first so the preselection is visible.
+  const shownInterests = [...extraInterests, ...availableInterests];
+
   const toggleInterest = (interestId: string) => {
     if (interests.includes(interestId)) {
       setInterests(interests.filter((i) => i !== interestId));
@@ -55,7 +86,7 @@ function Interests() {
         <PageTitle className="text-3xl tracking-tight">Hvad er dine interesser?</PageTitle>
         <p className="text-gray-600 mb-6">Vælg de ting du godt kan lide at lave</p>
         <div className="flex flex-wrap gap-2 mb-6">
-          {availableInterests.map((interest) => (
+          {shownInterests.map((interest) => (
             <Toggle
               key={interest.interest_id}
               variant="outline"
