@@ -22,7 +22,6 @@ export const INTEREST_PHRASES: Record<string, { like: string; invite: string }> 
   kano: { like: "sejle i kano", invite: "sejle en tur i kano en dag" },
   kitesurfing: { like: "kitesurfe", invite: "kitesurfe en dag" },
   klatring: { like: "klatre", invite: "klatre sammen en dag" },
-  krolf: { like: "spille krolf", invite: "spille en runde krolf" },
   langrend: { like: "gå på langrend", invite: "gå en langrendstur en dag" },
   løb: { like: "løbe", invite: "løbe en tur en dag" },
   mountainbiking: { like: "køre mountainbike", invite: "køre en mountainbike-tur en dag" },

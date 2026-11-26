@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { InterestBadge } from "@/components/InterestBadge";
+import { InterestIcon } from "@/components/InterestIcon";
+import { INTEREST_ICON_PATHS } from "@/components/interest-icons";
 import { Toggle } from "@/components/ui/toggle";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -436,6 +438,32 @@ function DesignSystemPage() {
             <InterestBadge name="Løb" description="Motionsløb, trail og marathon" variant="default" size="lg" />
             <InterestBadge name="Cykling" description="Landevej, MTB og gravel" variant="shared" size="lg" />
             <InterestBadge name="Svømning" description="Frisvømning og åbent vand" variant="muted" size="lg" />
+          </div>
+        </Section>
+
+        {/* ── Interest icons ───────────────────────────────────── */}
+        <Section title="Interesse-ikoner">
+          <p className="text-sm text-gray-500">
+            24×24 line-ikoner (stroke 1.75, <code>currentColor</code>) via <code>&lt;InterestIcon icon=&quot;…&quot; /&gt;</code>.
+            Genereres af <code>scripts/generate-interest-icons.py</code>.
+          </p>
+          <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-3">
+            {Object.keys(INTEREST_ICON_PATHS)
+              .sort()
+              .map((name) => (
+                <div key={name} className="flex flex-col items-center gap-2 rounded-lg border p-3 text-gray-900">
+                  <InterestIcon icon={name} size={32} />
+                  <span className="text-xs text-gray-500 text-center leading-tight">{name}</span>
+                </div>
+              ))}
+          </div>
+          <h3 className="text-sm font-medium text-gray-500 mt-4">Størrelser og farver</h3>
+          <div className="flex flex-wrap items-end gap-4">
+            <InterestIcon icon="running" size={16} className="text-gray-900" />
+            <InterestIcon icon="running" size={20} className="text-gray-900" />
+            <InterestIcon icon="running" size={24} className="text-blue-700" />
+            <InterestIcon icon="running" size={32} className="text-green-700" />
+            <InterestIcon icon="running" size={48} className="text-violet-700" />
           </div>
         </Section>
 

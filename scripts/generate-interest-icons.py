@@ -46,7 +46,6 @@ SLUG_TO_ICON_NAME = {
     "kano": "canoeing",
     "kitesurfing": "kitesurfing",
     "klatring": "climbing",
-    "krolf": "croquet-golf",
     "langrend": "cross-country-skiing",
     "loeb": "running",
     "mountainbiking": "mountain-biking",
@@ -75,140 +74,137 @@ SLUG_TO_ICON_NAME = {
 
 # Each value is the inner SVG markup (without the <svg> wrapper).
 ICONS = {
-  # Shuttlecock: cone with feathers
-  "badminton": '<circle cx="8" cy="16" r="2"/><path d="M9.5 14.5l6-6"/><path d="M14 8l3-3 3 3-3 3"/><path d="M12 10l2 2M14 7l3 3M18 5l2 2"/>',
+  # Shuttlecock: feather skirt with a band, rounded cork
+  "badminton": '<path d="M9 16.5L6.5 4h11L15 16.5"/><path d="M12 4v12.5"/><path d="M7.6 9.5h8.8"/><path d="M8.5 16.5h7v1a3.5 3.5 0 0 1-7 0z"/>',
 
-  # Table tennis paddle + ball
-  "bordtennis": '<circle cx="9" cy="9" r="4.5"/><path d="M12.5 12.5l4.5 4.5 2-2-4.5-4.5"/><circle cx="18.5" cy="6" r="1"/>',
+  # Table tennis: round paddle, short handle, ball
+  "bordtennis": '<circle cx="10" cy="10" r="6.5"/><rect x="15" y="12.5" width="3" height="8" rx="1.5" transform="rotate(-45 16.5 16.5)" fill="currentColor"/><circle cx="19.5" cy="5" r="1.75"/>',
 
-  # Bowling pin
-  "bowling": '<path d="M12 3c2 0 3 2 3 5s-1 4-1 6 1 3 1 5c0 1.5-1.3 2-3 2s-3-.5-3-2c0-2 1-3 1-5s-1-3-1-6 1-5 3-5z"/><circle cx="12" cy="7" r=".6" fill="currentColor"/>',
+  # Bowling: pin + ball with finger holes
+  "bowling": '<path d="M8.5 3C7.3 3 6.5 4 6.5 5.5c0 1.6 1 2.3 1 3.7 0 1.8-2 3.6-2 7 0 2.9 1.2 4.8 3 4.8s3-1.9 3-4.8c0-3.4-2-5.2-2-7 0-1.4 1-2.1 1-3.7C10.5 4 9.7 3 8.5 3z"/><path d="M7.4 9.2h2.2"/><circle cx="17" cy="16" r="5"/><circle cx="15.7" cy="14.2" r=".6" fill="currentColor"/><circle cx="18" cy="13.8" r=".6" fill="currentColor"/><circle cx="17.3" cy="16.2" r=".6" fill="currentColor"/>',
 
-  # Archery target with arrow
-  "bueskydning": '<circle cx="10" cy="12" r="7"/><circle cx="10" cy="12" r="4"/><circle cx="10" cy="12" r="1.2"/><path d="M13 9l8-5"/><path d="M19 4l2 2M21 6l-2 2"/>',
+  # Archery: target with arrow and fletching
+  "bueskydning": '<circle cx="10" cy="14" r="7.5"/><circle cx="10" cy="14" r="4"/><circle cx="10" cy="14" r=".8" fill="currentColor"/><path d="M10 14L20 4"/><path d="M17 3.5V7h3.5"/><path d="M19.5 1.8v2.7h2.7"/>',
 
   # CrossFit: kettlebell
-  "crossfit": '<path d="M9 6a3 3 0 0 1 6 0"/><path d="M8 6h8l1.5 3c.6 2 .2 5-1.5 7-1 1.2-2.5 2-4 2s-3-.8-4-2c-1.7-2-2.1-5-1.5-7z"/>',
+  "crossfit": '<path d="M8.8 9.6V7.2a3.2 3.2 0 0 1 6.4 0v2.4"/><path d="M7.7 9.6h8.6A6.5 6.5 0 0 1 18.5 14.5c0 3.6-2.9 6.5-6.5 6.5s-6.5-2.9-6.5-6.5A6.5 6.5 0 0 1 7.7 9.6z"/>',
 
-  # Bicycle
-  "cykling": '<circle cx="6" cy="16" r="4"/><circle cx="18" cy="16" r="4"/><path d="M6 16l4-8h5l3 8"/><path d="M10 8h-2"/><path d="M15 8l-1-3h-2"/>',
+  # Road bike
+  "cykling": '<circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5H11L8.6 8.5"/><path d="M5.5 16.5l3.7-6h7"/><path d="M11 16.5l5.2-6"/><path d="M18.5 16.5L15.3 8h2.2"/><path d="M7 8.5h3.2"/>',
 
-  # Diving mask
-  "dykning": '<path d="M4 10h12a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-3l-1-2h-4l-1 2H4a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2z"/><path d="M18 13h2a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2"/>',
+  # Diving: mask with snorkel
+  "dykning": '<path d="M3 9.5A1.5 1.5 0 0 1 4.5 8h10A1.5 1.5 0 0 1 16 9.5V13a3 3 0 0 1-3 3h-1.3L10.5 14h-2l-1.2 2H6a3 3 0 0 1-3-3z"/><path d="M20 3v12.5a4.5 4.5 0 0 1-4.5 4.5H13v-2"/>',
 
-  # Fencing: crossed swords
-  "faegtning": '<path d="M4 20l8-8"/><path d="M20 20l-8-8"/><path d="M3 17l3 3"/><path d="M21 17l-3 3"/><path d="M12 12l2-8"/><path d="M13 4h2"/>',
+  # Fencing: crossed foils with bell guards
+  "faegtning": '<path d="M3 3l12 12"/><path d="M21 3L9 15"/><path d="M12.5 17l5-5"/><path d="M11.5 17l-5-5"/><path d="M15 15l4.5 4.5"/><path d="M9 15l-4.5 4.5"/>',
 
   # Fish
-  "fiskeri": '<path d="M3 12c3-5 8-6 13-6l4 6-4 6c-5 0-10-1-13-6z"/><circle cx="16" cy="11" r=".6" fill="currentColor"/><path d="M3 12l-2-2M3 12l-2 2"/>',
+  "fiskeri": '<path d="M21.5 12c-1.8-3-5-5-8.5-5S8 9 6 12c2 3 5 5 7 5s6.7-2 8.5-5z"/><path d="M6 12L2.5 8.5v7z"/><path d="M12 9.5c.8 1.6.8 3.4 0 5"/><circle cx="17.5" cy="11" r=".7" fill="currentColor"/>',
 
-  # Dumbbell for fitness
-  "fitness": '<path d="M4 9v6M2 11v2"/><path d="M20 9v6M22 11v2"/><path d="M6 8v8M18 8v8"/><path d="M6 12h12"/>',
+  # Fitness: dumbbell
+  "fitness": '<path d="M8.5 12h7"/><rect x="5.5" y="7" width="3" height="10" rx="1.5"/><rect x="15.5" y="7" width="3" height="10" rx="1.5"/><path d="M3 10v4"/><path d="M21 10v4"/>',
 
   # Football (soccer ball)
-  "fodbold": '<circle cx="12" cy="12" r="9"/><path d="M12 6l4 3-1.5 5h-5L8 9z"/><path d="M12 6V3M14.5 14l2.5 2M9.5 14l-2.5 2M8 9L5 7.5M16 9l3-1.5"/>',
+  "fodbold": '<circle cx="12" cy="12" r="9.5"/><path d="M12 8l3.8 2.8-1.45 4.45h-4.7L8.2 10.8z"/><path d="M12 8V2.5M15.8 10.8l5-1.6M14.35 15.25l3.2 4.4M9.65 15.25l-3.2 4.4M8.2 10.8l-5-1.6"/>',
 
-  # Golf: flag on green
-  "golf": '<path d="M7 21V4"/><path d="M7 4l10 3-10 3"/><circle cx="7" cy="21" r="1"/>',
+  # Golf: flag in the hole + ball
+  "golf": '<path d="M12 19V3l7 3-7 3"/><ellipse cx="12" cy="19" rx="8" ry="2.5"/><circle cx="6" cy="14.5" r="1.5"/>',
 
-  # Gravel cycling (same skeleton, chunkier tires indicated by dashed)
-  "gravelcykling": '<circle cx="6" cy="16" r="4"/><circle cx="18" cy="16" r="4"/><path d="M6 16l4-8h5l3 8"/><path d="M10 8h-2"/><path d="M15 8l-1-3h-2"/><path d="M2 16h1M9 13l.5.5M15 13l.5.5M21 16h1"/>',
+  # Gravel bike: drop bars + gravel underneath
+  "gravelcykling": '<circle cx="5.5" cy="15.5" r="3.5"/><circle cx="18.5" cy="15.5" r="3.5"/><path d="M5.5 15.5H11L8.6 7.5"/><path d="M5.5 15.5l3.7-6h7"/><path d="M11 15.5l5.2-6"/><path d="M18.5 15.5L15.3 7h2.2a1.5 1.5 0 0 1 0 3"/><path d="M7 7.5h3.2"/><path d="M2 21.5h.01M6 21.5h.01M10 21.5h.01M14 21.5h.01M18 21.5h.01M22 21.5h.01" stroke-width="2.25"/>',
 
-  # Handball: ball with lines
-  "haandbold": '<circle cx="12" cy="12" r="8"/><path d="M4.5 10.5l7 1.5 7-1.5"/><path d="M12 4v16"/><path d="M7 6.5l5 5.5 5-5.5"/>',
+  # Handball: ball in flight with motion lines
+  "haandbold": '<path d="M3 21V4h18v17"/><path d="M3 8.5h18M7.5 4v4.5M12 4v4.5M16.5 4v4.5"/><circle cx="12" cy="15.5" r="4"/><path d="M8.4 14c2.4 1.2 4.8 1.2 7.2 0M12 11.5c-1.2 2.5-1.2 5.5 0 8"/>',
 
-  # Hockey stick + puck
-  "hockey": '<path d="M4 5l12 12"/><path d="M16 17l4 2"/><ellipse cx="7" cy="20" rx="3" ry="1"/>',
+  # Ice hockey: stick + puck
+  "hockey": '<path d="M7 2.5l8 15a2 2 0 0 0 1.8 1H21.5"/><ellipse cx="6.5" cy="17.5" rx="3.5" ry="1.5"/><path d="M3 17.5v1.5c0 .8 1.6 1.5 3.5 1.5s3.5-.7 3.5-1.5v-1.5"/>',
 
-  # Kayak with paddle
-  "kajakroning": '<path d="M3 15c3 3 15 3 18 0"/><path d="M6 14l2-2h8l2 2"/><path d="M2 9l6 2M22 9l-6 2"/><circle cx="12" cy="11" r=".8" fill="currentColor"/>',
+  # Kayak: paddler with double-bladed paddle
+  "kajakroning": '<path d="M2 15.5c3.5 2.5 16.5 2.5 20 0-3.5-1.8-16.5-1.8-20 0z"/><circle cx="12" cy="7" r="1.75"/><path d="M12 9.5v4"/><path d="M5.5 14.5L18.5 5.5"/><path d="M3.3 13.6l1.4 2.4 1.9-1.3-1.4-2.4z" fill="currentColor"/><path d="M20.7 6.4l-1.4-2.4-1.9 1.3 1.4 2.4z" fill="currentColor"/>',
 
-  # Martial arts: belt knot
-  "kampsport": '<path d="M3 12h18"/><path d="M3 15h18"/><path d="M9 12v3M15 12v3"/><path d="M9 10c0-3 2-5 3-5s3 2 3 5"/><path d="M10 15l-1 4h6l-1-4"/>',
+  # Martial arts: tied belt
+  "kampsport": '<path d="M2 9.5h20v3H2z"/><path d="M10 9.5l4 3M14 9.5l-4 3"/><path d="M10.5 12.5L8 20l2.5-.8L12 13"/><path d="M13.5 12.5L16 20l-2.5-.8L12 13"/>',
 
-  # Canoe
-  "kano": '<path d="M3 13c3 3 15 3 18 0"/><path d="M5 13l2-2h10l2 2"/><path d="M9 11V7M15 11V7"/>',
+  # Canoe with single-blade paddle
+  "kano": '<path d="M2 12.5c1.5 0 2.5.8 3.5 2h13c1-1.2 2-2 3.5-2-.5 4-4.5 6.5-10 6.5S2.5 16.5 2 12.5z"/><path d="M5.5 14.5h13"/><path d="M15.5 2.5l-3.2 11.7"/><path d="M14.3 2.2l2.4.6"/><path d="M12.6 13.1l-1.1 4.1a1.2 1.2 0 0 0 2.3.6l1.1-4.1"/>',
 
-  # Kitesurfing: kite in sky + line + board
-  "kitesurfing": '<path d="M5 4l4 5-4 3z"/><path d="M7 9l4 9"/><path d="M9 20h8"/>',
+  # Kitesurfing: curved kite, lines, rider on board
+  "kitesurfing": '<path d="M3 7.5C6 3 18 3 21 7.5l-2.2 1.3C15.5 5.3 8.5 5.3 5.2 8.8z"/><path d="M5.2 8.8L11 15.5M18.8 8.8L13 15.5"/><path d="M10 15.5h4"/><path d="M12 15.5v3"/><path d="M6 20.5c3 1 9 1 12 0"/>',
 
-  # Climbing: mountain + figure
-  "klatring": '<path d="M3 20l6-10 4 6 3-4 5 8z"/><circle cx="13" cy="6" r="1.5"/><path d="M13 8v4"/><path d="M11 10l4-1"/>',
+  # Climbing: carabiner with gate
+  "klatring": '<path d="M7 9.5V8a5 5 0 0 1 10 0v8a5 5 0 0 1-10 0v-1"/><path d="M7 9.5l1.8 5.5"/><path d="M14 6v8"/>',
 
-  # Croquet golf: mallet
-  "krolf": '<path d="M4 18h16"/><path d="M12 18V7"/><rect x="7" y="3" width="10" height="4" rx="1"/>',
-
-  # Cross-country skiing: skier
-  "langrend": '<circle cx="13" cy="4" r="1.5"/><path d="M12 7l-1 5 2 3-1 4"/><path d="M14 10l2 2 3-1"/><path d="M5 19l14-3"/><path d="M7 21l14-3"/>',
+  # Cross-country skiing: classic skier on flat tracks
+  "langrend": '<circle cx="13" cy="4" r="1.75"/><path d="M12.5 7l-1.5 5.5 3 2.5-1 4"/><path d="M11 12.5l-4 2"/><path d="M12.5 7.5l3.5 3 2.5-.5"/><path d="M12 8L8.5 10.5"/><path d="M18.5 10L20 19"/><path d="M8.5 10.5L5 19"/><path d="M2 20.5h20"/>',
 
   # Running figure
-  "loeb": '<circle cx="14" cy="4" r="1.5"/><path d="M13 7l-2 4 3 2v4"/><path d="M14 13l3-1 2 2"/><path d="M11 11l-3 1-1 3"/>',
+  "loeb": '<circle cx="15" cy="4.5" r="1.75"/><path d="M14 7.5l-2.5 5.5"/><path d="M11.5 13l3 2.5-1.5 5"/><path d="M11.5 13l-2.5 2.5h-4"/><path d="M14 7.5l3 2.5 2.5-.5"/><path d="M13.5 8l-3.5 1-2 2.5"/>',
 
-  # Mountain bike with mountain
-  "mountainbiking": '<path d="M2 17l4-5 3 3 3-4 5 6"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><path d="M9 12h3l2 4"/>',
+  # Mountain bike under mountains
+  "mountainbiking": '<circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M5.5 17.5H11L8.6 9.5"/><path d="M5.5 17.5l3.7-6h7"/><path d="M11 17.5l5.2-6"/><path d="M18.5 17.5L15.3 9h2.2"/><path d="M7 9.5h3.2"/><path d="M2 7l3.5-4.5L8 5.5l2-2 3.5 3.5"/>',
 
-  # Off-piste skiing: skier on slope
-  "off-piste-skilob": '<path d="M3 20l18-6"/><circle cx="14" cy="5" r="1.5"/><path d="M13 8l-1 4 2 2-1 3"/><path d="M15 10l3 1 2-2"/>',
+  # Off-piste: skier carving down a powder slope
+  "off-piste-skilob": '<circle cx="9" cy="4" r="1.75"/><path d="M9.5 7l1 4.5-3 2.5"/><path d="M10.5 11.5l3.5 1.5 1 4"/><path d="M9.5 7.5l-3 2 .5 3"/><path d="M10 8l4 1.5 2.5-2.5"/><path d="M4 15l15 5"/><path d="M2 21c3-2 5 0 8-1.5"/>',
 
-  # Padel tennis racket (shorter racket, perforated head)
-  "padel-tennis": '<ellipse cx="10" cy="9" rx="5" ry="6"/><circle cx="8" cy="8" r=".5" fill="currentColor"/><circle cx="11" cy="7" r=".5" fill="currentColor"/><circle cx="9" cy="11" r=".5" fill="currentColor"/><circle cx="12" cy="10" r=".5" fill="currentColor"/><path d="M13 13l6 6"/>',
+  # Padel: solid perforated paddle + ball
+  "padel-tennis": '<path d="M10 2.5a6.5 6.5 0 0 1 6.5 6.5c0 3.8-2.5 6.5-6.5 6.5S3.5 12.8 3.5 9A6.5 6.5 0 0 1 10 2.5z"/><path d="M13.6 14.4l4.9 4.9"/><path d="M17 17.8l2.3 2.3a1.1 1.1 0 0 0 1.6-1.6l-2.3-2.3"/><circle cx="8" cy="7" r=".6" fill="currentColor"/><circle cx="12" cy="7" r=".6" fill="currentColor"/><circle cx="10" cy="9.5" r=".6" fill="currentColor"/><circle cx="8" cy="12" r=".6" fill="currentColor"/><circle cx="12" cy="12" r=".6" fill="currentColor"/><circle cx="19.5" cy="5" r="1.75"/>',
 
-  # Petanque: cluster of boules
-  "petanque": '<circle cx="8" cy="14" r="3"/><circle cx="16" cy="14" r="3"/><circle cx="12" cy="9" r="2"/><circle cx="12" cy="18" r=".6" fill="currentColor"/>',
+  # Petanque: two grooved boules + the jack
+  "petanque": '<circle cx="7.5" cy="15" r="4.5"/><circle cx="16.5" cy="15" r="4.5"/><path d="M4.5 11.7c2.5 2 3.5 4.5 3 7.8M13.5 11.7c2.5 2 3.5 4.5 3 7.8"/><circle cx="12" cy="5.5" r="2"/>',
 
-  # Horseback riding: horse head
-  "ridning": '<path d="M7 20v-4c0-4 2-7 6-7h2l3-3 1 3-2 2v4c0 2-1 5-4 5"/><path d="M11 9V6l2-2"/><circle cx="15" cy="12" r=".6" fill="currentColor"/>',
+  # Riding: horseshoe
+  "ridning": '<path d="M6 20.5C3.8 18 3 15 3 12a9 9 0 0 1 18 0c0 3-.8 6-3 8.5h-3.3c1.7-2.4 2.3-5 2.3-8.5a5 5 0 0 0-10 0c0 3.5.6 6.1 2.3 8.5z"/><circle cx="5.5" cy="13" r=".6" fill="currentColor"/><circle cx="7" cy="8" r=".6" fill="currentColor"/><circle cx="18.5" cy="13" r=".6" fill="currentColor"/><circle cx="17" cy="8" r=".6" fill="currentColor"/>',
 
-  # Rowing: single shell + oars
-  "roning": '<path d="M3 14c3 3 15 3 18 0"/><path d="M11 12l2-2 2 2"/><path d="M4 11l6 2M20 11l-6 2"/>',
+  # Rowing: crossed oars
+  "roning": '<path d="M4 4l11 11"/><path d="M20 4L9 15"/><path d="M15 15l1.5-.5 4.3 4.3a1.8 1.8 0 0 1-2.5 2.5L14 17l.5-1.5z"/><path d="M9 15l-1.5-.5-4.3 4.3a1.8 1.8 0 0 0 2.5 2.5L10 17l-.5-1.5z"/><path d="M5.5 3.5l-2 2M18.5 3.5l2 2"/>',
 
-  # Inline skating: skate with wheels
-  "rulleskojtlob": '<path d="M5 10h12l-1 4h-10z"/><path d="M17 7v3"/><circle cx="7" cy="17" r="1.5"/><circle cx="11" cy="17" r="1.5"/><circle cx="15" cy="17" r="1.5"/><path d="M6 14v1M16 14v1"/>',
+  # Inline skate: boot with four wheels
+  "rulleskojtlob": '<path d="M6 3h5v6.5l5.5 2c2.3.8 3.5 2 3.5 3.5V16H5V4a1 1 0 0 1 1-1z"/><path d="M11 6H8M11 9H8"/><path d="M5 16v1h15v-1"/><circle cx="6.5" cy="19.5" r="1.5"/><circle cx="10.5" cy="19.5" r="1.5"/><circle cx="14.5" cy="19.5" r="1.5"/><circle cx="18.5" cy="19.5" r="1.5"/>',
 
-  # Sailboat
-  "sejlads": '<path d="M12 3v14"/><path d="M12 5l6 12h-6z"/><path d="M3 17c3 3 15 3 18 0"/>',
+  # Sailboat: main + jib on hull, waves
+  "sejlads": '<path d="M11 2.5v13"/><path d="M11 3.5l-7 11h7z"/><path d="M13 5.5l6 9h-6z"/><path d="M3 15.5h18l-2 3.5H5z"/><path d="M2 21.5c2.5 1 4.5-1 7 0s4.5 1 7 0 4.5-1 6 0"/>',
 
-  # Skateboard
-  "skateboarding": '<path d="M3 12h18l-1 3H4z"/><circle cx="7" cy="17" r="1.5"/><circle cx="17" cy="17" r="1.5"/>',
+  # Skateboard: deck with kicktails + wheels
+  "skateboarding": '<path d="M2 10.5c.5 1.5 1.5 2.5 3 2.5h14c1.5 0 2.5-1 3-2.5"/><path d="M7 13v1.5M17 13v1.5"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
 
-  # Skiing: skis + poles
-  "skiloeb": '<path d="M7 3l-2 16"/><path d="M17 3l2 16"/><path d="M9 5l8 10"/><path d="M4 20l16 0"/>',
+  # Downhill skiing: skier in tuck on the slope
+  "skiloeb": '<circle cx="15" cy="4" r="1.75"/><path d="M14 7l-4 3.5 3 3-2 4"/><path d="M10 10.5l-2.5 4.5"/><path d="M14 7.5l3 2.5"/><path d="M17 10L19.5 15"/><path d="M7.5 15L4.5 20"/><path d="M3 15.5l17 6"/>',
 
-  # Ice skating: skate blade
-  "skojtlob": '<path d="M6 6c3 0 4 2 4 4v4l3 2h4"/><path d="M4 17h16"/><path d="M4 20h16"/>',
+  # Ice skate: boot with blade
+  "skojtlob": '<path d="M6 3h5v6.5l5.5 2c2.3.8 3.5 2 3.5 3.5V17H5V4a1 1 0 0 1 1-1z"/><path d="M11 6H8M11 9H8"/><path d="M7 17v3M18 17v3"/><path d="M3 20h16.5a2 2 0 0 0 2-2"/>',
 
-  # Snowboard
-  "snowboard": '<rect x="3" y="9" width="18" height="6" rx="3" transform="rotate(-10 12 12)"/><path d="M9 11v2M15 11v2"/>',
+  # Snowboard with two bindings
+  "snowboard": '<g transform="rotate(-30 12 12)"><rect x="2" y="9" width="20" height="6" rx="3"/><path d="M8 9v6M16 9v6"/><path d="M7 9.5h2M15 9.5h2"/></g>',
 
-  # Squash racket (oval)
-  "squash": '<ellipse cx="9" cy="9" rx="5" ry="6"/><path d="M13 13l6 6"/><path d="M7 7l4 4M11 7l-4 4"/>',
+  # Squash: long teardrop racket with strings + small ball
+  "squash": '<path d="M9 2.5c3.3 0 5.5 2.3 5.5 5.5 0 2.4-1.2 4.4-3.1 5.7L9.8 15h-1.6l-1.6-1.3C4.7 12.4 3.5 10.4 3.5 8c0-3.2 2.2-5.5 5.5-5.5z"/><path d="M6.5 5.5v6M9 3v11M11.5 5.5v6M4 8h10M5 11h8"/><path d="M9 15v6.5"/><circle cx="18" cy="17" r="1.25"/>',
 
-  # Stand up paddle
-  "stand-up-paddle": '<path d="M3 17c3 3 15 3 18 0"/><ellipse cx="12" cy="15" rx="7" ry="1.3"/><path d="M16 14V4"/><path d="M14 5h4"/>',
+  # Stand-up paddle: paddler standing on board
+  "stand-up-paddle": '<circle cx="10" cy="4" r="1.75"/><path d="M10 7v6.5l-1.5 3.5M10 13.5l1.5 3.5"/><path d="M10 8.5l4.5 1.5"/><path d="M16 3v14"/><path d="M14.8 17h2.4l-.4 2.5h-1.6z" fill="currentColor"/><path d="M3 18.5h18"/><path d="M2 21.5c2.5 1 4.5-1 7 0s4.5 1 7 0 4.5-1 6 0"/>',
 
-  # Weight training: big barbell
-  "styrketraening": '<path d="M3 9v6M5 7v10"/><path d="M21 9v6M19 7v10"/><path d="M5 12h14"/>',
+  # Strength training: loaded barbell
+  "styrketraening": '<path d="M1.5 12h21"/><rect x="4" y="5" width="2.5" height="14" rx="1"/><rect x="17.5" y="5" width="2.5" height="14" rx="1"/><rect x="6.5" y="7.5" width="2" height="9" rx=".75"/><rect x="15.5" y="7.5" width="2" height="9" rx=".75"/>',
 
-  # Surfing: board + wave
-  "surfing": '<path d="M12 3c2 4 2 12 0 16-4-2-6-6-6-8s2-6 6-8z"/><path d="M3 20c2 1 4 1 6 0s4-1 6 0 4 1 6 0"/>',
+  # Surfing: board riding a curling wave
+  "surfing": '<g transform="rotate(35 12 10)"><path d="M12 1.5c3 3 3.5 9 2.5 15h-5c-1-6-.5-12 2.5-15z"/><path d="M12 4v11"/></g><path d="M2 20c2.5 1.5 4.5-1.5 7 0s4.5 1.5 7 0 4.5-1.5 6 0"/>',
 
-  # Swimming: swimmer with waves
-  "svoemning": '<circle cx="8" cy="6" r="1.5"/><path d="M10 8l3 1 3-2 3 3"/><path d="M3 14c2 2 4 2 6 0s4-2 6 0 4 2 6 0"/><path d="M3 18c2 2 4 2 6 0s4-2 6 0 4 2 6 0"/>',
+  # Swimming: front-crawl swimmer above waves
+  "svoemning": '<circle cx="17" cy="7.5" r="1.75"/><path d="M3 11l5-4.5 4 3 3.5 1.5"/><path d="M8 6.5L11 4"/><path d="M2 16c2.5 1.5 4.5-1.5 7 0s4.5 1.5 7 0 4.5-1.5 6 0"/><path d="M2 20c2.5 1.5 4.5-1.5 7 0s4.5 1.5 7 0 4.5-1.5 6 0"/>',
 
-  # Tennis racket + ball
-  "tennis": '<circle cx="9" cy="9" r="5"/><path d="M6 6l6 6M12 6l-6 6"/><path d="M13 13l6 6"/><circle cx="19" cy="6" r="1.2"/>',
+  # Tennis: strung racket + ball
+  "tennis": '<ellipse cx="9" cy="9" rx="6" ry="6.5" transform="rotate(-45 9 9)"/><path d="M5.5 7.5l5 5M7.5 5.5l5 5M6.5 11.5l5-5M4.8 9.2l4.4-4.4M8.8 13.2l4.4-4.4"/><path d="M13.3 13.3l6.2 6.2"/><circle cx="19" cy="5" r="2"/>',
 
-  # Triathlon: three combined (swim wave, bike wheel, runner)
-  "triatlon": '<circle cx="5" cy="16" r="2.5"/><path d="M8 8c1 1 2 1 3 0s2-1 3 0"/><circle cx="18" cy="16" r="2.5"/><path d="M8 16h7"/><path d="M12 8l1 4"/>',
+  # Triathlon: swim wave, bike wheel, running shoe
+  "triatlon": '<path d="M5 5c1.5-1.5 3 1.5 4.5 0s3-1.5 4.5 0 3 1.5 4.5 0"/><circle cx="7" cy="15.5" r="4.5"/><circle cx="7" cy="15.5" r=".6" fill="currentColor"/><path d="M14 20v-6l2-1 1.5 2.5 3 1.2c.8.3 1.5 1 1.5 2V20z"/>',
 
-  # Hiking boot
-  "vandring": '<path d="M4 18V8h4v4l6 2 3 1 3 3H4z"/><path d="M4 18h16"/><path d="M8 8h2"/>',
+  # Hiking: boot with laces and lugged sole
+  "vandring": '<path d="M6 3h5v6.5l5.5 2c2.3.8 4 2 4 4V17H5V4a1 1 0 0 1 1-1z"/><path d="M11 6H8.5M11 9H8.5"/><path d="M5 17v2.5h15.5V17"/><path d="M8.5 19.5v2M12.5 19.5v2M16.5 19.5v2"/>',
 
-  # Windsurfing: sail + board
-  "windsurfing": '<path d="M3 19c3 2 15 2 18 0"/><path d="M8 17l6-14 4 14z"/><path d="M8 17l10 0"/>',
+  # Windsurfing: board, mast and sail with boom
+  "windsurfing": '<path d="M9 2.5v15"/><path d="M9 3c4 3 7 8 8 13H9"/><path d="M9 12l6.7-1"/><path d="M3 17.5h16a3 3 0 0 1-3 2H5z"/><path d="M2 22c2.5 1 4.5-1 7 0s4.5 1 7 0 4.5-1 6 0"/>',
 
-  # Yoga: figure in lotus
-  "yoga": '<circle cx="12" cy="6" r="2"/><path d="M12 8v4"/><path d="M7 18c1-4 4-6 5-6s4 2 5 6z"/><path d="M5 19h14"/>',
+  # Yoga: seated lotus with arms raised
+  "yoga": '<circle cx="12" cy="4.5" r="1.75"/><path d="M12 7.5v6"/><path d="M12 9l-4-2.5-1.5-3.5M12 9l4-2.5 1.5-3.5"/><path d="M12 13.5c-2.5 0-6 .8-7.5 3 1.5 2 5 3 7.5 3s6-1 7.5-3c-1.5-2.2-5-3-7.5-3z"/>',
 }
 
 for slug, inner in ICONS.items():

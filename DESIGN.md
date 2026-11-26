@@ -172,6 +172,17 @@ Pill-shaped (`rounded-full`), 12px text, medium weight. Three color variants:
 - **Related interests**: `bg-violet-50 text-violet-700 ring-1 ring-violet-100`
 - **Other interests**: `bg-gray-50 text-gray-600 ring-1 ring-gray-100`
 
+### Interest Icons
+
+One monochrome line icon per interest, rendered inline with `<InterestIcon icon="running" size={20} />` (`interests.icon` stores the English kebab-case name).
+
+- 24×24 viewBox, `stroke="currentColor"`, `stroke-width="1.75"`, round caps and joins, `fill="none"`. Small solid details (holes, eyes, paddle blades) use `fill="currentColor"`
+- Content stays inside a 2px inset (x/y 2–22). Prefer one recognizable object (racket, boot, kettlebell, carabiner) over a stick figure; use figures only where no object reads clearly (running, skiing, swimming, yoga)
+- Color comes from the parent's text color; never hard-code a color in the SVG
+- Common sizes: 16px in chips, 20px default, 32px in previews
+- Source of truth is `scripts/generate-interest-icons.py`, which writes both `public/icons/interests/*.svg` and `src/components/interest-icons.tsx`. Edit the script and re-run it; never edit the generated files by hand
+- All icons are shown at `/godaddy/design-system` under "Interesse-ikoner"
+
 ### Inputs
 
 - Password fields carry an inline show/hide toggle (`Eye`/`EyeOff`, `text-gray-500`) instead of a confirmation field. The onboarding stepper has three steps: Interesser, Placering, Opret konto.
