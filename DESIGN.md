@@ -162,6 +162,26 @@ White surfaces with very light borders:
 - Picks go into the onboarding store (`seedOnboardingInterests`), so the interests step opens with them already selected
 - Loading: pulsing `bg-white/40` pill skeletons at a fixed height. On fetch failure the chips are hidden and only the CTA remains
 
+### Interest Directory (`/interesser`)
+
+The public index of every interest. It shows no user counts per interest or in total, because the user base is still small. Counts are only used to order the popular row.
+
+- **Hero** on the cream page (no white header band): left-aligned `h1 text-4xl sm:text-5xl`, one `text-lg text-gray-600` line. The search sits beside the heading from `lg` (`grid-cols-[1fr_24rem]`) and below it on smaller screens. Search is an `Input` with `h-12 rounded-full shadow-sm`, a 20px `Search` icon, and a ghost icon button to clear it. Matching folds Danish letters (`lob` finds Løb), Escape clears the field, and Enter opens the first match
+- **Populære**: the same `onboarding` set as the landing picker (max 10), most picked first, under a `SectionHeader`. Tiles are white `rounded-2xl border-gray-100` cards with the system hover lift and a staggered `card-reveal`. Below `lg` they are compact rows (`grid-cols-2`, 44px icon well left, name right). From `lg` they are 5-column vertical tiles (`min-h-36`, 56px well on top, `text-lg` Baloo name and arrow at the bottom). The icon well is `bg-green-100 text-green-800` and turns `bg-gray-900 text-white` on hover, matching the pressed chips
+- **Alle interesser**: one white `rounded-2xl border-gray-100` surface holding an alphabetical `<ul>` in CSS columns (`columns-2 md:columns-3 lg:columns-4`). Rows are `min-h-11 rounded-xl hover:bg-gray-50` with a 20px `text-gray-600` icon (green on hover) and an arrow that fades in on hover. From `sm`, a gutter shows the initial letter (`font-baloo text-green-700`) on the first row of each letter. The right side of the header reads "45 i alt", or "3 af 45" while searching (an `aria-live` region). Interests without a drawn icon show a quiet dot
+- While searching, the popular row is hidden and the heading becomes "Søgeresultater". No matches gives a centered line and a ghost "Ryd søgning". A failed fetch gives a "Prøv igen" outline button
+- Signed-out visitors get a closing white `shadow-sm` card with an `h2 text-xl` heading on the left and a `variant="dark"` `h-12` pill on the right
+
+### Interest Page (`/interesser/:slug`)
+
+Same page structure as the directory: cream background, no white header band, no user counts.
+
+- **Hero**: a quiet "Alle interesser" back link, then a 64/80px `bg-green-100 text-green-800` icon circle beside an `h1 text-4xl sm:text-5xl` and one line, "Find folk i nærheden, der også dyrker …". Signed-out visitors get a `variant="dark"` `h-12` pill reading "Find buddies til …" (the same label pattern as the landing picker), with "Gratis. … er allerede valgt for dig." under it. The pill sits right-aligned from `lg` and full width on mobile. It seeds the onboarding store with the interest
+- **Buddies med denne interesse** (`SectionHeader`): flat white `rounded-2xl border-gray-100 p-5` cards in `sm:grid-cols-2 lg:grid-cols-3`, with a staggered `card-reveal` and no hover lift, because the cards aren't links. Each card has a 44px initials avatar, the name, the city with a `MapPin`, and the person's own description of the interest (`line-clamp-3`). People who wrote a description are listed first
+- **Empty**: a white card with a centered icon circle, "Ingen buddies med … endnu" and a line that invites the visitor. Signed-in users also get an outline "Redigér dine interesser" button
+- **Relaterede interesser**: up to 6 interests from `interest_relations` (score ≥ 0.5), shown as `h-10` pill links with a green icon. They turn `bg-gray-900 text-white` on hover
+- **Not found**: a white card with "Interessen blev ikke fundet" and a dark "Se alle interesser" pill
+
 **Resume pill**: when the onboarding store holds progress, a `bg-white/85` pill above the hero headline links to the next unfinished step (`getOnboardingResume`).
 
 ### Interest Badges
