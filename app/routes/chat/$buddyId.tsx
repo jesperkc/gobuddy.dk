@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { ArrowLeft, Send, Hand, CalendarPlus } from "lucide-react";
+import { ArrowLeft, Send, CalendarPlus } from "lucide-react";
 import { DefaultLayout } from "../../../src/components/AppShell";
 import { ProtectedRoute, type AuthedProps } from "../../../src/components/ProtectedRoute";
 import { supabase } from "../../../src/lib/supabase";
@@ -12,6 +12,9 @@ import { parseProposal } from "@/lib/proposals";
 import { ProposalMessage } from "@/components/ProposalMessage";
 import { ProposalDialog } from "@/components/ProposalDialog";
 import { requireVerifiedEmail } from "@/store/emailVerification";
+import { canUnsend, emojiOnlyCount, isHighfiveContent, markChatRead, unsendMessage } from "@/lib/messages";
+import { EmojiMessage } from "@/components/EmojiMessage";
+import { UnsendMenu, UnsentMessage } from "@/components/UnsendMenu";
 
 function ChatPage({ user }: AuthedProps) {
   const { buddyId } = Route.useParams();
@@ -92,12 +95,26 @@ function ChatPage({ user }: AuthedProps) {
           });
         },
       )
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, (payload) => {
+        // e.g. a highfive that was unsent
+        const msg = payload.new as Message;
+        setMessages((prev) => prev.map((m) => (m.id === msg.id ? msg : m)));
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [user, buddyId]);
+
+  // What the buddy sent counts as read while this page is open
+  useEffect(() => {
+    if (!user || !buddyId) return;
+    if (!messages.some((m) => m.sender_id === buddyId && !m.read_at)) return;
+    markChatRead(buddyId);
+    const now = new Date().toISOString();
+    setMessages((prev) => prev.map((m) => (m.sender_id === buddyId && !m.read_at ? { ...m, read_at: now } : m)));
+  }, [messages, user, buddyId]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -127,6 +144,11 @@ function ChatPage({ user }: AuthedProps) {
       setSending(false);
       inputRef.current?.focus();
     }
+  };
+
+  const handleUnsend = async (msg: Message) => {
+    const updated = await unsendMessage(msg);
+    setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
   };
 
   function formatTime(dateStr: string) {
@@ -196,8 +218,28 @@ function ChatPage({ user }: AuthedProps) {
 
           {messages.map((msg, index) => {
             const isMe = msg.sender_id === user?.id;
-            const isHighfive = msg.content.trim() === "👋";
+            const isHighfive = isHighfiveContent(msg.content);
             const proposal = parseProposal(msg.content);
+            const time = formatTime(msg.created_at);
+            const unsendable = canUnsend(msg, user?.id);
+            const emojiCount = emojiOnlyCount(msg.content);
+
+            const bubble = msg.unsent_at ? (
+              <UnsentMessage kind={isHighfive ? "highfive" : "message"} isMe={isMe} buddyName={buddyName} size="lg" />
+            ) : proposal ? (
+              <ProposalMessage text={proposal.text} slug={proposal.slug} isMe={isMe} time={time} />
+            ) : emojiCount > 0 ? (
+              <EmojiMessage content={msg.content} count={emojiCount} isMe={isMe} time={time} size="lg" />
+            ) : (
+              <div
+                className={`min-w-0 px-4 py-2 rounded-2xl text-sm ${unsendable ? "" : "max-w-[75%]"} ${
+                  isMe ? "bg-blue-600 text-white rounded-br-md" : "bg-gray-100 text-gray-900 rounded-bl-md"
+                }`}
+              >
+                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                <p className={`text-xs mt-1 ${isMe ? "text-blue-200" : "text-gray-400"}`}>{time}</p>
+              </div>
+            );
 
             return (
               <div key={msg.id}>
@@ -205,26 +247,17 @@ function ChatPage({ user }: AuthedProps) {
                   <div className="text-center text-xs text-gray-400 py-3">{formatDateSeparator(msg.created_at)}</div>
                 )}
                 <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-1`}>
-                  {proposal ? (
-                    <ProposalMessage text={proposal.text} slug={proposal.slug} isMe={isMe} time={formatTime(msg.created_at)} />
-                  ) : isHighfive ? (
-                    <div
-                      className={`flex flex-col items-center justify-center w-20 h-20 rounded-2xl ${
-                        isMe ? "bg-blue-600 rounded-br-md" : "bg-gray-100 rounded-bl-md"
-                      }`}
+                  {unsendable ? (
+                    <UnsendMenu
+                      kind={isHighfive ? "highfive" : "message"}
+                      buddyName={buddyName}
+                      onUnsend={() => handleUnsend(msg)}
+                      className="max-w-[80%]"
                     >
-                      <Hand className={`w-10 h-10 -rotate-15 ${isMe ? "text-white" : "text-gray-700"}`} strokeWidth={1.5} />
-                      <p className={`text-xs mt-1 ${isMe ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.created_at)}</p>
-                    </div>
+                      {bubble}
+                    </UnsendMenu>
                   ) : (
-                    <div
-                      className={`max-w-[75%] px-4 py-2 rounded-2xl text-sm ${
-                        isMe ? "bg-blue-600 text-white rounded-br-md" : "bg-gray-100 text-gray-900 rounded-bl-md"
-                      }`}
-                    >
-                      <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                      <p className={`text-xs mt-1 ${isMe ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.created_at)}</p>
-                    </div>
+                    bubble
                   )}
                 </div>
               </div>

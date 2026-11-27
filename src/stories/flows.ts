@@ -53,4 +53,18 @@ export const FLOWS: Flow[] = [
       { actor: "Jesper", text: "Trækker forslaget tilbage, før der er svaret", story: "flows-foreslå-et-andet-tidspunkt--withdrawn" },
     ],
   },
+  {
+    title: "Fortryd afsendelse",
+    status: "live",
+    summary: "Som i Messenger: en highfive kan fortrydes når som helst, en besked kun indtil den er læst. Begge ser bagefter, at den er fortrudt.",
+    steps: [
+      { actor: "Jesper", text: "Trykker ⋯ ved sin highfive og vælger “Fortryd afsendelse”", story: "komponenter-chatpopup--confirm-unsend" },
+      { actor: "Jesper", text: "Bekræfter, og der står “Du har fortrudt en highfive”", story: "komponenter-chatpopup--unsend-highfive" },
+      { actor: "Mette", text: "Ser “Jesper har fortrudt en highfive”", story: "komponenter-chatpopup--received-unsent-highfive" },
+      { actor: "Jesper", text: "Fortryder en besked, Mette ikke har læst endnu", story: "komponenter-chatpopup--unsend-unread-message" },
+      { actor: "Mette", text: "Ser “Jesper har fortrudt en besked”", story: "komponenter-chatpopup--received-unsent-message" },
+      { actor: "Mette", text: "Åbner chatten, og Jespers beskeder er nu læst", story: "komponenter-chatpopup--opening-marks-as-read" },
+      { actor: "Jesper", text: "Kan ikke fortryde en læst besked: der er ingen ⋯", story: "komponenter-chatpopup--read-message" },
+    ],
+  },
 ];

@@ -7,6 +7,7 @@ import { ProtectedRoute, type AuthedProps } from "../../../src/components/Protec
 import { supabase } from "../../../src/lib/supabase";
 import { Avatar, AvatarFallback } from "../../../src/components/ui/avatar";
 import type { Message, ChatThread } from "../../../src/lib/chat-types";
+import { isHighfiveContent, unsentText } from "@/lib/messages";
 
 function InboxPage({ user }: AuthedProps) {
   const [threads, setThreads] = useState<ChatThread[]>([]);
@@ -139,8 +140,13 @@ function InboxPage({ user }: AuthedProps) {
                       <span className="text-xs text-gray-400">{formatTime(thread.last_message.created_at)}</span>
                     </div>
                     <p className="text-sm text-gray-500 truncate mt-0.5">
-                      {thread.last_message.sender_id === user?.id ? "Dig: " : ""}
-                      {thread.last_message.content}
+                      {thread.last_message.unsent_at
+                        ? unsentText(
+                            isHighfiveContent(thread.last_message.content) ? "highfive" : "message",
+                            thread.last_message.sender_id === user?.id,
+                            thread.buddy_name,
+                          )
+                        : `${thread.last_message.sender_id === user?.id ? "Dig: " : ""}${thread.last_message.content}`}
                     </p>
                   </div>
                 </Link>

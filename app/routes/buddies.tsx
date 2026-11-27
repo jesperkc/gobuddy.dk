@@ -12,6 +12,7 @@ import { haversineDistance } from "../../src/lib/geo";
 import { BuddyCard, type BuddyProfile, type RawBuddyRow, type RelatedInterestInfo, mapBuddyRow } from "../../src/components/BuddyCard";
 import { useLocationUpdate } from "../../src/lib/useLocationUpdate";
 import { SCORE_MEDIUM } from "@/lib/interestRelations";
+import { onHi5Unsent } from "@/lib/hi5";
 
 function DiscoverPage({ user, profile }: AuthedProps) {
   const { loadProfile } = useUserProfileStore();
@@ -22,6 +23,20 @@ function DiscoverPage({ user, profile }: AuthedProps) {
   const [hi5SentIds, setHi5SentIds] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<"interests" | "newest">("interests");
   const [visibleCount, setVisibleCount] = useState(12);
+
+  // A hi5 unsent from the chat popup removes that buddy's "sent" badge
+  useEffect(
+    () =>
+      onHi5Unsent((receiverId) =>
+        setHi5SentIds((prev) => {
+          if (!prev.has(receiverId)) return prev;
+          const next = new Set(prev);
+          next.delete(receiverId);
+          return next;
+        }),
+      ),
+    [],
+  );
 
   const interestKey = useMemo(
     () =>

@@ -9,7 +9,7 @@ import { useActivityPostsStore } from "@/store/activityPosts";
 import { ProfileView, ProfileHero, type ProfileViewData, type RelatedPair, ProfileHeroSkeleton } from "@/components/ProfileView";
 import { SCORE_MEDIUM } from "@/lib/interestRelations";
 import { RequireVerifiedEmail } from "@/components/EmailVerification";
-import { sendHi5 } from "@/lib/hi5";
+import { onHi5Unsent, sendHi5 } from "@/lib/hi5";
 import { requireVerifiedEmail } from "@/store/emailVerification";
 
 function BuddyProfile({ user, profile: myProfile }: AuthedProps) {
@@ -20,6 +20,8 @@ function BuddyProfile({ user, profile: myProfile }: AuthedProps) {
   const [error, setError] = useState<string | null>(null);
   const [waveSent, setWaveSent] = useState(false);
   const [sendingWave, setSendingWave] = useState(false);
+  // Have I sent this buddy anything (highfive or message) that's still there?
+  const [hasMessaged, setHasMessaged] = useState<boolean | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [relatedPairs, setRelatedPairs] = useState<RelatedPair[]>([]);
@@ -38,6 +40,46 @@ function BuddyProfile({ user, profile: myProfile }: AuthedProps) {
       .then(({ data }) => {
         if (data) setWaveSent(true);
       });
+  }, [user, profile]);
+
+  // Reset "sent" when the hi5 is unsent elsewhere (e.g. from the chat popup)
+  useEffect(() => {
+    if (!profile) return;
+    return onHi5Unsent((receiverId) => {
+      if (receiverId === profile.profile_id) setWaveSent(false);
+    });
+  }, [profile]);
+
+  // The highfive button is only offered until I've written to this buddy. Kept
+  // live, so writing (or unsending) in the chat popup updates the profile.
+  useEffect(() => {
+    if (!user || !profile) return;
+    const buddyId = profile.profile_id;
+
+    function check() {
+      supabase
+        .from("messages")
+        .select("id")
+        .eq("sender_id", user.id)
+        .eq("receiver_id", buddyId)
+        .is("unsent_at", null)
+        .limit(1)
+        .then(({ data, error }) => {
+          if (!error) setHasMessaged((data ?? []).length > 0);
+        });
+    }
+    check();
+
+    const channel = supabase
+      .channel(`profile-messages:${buddyId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, (payload) => {
+        const msg = (payload.new ?? {}) as { sender_id?: string; receiver_id?: string };
+        if (msg.sender_id === user.id && msg.receiver_id === buddyId) check();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user, profile]);
 
   // Check follow state for this buddy
@@ -253,6 +295,7 @@ function BuddyProfile({ user, profile: myProfile }: AuthedProps) {
     try {
       await sendHi5(user.id, profile.profile_id, "profile");
       setWaveSent(true);
+      setHasMessaged(true);
       openChat(profile.profile_id, profile.first_name);
     } catch (err) {
       console.error("Error sending wave:", err);
@@ -279,7 +322,7 @@ function BuddyProfile({ user, profile: myProfile }: AuthedProps) {
           relatedPairs={relatedPairs}
           activityPosts={activityPosts}
           onChat={goToChat}
-          onWave={sendWave}
+          onWave={hasMessaged === false ? sendWave : undefined}
           waveSent={waveSent}
           sendingWave={sendingWave}
           onFollow={toggleFollow}
@@ -303,7 +346,7 @@ function BuddyProfile({ user, profile: myProfile }: AuthedProps) {
           stravaAthleteId={stravaAthleteId}
           activityPosts={activityPosts}
           onChat={goToChat}
-          onWave={sendWave}
+          onWave={hasMessaged === false ? sendWave : undefined}
           waveSent={waveSent}
           sendingWave={sendingWave}
           onFollow={toggleFollow}

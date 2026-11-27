@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { X, Send, Hand, Minimize2, Maximize2, CalendarPlus } from "lucide-react";
+import { X, Send, Minimize2, Maximize2, CalendarPlus } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
@@ -13,6 +13,9 @@ import { requireVerifiedEmail } from "../store/emailVerification";
 import { parseProposal } from "../lib/proposals";
 import { ProposalMessage } from "./ProposalMessage";
 import { ProposalDialog } from "./ProposalDialog";
+import { canUnsend, emojiOnlyCount, isHighfiveContent, markChatRead, unsendMessage } from "../lib/messages";
+import { EmojiMessage } from "./EmojiMessage";
+import { UnsendMenu, UnsentMessage } from "./UnsendMenu";
 
 function formatTime(dateStr: string) {
   return new Date(dateStr).toLocaleTimeString("da-DK", {
@@ -136,12 +139,26 @@ export function ChatPopup() {
           });
         },
       )
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, (payload) => {
+        // e.g. a highfive that was unsent
+        const msg = payload.new as Message;
+        setMessages((prev) => prev.map((m) => (m.id === msg.id ? msg : m)));
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, [user, buddyId, isOpen]);
+
+  // What the buddy sent counts as read while the popup is open (not minimized)
+  useEffect(() => {
+    if (!user || !buddyId || !isOpen || minimized) return;
+    if (!messages.some((m) => m.sender_id === buddyId && !m.read_at)) return;
+    markChatRead(buddyId);
+    const now = new Date().toISOString();
+    setMessages((prev) => prev.map((m) => (m.sender_id === buddyId && !m.read_at ? { ...m, read_at: now } : m)));
+  }, [messages, user, buddyId, isOpen, minimized]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -179,6 +196,11 @@ export function ChatPopup() {
       setSending(false);
       inputRef.current?.focus();
     }
+  };
+
+  const handleUnsend = async (msg: Message) => {
+    const updated = await unsendMessage(msg);
+    setMessages((prev) => prev.map((m) => (m.id === updated.id ? updated : m)));
   };
 
   function shouldShowDateSeparator(index: number): boolean {
@@ -273,11 +295,11 @@ export function ChatPopup() {
 
       {/* Messages area */}
       <div
-        className="flex overflow-y-auto px-3 py-3 space-y-1 items-center transition-height duration-500 ease-in-out"
+        className="flex flex-col overflow-y-auto px-3 py-3 space-y-1 transition-height duration-500 ease-in-out"
         style={{ height: messages.length > 0 ? 320 : 160 }}
       >
         {loading && (
-          <div className="space-y-3 animate-pulse w-full self-end">
+          <div className="space-y-3 animate-pulse mt-auto">
             {[1, 2, 3].map((i) => (
               <div key={i} className={`flex ${i % 2 === 0 ? "justify-end" : ""}`}>
                 <div className={`h-8 rounded-2xl ${i % 2 === 0 ? "bg-blue-100 w-32" : "bg-gray-100 w-40"}`} />
@@ -287,13 +309,33 @@ export function ChatPopup() {
         )}
 
         {!loading && messages.length === 0 && (
-          <div className="text-center text-gray-400 text-xs py-8 w-full">Skriv den første besked! 👋</div>
+          <div className="text-center text-gray-400 text-xs py-8 my-auto">Skriv den første besked! 👋</div>
         )}
 
         {messages.map((msg, index) => {
           const isMe = msg.sender_id === user?.id;
-          const isHighfive = msg.content.trim() === "👋";
+          const isHighfive = isHighfiveContent(msg.content);
           const proposal = parseProposal(msg.content);
+          const time = formatTime(msg.created_at);
+          const unsendable = canUnsend(msg, user?.id);
+          const emojiCount = emojiOnlyCount(msg.content);
+
+          const bubble = msg.unsent_at ? (
+            <UnsentMessage kind={isHighfive ? "highfive" : "message"} isMe={isMe} buddyName={buddyName} />
+          ) : proposal ? (
+            <ProposalMessage text={proposal.text} slug={proposal.slug} isMe={isMe} time={time} onNavigate={closeChat} />
+          ) : emojiCount > 0 ? (
+            <EmojiMessage content={msg.content} count={emojiCount} isMe={isMe} time={time} />
+          ) : (
+            <div
+              className={`message-fade-in min-w-0 px-3 py-1.5 rounded-2xl ${unsendable ? "" : "max-w-[80%]"} ${
+                isMe ? "bg-blue-600 text-white rounded-br-md" : "bg-gray-100 text-gray-900 rounded-bl-md"
+              }`}
+            >
+              <p className="whitespace-pre-wrap break-words text-base">{msg.content}</p>
+              <p className={`text-[10px] mt-0.5 ${isMe ? "text-blue-200" : "text-gray-400"}`}>{time}</p>
+            </div>
+          );
 
           return (
             <div key={msg.id}>
@@ -301,32 +343,17 @@ export function ChatPopup() {
                 <div className="text-center text-xs text-gray-400 py-2">{formatDateSeparator(msg.created_at)}</div>
               )}
               <div className={`flex ${isMe ? "justify-end" : "justify-start"} mb-1`}>
-                {proposal ? (
-                  <ProposalMessage
-                    text={proposal.text}
-                    slug={proposal.slug}
-                    isMe={isMe}
-                    time={formatTime(msg.created_at)}
-                    onNavigate={closeChat}
-                  />
-                ) : isHighfive ? (
-                  <div
-                    className={`message-fade-in flex flex-col items-center justify-center w-14 h-14 rounded-2xl ${
-                      isMe ? "bg-blue-600 rounded-br-md" : "bg-gray-100 rounded-bl-md"
-                    }`}
+                {unsendable ? (
+                  <UnsendMenu
+                    kind={isHighfive ? "highfive" : "message"}
+                    buddyName={buddyName}
+                    onUnsend={() => handleUnsend(msg)}
+                    className="max-w-[85%]"
                   >
-                    <Hand className={`w-7 h-7 -rotate-15 ${isMe ? "text-white" : "text-gray-700"}`} strokeWidth={1.5} />
-                    <p className={`text-[10px] mt-0.5 ${isMe ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.created_at)}</p>
-                  </div>
+                    {bubble}
+                  </UnsendMenu>
                 ) : (
-                  <div
-                    className={`message-fade-in max-w-[80%] px-3 py-1.5 rounded-2xl ${
-                      isMe ? "bg-blue-600 text-white rounded-br-md" : "bg-gray-100 text-gray-900 rounded-bl-md"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap break-words text-base">{msg.content}</p>
-                    <p className={`text-[10px] mt-0.5 ${isMe ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.created_at)}</p>
-                  </div>
+                  bubble
                 )}
               </div>
             </div>

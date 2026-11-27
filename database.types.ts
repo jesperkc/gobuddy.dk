@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "12.2.12"
   }
   public: {
     Tables: {
@@ -199,6 +199,39 @@ export type Database = {
           },
         ]
       }
+      bio_suggestion_log: {
+        Row: {
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_verifications: {
+        Row: {
+          user_id: string
+          verified_at: string
+        }
+        Insert: {
+          user_id: string
+          verified_at?: string
+        }
+        Update: {
+          user_id?: string
+          verified_at?: string
+        }
+        Relationships: []
+      }
       event_interests: {
         Row: {
           event_id: string
@@ -362,21 +395,6 @@ export type Database = {
             referencedColumns: ["profile_id"]
           },
         ]
-      }
-      email_verifications: {
-        Row: {
-          user_id: string
-          verified_at: string
-        }
-        Insert: {
-          user_id: string
-          verified_at?: string
-        }
-        Update: {
-          user_id?: string
-          verified_at?: string
-        }
-        Relationships: []
       }
       funnel_events: {
         Row: {
@@ -543,22 +561,28 @@ export type Database = {
           content: string
           created_at: string
           id: number
+          read_at: string | null
           receiver_id: string
           sender_id: string
+          unsent_at: string | null
         }
         Insert: {
           content: string
           created_at?: string
           id?: never
+          read_at?: string | null
           receiver_id: string
           sender_id: string
+          unsent_at?: string | null
         }
         Update: {
           content?: string
           created_at?: string
           id?: never
+          read_at?: string | null
           receiver_id?: string
           sender_id?: string
+          unsent_at?: string | null
         }
         Relationships: [
           {
@@ -787,14 +811,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      is_email_verified: {
-        Args: never
-        Returns: boolean
-      }
-      mark_email_verified: {
-        Args: never
-        Returns: string
-      }
       admin_list_profiles: {
         Args: never
         Returns: {
@@ -871,6 +887,27 @@ export type Database = {
         }[]
       }
       is_admin: { Args: never; Returns: boolean }
+      is_email_verified: { Args: never; Returns: boolean }
+      mark_chat_read: { Args: { p_buddy_id: string }; Returns: undefined }
+      mark_email_verified: { Args: never; Returns: string }
+      unsend_message: {
+        Args: { p_message_id: number }
+        Returns: {
+          content: string
+          created_at: string
+          id: number
+          read_at: string | null
+          receiver_id: string
+          sender_id: string
+          unsent_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_permission: "channels.delete" | "messages.delete"
