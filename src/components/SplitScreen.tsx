@@ -35,7 +35,7 @@ export function SplitScreen({ children, illustration = "cyclist", tagline }: Spl
       </div>
 
       {/* Illustration panel */}
-      <div className="relative w-full lg:w-1/2 min-h-[40vh] lg:min-h-screen bg-green-500 order-1 lg:order-2 flex items-center justify-center overflow-hidden">
+      <div className="relative w-full lg:w-1/2 min-h-[40vh] lg:min-h-screen bg-green-500 order-1 lg:order-2 flex items-center justify-center">
         <div className="flex flex-col items-center w-full max-w-md px-6 py-10 sm:px-10 sm:py-16">
           <Illustration className="w-[55%] sm:w-[60%] lg:w-[75%] max-w-[360px] h-auto" />
           {tagline && (

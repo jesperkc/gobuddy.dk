@@ -261,7 +261,7 @@ const Analytics = () => {
                 <div className="px-4 py-5 sm:p-6">
                   <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Oversigt</h3>
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="bg-blue-50 overflow-hidden shadow rounded-lg">
+                    <div className="bg-blue-50 shadow rounded-lg">
                       <div className="p-5">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
@@ -279,7 +279,7 @@ const Analytics = () => {
                       </div>
                     </div>
 
-                    <div className="bg-green-50 overflow-hidden shadow rounded-lg">
+                    <div className="bg-green-50 shadow rounded-lg">
                       <div className="p-5">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
@@ -295,7 +295,7 @@ const Analytics = () => {
                       </div>
                     </div>
 
-                    <div className="bg-violet-50 overflow-hidden shadow rounded-lg">
+                    <div className="bg-violet-50 shadow rounded-lg">
                       <div className="p-5">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">
@@ -313,7 +313,7 @@ const Analytics = () => {
                       </div>
                     </div>
 
-                    <div className="bg-yellow-50 overflow-hidden shadow rounded-lg">
+                    <div className="bg-yellow-50 shadow rounded-lg">
                       <div className="p-5">
                         <div className="flex items-center">
                           <div className="flex-shrink-0">

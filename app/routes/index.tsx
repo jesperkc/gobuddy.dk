@@ -292,7 +292,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero — green background */}
-      <section className="relative bg-green-500 overflow-hidden">
+      <section className="relative bg-green-500">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20 sm:pt-8 sm:pb-28">
           {/* Logo + nav */}
           <div className="flex items-center justify-between mb-10 sm:mb-14">

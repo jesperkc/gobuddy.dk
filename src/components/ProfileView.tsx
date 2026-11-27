@@ -73,8 +73,7 @@ interface ProfileHeroProps {
 
 export function ProfileHeroSkeleton() {
   return (
-    <div className="relative overflow-hidden">
-      <div aria-hidden className="absolute inset-x-0 top-0 h-28 sm:h-32" />
+    <div className="relative">
       <div className="relative pt-8 sm:pt-10 animate-pulse">
         <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-7">
           <div className="h-28 w-28 sm:h-36 sm:w-36 rounded-full bg-gray-200 ring-4 ring-white" />
@@ -139,14 +138,12 @@ export function ProfileHero({
   const topActivityKinds = activityStats.length;
 
   const wrapperClass = flat
-    ? "relative overflow-hidden"
-    : "card-reveal relative overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm";
+    ? "relative"
+    : "card-reveal relative rounded-3xl border border-gray-100 bg-white shadow-sm";
   const contentClass = flat ? "relative pt-8 sm:pt-10" : "relative p-6 sm:p-8 pt-8 sm:pt-10";
 
   return (
     <section className={wrapperClass}>
-      {/* Decorative cover band */}
-      <div aria-hidden className="absolute inset-x-0 top-0 h-28 sm:h-32" />
 
       <div className={contentClass}>
         <div className="flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-7">

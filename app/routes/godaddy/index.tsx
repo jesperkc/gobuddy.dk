@@ -70,7 +70,7 @@ const AdminDashboard = () => {
     <AdminShell title="Admin Dashboard">
       <div className="space-y-6">
         {/* Welcome Section */}
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
         {/* Statistics Grid */}
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {/* Total Users */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="bg-white shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -110,7 +110,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Verified Users */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="bg-white shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -127,7 +127,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* New Users This Week */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="bg-white shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
@@ -146,7 +146,7 @@ const AdminDashboard = () => {
           </div>
 
           {/* Total Interests */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="bg-white shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">

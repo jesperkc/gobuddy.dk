@@ -449,7 +449,7 @@ const InterestRelations = () => {
 
 function StatCard({ label, value, color }: { label: string; value: React.ReactNode; color: string }) {
   return (
-    <div className="bg-white overflow-hidden shadow rounded-lg">
+    <div className="bg-white shadow rounded-lg">
       <div className="p-5 flex items-center">
         <Link2 className={`h-6 w-6 ${color}`} />
         <div className="ml-5 w-0 flex-1">
