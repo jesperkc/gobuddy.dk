@@ -4,6 +4,10 @@ export interface Message {
   receiver_id: string;
   content: string;
   created_at: string;
+  /** Set when the receiver has seen it (had the chat open) */
+  read_at?: string | null;
+  /** Set when the sender unsent it; an unsent text message is blanked */
+  unsent_at?: string | null;
 }
 
 /** A chat thread in the inbox (grouped by buddy) */

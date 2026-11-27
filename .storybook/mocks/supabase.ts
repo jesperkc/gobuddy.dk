@@ -175,5 +175,38 @@ export const supabase = {
     return ch;
   },
   removeChannel: () => {},
-  rpc: async () => ({ data: null, error: null }),
+  rpc: async (fn: string, args: Row = {}) => {
+    // These mirror supabase/migrations/20261127000200_unsend_unread_messages.sql
+    if (fn === "mark_chat_read") {
+      const now = new Date().toISOString();
+      mockDb.rows("messages").forEach((m) => {
+        if (m.sender_id === args.p_buddy_id && m.receiver_id === currentUser?.id && !m.read_at) m.read_at = now;
+      });
+      return { data: null, error: null };
+    }
+    if (fn === "unsend_message") {
+      const isHi5 = (m: Row) => m.content === "👋";
+      const isProposal = (m: Row) => /(^|\n)\/activities\/[a-z0-9-]+\s*$/.test(m.content);
+      const msg = mockDb
+        .rows("messages")
+        .find(
+          (m) =>
+            m.id === args.p_message_id &&
+            m.sender_id === currentUser?.id &&
+            !m.unsent_at &&
+            (isHi5(m) || (!m.read_at && !isProposal(m))),
+        );
+      if (!msg) return { data: null, error: { message: "Message can not be unsent" } };
+      msg.unsent_at = new Date().toISOString();
+      if (!isHi5(msg)) msg.content = "";
+      const left = mockDb
+        .rows("messages")
+        .some((m) => m.sender_id === msg.sender_id && m.receiver_id === msg.receiver_id && isHi5(m) && !m.unsent_at);
+      if (isHi5(msg) && !left) {
+        tables.hi5s = mockDb.rows("hi5s").filter((h) => !(h.sender_id === msg.sender_id && h.receiver_id === msg.receiver_id));
+      }
+      return { data: { ...msg }, error: null };
+    }
+    return { data: null, error: null };
+  },
 };

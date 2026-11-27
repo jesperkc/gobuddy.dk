@@ -24,7 +24,7 @@ import { BestMatchCard } from "@/components/BestMatchCard";
 import { ProposalDialog } from "@/components/ProposalDialog";
 import { NoNearbyBuddies } from "@/components/NoNearbyBuddies";
 import { useChatPopupStore } from "../../src/store/chatPopup";
-import { sendHi5 } from "@/lib/hi5";
+import { onHi5Unsent, sendHi5 } from "@/lib/hi5";
 import { trackOnce } from "@/lib/track";
 import { toast } from "sonner";
 
@@ -55,6 +55,20 @@ function HomePage({ user, profile }: AuthedProps) {
       .eq("sender_id", user.id)
       .then(({ data }) => setHi5SentIds(new Set((data ?? []).map((h) => h.receiver_id))));
   }, [user]);
+
+  // A hi5 unsent from the chat popup makes that buddy's card ask for a hi5 again
+  useEffect(
+    () =>
+      onHi5Unsent((receiverId) =>
+        setHi5SentIds((prev) => {
+          if (!prev.has(receiverId)) return prev;
+          const next = new Set(prev);
+          next.delete(receiverId);
+          return next;
+        }),
+      ),
+    [],
+  );
 
   useLocationUpdate(user, profile, loadProfile);
 

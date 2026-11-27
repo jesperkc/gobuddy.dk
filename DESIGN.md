@@ -151,6 +151,8 @@ White surfaces with very light borders:
 
 **Verify-email banner** (`VerifyEmailBanner`, top of `/home` while unverified): `rounded-xl border-blue-100 bg-blue-50`, one sentence naming what is locked, and the page's single verify CTA (`bg-blue-700` pill). Locked sections below it use `LockedNote` — a quiet `text-sm text-gray-500` line with a 16px `Lock` icon and no button — never a second card or CTA. The full-page lock (`LockedUntilVerified`) is only for routes that are entirely off-limits (`/buddies`, `/buddy/:slug`, `/feed`).
 
+**Chat messages** (`ChatPopup`, `/chat/$buddyId`): text is a `rounded-2xl` bubble, `bg-blue-600 text-white` for your own (right, `rounded-br-md`) and `bg-gray-100 text-gray-900` for the buddy's (left, `rounded-bl-md`), with the time in small text inside. A message that is only emoji (`EmojiMessage`), including the 👋 highfive, has no bubble: just the emoji, big (`text-5xl` in the popup, `text-6xl` on the full page; one step smaller for more than three emoji), with the time in `text-gray-400` under it. Your own highfives and unread messages get a ⋯ button beside them (shown on hover, always on touch screens) with "Fortryd afsendelse" (`UnsendMenu`); an unsent message becomes an italic `text-gray-500` placeholder in a `rounded-2xl border-gray-200` pill.
+
 **Event Cards** are content-stacked: title in `text-gray-900`, date/location/participants in `text-gray-500` with lucide icons, interest badges in `bg-blue-50 text-blue-700` pills, creator name in `text-gray-400`. Grid: `grid-cols-1 sm:grid-cols-2`.
 
 ### Hero Interest Picker (landing page)

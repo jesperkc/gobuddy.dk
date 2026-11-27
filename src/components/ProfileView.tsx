@@ -222,25 +222,19 @@ export function ProfileHero({
                     <span className="hidden sm:inline">{isFollowing ? "Følger" : "Følg"}</span>
                   </Button>
                 )}
-                {onWave &&
-                  (!waveSent ? (
-                    <Button
-                      onClick={onWave}
-                      disabled={sendingWave}
-                      size="default"
-                      variant="outline"
-                      className="border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
-                      title="Send highfive"
-                    >
-                      <Hand className={`w-4 h-4 ${sendingWave ? "animate-bounce" : ""}`} />
-                      <span className="hidden sm:inline">Highfive</span>
-                    </Button>
-                  ) : (
-                    <span className="inline-flex items-center gap-2 rounded-md border border-green-200 bg-green-50 px-3 h-9 text-green-700 text-sm font-medium">
-                      <Hand className="w-4 h-4" />
-                      <span className="hidden sm:inline">Sendt</span>
-                    </span>
-                  ))}
+                {onWave && !waveSent && (
+                  <Button
+                    onClick={onWave}
+                    disabled={sendingWave}
+                    size="default"
+                    variant="outline"
+                    className="border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
+                    title="Send highfive"
+                  >
+                    <Hand className={`w-4 h-4 ${sendingWave ? "animate-bounce" : ""}`} />
+                    <span className="hidden sm:inline">Highfive</span>
+                  </Button>
+                )}
               </div>
             )}
           </div>
